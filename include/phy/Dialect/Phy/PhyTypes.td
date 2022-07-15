@@ -1,4 +1,4 @@
-//===- PhyPasses.td ----------------------------------------*- tablegen -*-===//
+//===- PhyTypes.td -----------------------------------------*- tablegen -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,9 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_DIALECT_PHY_PASSES_TD
-#define MLIR_DIALECT_PHY_PASSES_TD
+#ifndef MLIR_DIALECT_PHY_TYPES_TD
+#define MLIR_DIALECT_PHY_TYPES_TD
 
-include "mlir/Pass/PassBase.td"
 
-#endif  // MLIR_DIALECT_PHY_PASSES_TD
+#endif  // MLIR_DIALECT_PHY_TYPES_TD

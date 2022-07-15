@@ -8,9 +8,6 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-get_property(dialect_libs GLOBAL PROPERTY PHY_DIALECT_LIBS)
-get_property(translation_libs GLOBAL PROPERTY PHY_TRANSLATION_LIBS)
-
 set(LLVM_LINK_COMPONENTS
   Support
 )
@@ -23,8 +20,7 @@ llvm_update_compile_flags(phy-opt)
 
 target_link_libraries(phy-opt
   PRIVATE
-  ${dialect_libs}
-  ${translation_libs}
+  Phy
   MLIRIR
   MLIRLLVMDialect
   MLIRMemRefDialect

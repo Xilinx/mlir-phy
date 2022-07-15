@@ -20,6 +20,8 @@
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/Transforms/Passes.h"
 
+#include "phy/Dialect/Phy/PhyDialect.h"
+
 int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
 
@@ -31,6 +33,9 @@ int main(int argc, char **argv) {
   registry.insert<mlir::arith::ArithmeticDialect>();
   registry.insert<mlir::cf::ControlFlowDialect>();
   registry.insert<mlir::scf::SCFDialect>();
+
+  // Register Phy Dialect
+  registry.insert<phy::PhyDialect>();
 
   // Register the standard passes we want.
   mlir::registerCSEPass();
