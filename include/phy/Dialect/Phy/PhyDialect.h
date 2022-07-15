@@ -23,10 +23,14 @@
 #include "mlir/IR/Types.h"
 #include "mlir/Interfaces/CallInterfaces.h"
 
-#define GET_OP_CLASSES
-#include "phy/Dialect/Phy/Phy.h.inc"
 #include "phy/Dialect/Phy/PhyDialect.h.inc"
 #include "phy/Dialect/Phy/PhyEnums.h.inc"
 #include "phy/Dialect/Phy/PhyPasses.h.inc"
+
+#define GET_TYPEDEF_CLASSES
+#include "phy/Dialect/Phy/PhyTypes.h.inc"
+
+#define GET_OP_CLASSES
+#include "phy/Dialect/Phy/Phy.h.inc"
 
 #endif // MLIR_DIALECT_PHY_H

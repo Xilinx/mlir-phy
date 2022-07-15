@@ -24,6 +24,7 @@ def Phy_Dialect : Dialect {
     The elements defined in this dialect can be mapped to a physical location
     or a set of wires of the devices.
   }];
+  let useDefaultTypePrinterParser = 1;
 }
 
 include "phy/Dialect/Phy/PhyTypes.td"

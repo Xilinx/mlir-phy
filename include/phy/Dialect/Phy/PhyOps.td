@@ -10,6 +10,7 @@
 #define MLIR_DIALECT_PHY_OPS_TD
 
 include "phy/Dialect/Phy/Phy.td"
+include "phy/Dialect/Phy/PhyTypes.td"
 
 include "mlir/Interfaces/CallInterfaces.td"
 include "mlir/IR/EnumAttr.td"
@@ -23,8 +24,7 @@ class Phy_Op<string mnemonic, list<Trait> traits = []> :
 //===----------------------------------------------------------------------===//
 
 def PeOp : Phy_Op<"pe",
-    [CallOpInterface, DeclareOpInterfaceMethods<SymbolUserOpInterface>]>,
-    Results<(outs Index)> {
+    [CallOpInterface, DeclareOpInterfaceMethods<SymbolUserOpInterface>]> {
   let summary = "processing element creation operation";
   let description = [{
     The `phy.pe` operation represents a creation of a processing element that
@@ -42,7 +42,9 @@ def PeOp : Phy_Op<"pe",
   }];
 
   // TODO: limit operands to be either a `phy.network` or a `phy.bus`.
-  let arguments = (ins FlatSymbolRefAttr:$callee, Variadic<Index>:$operands);
+  let arguments = (ins FlatSymbolRefAttr:$callee,
+                   Variadic<AnyType>:$operands);
+  let results = (outs PeType:$result);
 
   let builders = [
     OpBuilder<(ins "::mlir::func::FuncOp":$callee,
@@ -78,7 +80,7 @@ def PeOp : Phy_Op<"pe",
   }];
 
   let assemblyFormat = [{
-    $callee `(` $operands `)` attr-dict
+    $callee `(` $operands `)` attr-dict `:` functional-type($operands, $result)
   }];
 }
 

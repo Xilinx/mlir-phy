@@ -6,4 +6,4 @@ func.func @function() {
 }
 
 // CHECK: phy.pe @function()
-%pe = phy.pe @function()
+%pe = phy.pe @function() : () -> !phy.pe

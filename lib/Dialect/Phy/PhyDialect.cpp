@@ -28,12 +28,19 @@ void PhyDialect::initialize() {
 #define GET_OP_LIST
 #include "phy/Dialect/Phy/Phy.cpp.inc"
       >();
+  // Register types.
+  addTypes<
+#define GET_TYPEDEF_LIST
+#include "phy/Dialect/Phy/PhyTypes.cpp.inc"
+      >();
 }
 
 // Provide implementations for the enums, attributes and interfaces that we use.
-#define GET_ATTRDEF_CLASSES
 #include "phy/Dialect/Phy/PhyDialect.cpp.inc"
 #include "phy/Dialect/Phy/PhyEnums.cpp.inc"
+
+#define GET_TYPEDEF_CLASSES
+#include "phy/Dialect/Phy/PhyTypes.cpp.inc"
 
 // TableGen'd op method definitions
 #define GET_OP_CLASSES
@@ -62,6 +69,9 @@ LogicalResult PeOp::verifySymbolUses(SymbolTableCollection &symbolTable) {
       return emitOpError("operand type mismatch: expected operand type ")
              << fnType.getInput(i) << ", but provided "
              << getOperand(i).getType() << " for operand number " << i;
+
+  if (fnType.getNumResults() != 0)
+    return emitOpError("callee cannot have a return value");
 
   return success();
 }
