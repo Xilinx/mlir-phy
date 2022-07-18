@@ -134,4 +134,34 @@ def NetworkOp : Phy_Op<"net"> {
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// BusOp
+//===----------------------------------------------------------------------===//
+
+def BusOp : Phy_Op<"bus"> {
+  let summary = "bus creation operation";
+  let description = [{
+    The `phy.bus` operation represents a creation of a bus that has the type
+    argument as its datatype for data transfer.  When a PE wants to access a
+    buffer, there must exist a bus connecting the PE and the buffer.
+
+    Example:
+
+    ```mlir
+    %buffer = phy.buf() : memref<1024xi32>
+    %pe     = phy.pe @func(%buffer) : (memref<1024xi32>) -> !phy.pe
+    %bus    = phy.bus(%buffer, %pe) : (memref<1024xi32>, !phy.pe) -> !phy.bus<i32>
+    ```
+  }];
+
+  let arguments = (ins Variadic<AnyBusEndPoint>:$endpoints);
+  let results = (outs BusTypeOf<AnyType>:$bus);
+
+  let hasVerifier = 1;
+
+  let assemblyFormat = [{
+    `(` $endpoints `)` attr-dict `:` functional-type($endpoints, $bus)
+  }];
+}
+
 #endif  // MLIR_DIALECT_PHY_OPS_TD

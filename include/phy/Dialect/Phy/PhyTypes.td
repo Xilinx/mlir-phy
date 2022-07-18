@@ -70,6 +70,23 @@ def NetworkType : Phy_CommType<"Network", "net"> {
 }
 
 //===----------------------------------------------------------------------===//
+// BusType
+//===----------------------------------------------------------------------===//
+
+def BusType : Phy_CommType<"Bus", "bus"> {
+  let summary = "A type specifiying a bus connecting PEs to buffers";
+  let description = [{
+    A bus connects PEs to buffers.  A buffer has its memory address space mapped
+    to the bus for PEs' access.  It can have a device-specific attribute of the
+    route.  A bus can be connected to an upstream bus using caches that provides
+    caching.
+  }];
+
+  let parameters = (ins "Type":$datatype);
+  let assemblyFormat = "`<` $datatype `>`";
+}
+
+//===----------------------------------------------------------------------===//
 // Type Constraints
 //===----------------------------------------------------------------------===//
 
@@ -78,10 +95,21 @@ class NetworkTypeOf<Type element> : Type<
     CPred<"$_self.isa<NetworkType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<NetworkType>().datatype().value()",
+      "$_self.cast<NetworkType>().getDatatype()",
       element.predicate>
   ]>,
-  "network of " # element.summary
+  "a network of " # element.summary
+>;
+
+class BusTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<BusType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<BusType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a bus of " # element.summary
 >;
 
 def AnyCommType : Type<
@@ -90,6 +118,14 @@ def AnyCommType : Type<
     AnyStaticShapeMemRef.predicate
   ]>,
   "a memref or a network"
+>;
+
+def AnyBusEndPoint : Type<
+  Or<[
+    AnyStaticShapeMemRef.predicate,
+    PeType.predicate
+  ]>,
+  "a memref or a pe"
 >;
 
 #endif  // MLIR_DIALECT_PHY_TYPES_TD

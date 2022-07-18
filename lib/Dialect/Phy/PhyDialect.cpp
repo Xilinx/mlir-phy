@@ -75,3 +75,20 @@ LogicalResult PeOp::verifySymbolUses(SymbolTableCollection &symbolTable) {
 
   return success();
 }
+
+LogicalResult BusOp::verify() {
+  auto busType = (*this).bus().getType().cast<BusType>().getDatatype();
+
+  // Verify that all endpoints have the same base type as the bus
+  for (auto endpoint : (*this).endpoints()) {
+    if (auto memref = endpoint.getType().dyn_cast<MemRefType>()) {
+      if (memref.getElementType() != busType) {
+        return emitOpError("endpoints must have the same base type as the bus")
+               << ": expected endpoint element type " << busType
+               << ", but provided " << memref.getElementType();
+      }
+    }
+  }
+
+  return success();
+}
