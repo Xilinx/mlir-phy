@@ -41,10 +41,9 @@ def PeOp : Phy_Op<"pe",
     ```
   }];
 
-  // TODO: limit operands to be either a `phy.network` or a `phy.bus`.
   let arguments = (ins FlatSymbolRefAttr:$callee,
-                   Variadic<AnyType>:$operands);
-  let results = (outs PeType:$result);
+                   Variadic<NetworkTypeOf<AnyType>>:$operands);
+  let results = (outs PeType:$pe);
 
   let builders = [
     OpBuilder<(ins "::mlir::func::FuncOp":$callee,
@@ -80,7 +79,32 @@ def PeOp : Phy_Op<"pe",
   }];
 
   let assemblyFormat = [{
-    $callee `(` $operands `)` attr-dict `:` functional-type($operands, $result)
+    $callee `(` $operands `)` attr-dict `:` functional-type($operands, $pe)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// NetworkOp
+//===----------------------------------------------------------------------===//
+
+def NetworkOp : Phy_Op<"net"> {
+  let summary = "network creation operation";
+  let description = [{
+    The `phy.net` operation represents a creation of a network that has the type
+    argument as its datatype for data transfer.  The network can be passed to PE
+    functions to connect them together for message-passing based communication.
+
+    Example:
+
+    ```mlir
+    %net = phy.net(i32)
+    ```
+  }];
+
+  let results = (outs NetworkTypeOf<AnyType>:$network);
+
+  let assemblyFormat = [{
+    `(` `)` attr-dict `:` type($network)
   }];
 }
 

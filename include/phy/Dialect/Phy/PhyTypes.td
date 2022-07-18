@@ -69,4 +69,15 @@ def NetworkType : Phy_CommType<"Network", "net"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
+class NetworkTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<NetworkType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<NetworkType>().datatype().value()",
+      element.predicate>
+  ]>,
+  "network of " # element.summary
+>;
+
 #endif  // MLIR_DIALECT_PHY_TYPES_TD
