@@ -43,7 +43,7 @@ class Phy_Attr<string name, string attrMnemonic, list<Trait> traits = []>
 //===----------------------------------------------------------------------===//
 
 def PeType : Phy_PlaceType<"Pe", "pe"> {
-  let summary = "An attribute specifiying a processing element";
+  let summary = "A type specifiying a processing element";
   let description = [{
     A PE is a logical function that connects to networks or buses.  It can
     communicate with another PE or buffer via networks, or buffer via buses.
@@ -57,7 +57,7 @@ def PeType : Phy_PlaceType<"Pe", "pe"> {
 //===----------------------------------------------------------------------===//
 
 def NetworkType : Phy_CommType<"Network", "net"> {
-  let summary = "An attribute specifiying a network to be connected by PEs";
+  let summary = "A type specifiying a network to be connected by PEs";
   let description = [{
     A network connects multiple PEs and/or buffers for message-passing.
     It behaves as a first-in-first-out interconnect.  It can have a
@@ -69,6 +69,10 @@ def NetworkType : Phy_CommType<"Network", "net"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
+//===----------------------------------------------------------------------===//
+// Type Constraints
+//===----------------------------------------------------------------------===//
+
 class NetworkTypeOf<Type element> : Type<
   And<[
     CPred<"$_self.isa<NetworkType>()">,
@@ -78,6 +82,14 @@ class NetworkTypeOf<Type element> : Type<
       element.predicate>
   ]>,
   "network of " # element.summary
+>;
+
+def AnyCommType : Type<
+  Or<[
+    NetworkTypeOf<AnyType>.predicate,
+    AnyStaticShapeMemRef.predicate
+  ]>,
+  "a memref or a network"
 >;
 
 #endif  // MLIR_DIALECT_PHY_TYPES_TD

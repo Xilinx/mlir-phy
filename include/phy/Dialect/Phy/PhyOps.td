@@ -42,7 +42,7 @@ def PeOp : Phy_Op<"pe",
   }];
 
   let arguments = (ins FlatSymbolRefAttr:$callee,
-                   Variadic<NetworkTypeOf<AnyType>>:$operands);
+                   Variadic<AnyCommType>:$operands);
   let results = (outs PeType:$pe);
 
   let builders = [
@@ -84,6 +84,32 @@ def PeOp : Phy_Op<"pe",
 }
 
 //===----------------------------------------------------------------------===//
+// BufferOp
+//===----------------------------------------------------------------------===//
+
+def BufferOp : Phy_Op<"buf"> {
+  let summary = "buffer creation operation";
+  let description = [{
+    The `phy.buf` operation represents a creation of a buffer that has the type
+    argument as its datatype.  A buffer is a memory space that stores data.
+    A buffer can be randomly accessed through a bus, or sequentially through a
+    network.  It can have a device-specific attribute of location.
+
+    Example:
+
+    ```mlir
+    %buffer = phy.buf() : memref<1024xi32>
+    ```
+  }];
+
+  let results = (outs AnyStaticShapeMemRef:$buffer);
+
+  let assemblyFormat = [{
+    `(` `)` attr-dict `:` type($buffer)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
 // NetworkOp
 //===----------------------------------------------------------------------===//
 
@@ -97,7 +123,7 @@ def NetworkOp : Phy_Op<"net"> {
     Example:
 
     ```mlir
-    %net = phy.net(i32)
+    %net = phy.net() : !phy.net<i32>
     ```
   }];
 

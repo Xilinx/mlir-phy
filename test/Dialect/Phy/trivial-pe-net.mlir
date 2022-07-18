@@ -6,7 +6,7 @@ func.func @function(%net: !phy.net<i32>) {
 }
 
 // CHECK: phy.net
-%net    = phy.net() : !phy.net<i32>
+%net = phy.net() : !phy.net<i32>
 // CHECK: phy.pe @function
 %pe1 = phy.pe @function(%net) : (!phy.net<i32>) -> !phy.pe
 // CHECK: phy.pe @function
