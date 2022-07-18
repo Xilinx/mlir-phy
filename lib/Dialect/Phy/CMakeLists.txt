@@ -8,6 +8,7 @@
 
 set(PHY_SRCS
   PhyDialect.cpp
+  PhyOps.cpp
 )
 
 add_phy_dialect_library(Phy

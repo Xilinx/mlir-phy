@@ -13,6 +13,7 @@ include "phy/Dialect/Phy/Phy.td"
 include "phy/Dialect/Phy/PhyTypes.td"
 
 include "mlir/Interfaces/CallInterfaces.td"
+include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/IR/EnumAttr.td"
 include "mlir/IR/SymbolInterfaces.td"
 
@@ -37,7 +38,7 @@ def PeOp : Phy_Op<"pe",
     Example:
 
     ```mlir
-    %pe = phy.pe @my_adder(%net, %bus)
+    %pe = phy.pe @my_adder(%net, %buf) : (!phy.net<i32>, memref<1024xi32>) -> !phy.pe
     ```
   }];
 
@@ -161,6 +162,127 @@ def BusOp : Phy_Op<"bus"> {
 
   let assemblyFormat = [{
     `(` $endpoints `)` attr-dict `:` functional-type($endpoints, $bus)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// #### Network APIs ####
+//===----------------------------------------------------------------------===//
+// ValidOp
+//===----------------------------------------------------------------------===//
+
+def ValidOp : Phy_Op<"valid"> {
+  let summary = "non-blocking network receive test operation";
+  let description = [{
+    The `phy.valid` operation tests its operand network if the given channel
+    has data to received.  This operation is non-blocking and returns a boolean
+    result, which is true if there is data to receive, or false if there is not.
+
+    Example:
+
+    ```mlir
+    %0 = phy.valid(%net : !phy.net<i32>, 1)
+    ```
+  }];
+
+  let arguments = (ins NetworkTypeOf<AnyType>:$network, I32Attr:$channel);
+  let results = (outs I1:$result);
+
+  let assemblyFormat = [{
+    `(` $network `:` type($network) `,` $channel `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// ReadyOp
+//===----------------------------------------------------------------------===//
+
+def ReadyOp : Phy_Op<"ready"> {
+  let summary = "non-blocking network send test operation";
+  let description = [{
+    The `phy.ready` operation tests its operand network if the given channel
+    is ready for sending data.  This operation is non-blocking and returns a
+    boolean result, which is true if it is ready to send, or false if it is not.
+
+    Example:
+
+    ```mlir
+    %0 = phy.ready(%net : !phy.net<i32>, 1)
+    ```
+  }];
+
+  let arguments = (ins NetworkTypeOf<AnyType>:$network, I32Attr:$channel);
+  let results = (outs I1:$result);
+
+  let assemblyFormat = [{
+    `(` $network `:` type($network) `,` $channel `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// PopOp
+//===----------------------------------------------------------------------===//
+
+def PopOp : Phy_Op<"pop", [InferTypeOpInterface]> {
+  let summary = "blocking network data receive";
+  let description = [{
+    The `phy.pop` operation receive data from its operand network on the given
+    channel.  This operation is blocking and returns the received data as its
+    result.
+
+    Example:
+
+    ```mlir
+    %0 = phy.pop(%net : !phy.net<i32>, 1)
+    ```
+  }];
+
+  let arguments = (ins NetworkTypeOf<AnyType>:$network, I32Attr:$channel);
+  let results = (outs AnyType:$result);
+
+  let assemblyFormat = [{
+    `(` $network `:` type($network) `,` $channel `)` attr-dict
+  }];
+
+  let extraClassDeclaration = [{
+    static mlir::LogicalResult inferReturnTypes(mlir::MLIRContext *context,
+          llvm::Optional<::mlir::Location> location, mlir::ValueRange operands,
+          mlir::DictionaryAttr attributes, mlir::RegionRange regions,
+          llvm::SmallVectorImpl<mlir::Type> &inferredReturnTypes) {
+      inferredReturnTypes.assign({
+          operands[0].getType().cast<NetworkType>().getDatatype()
+      });
+      return mlir::success();
+    }
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// PushOp
+//===----------------------------------------------------------------------===//
+
+def PushOp : Phy_Op<"push"> {
+  let summary = "blocking network data send";
+  let description = [{
+    The `phy.pop` operation send data to its operand network on the given
+    channel.  This operation is blocking and will continue when the data is
+    on the network.  It may return before the data is received from the network.
+    If multiple receivers are on the channel, they will each get a copy.
+
+    Example:
+
+    ```mlir
+    phy.push(%0 : i32, %net : !phy.net<i32>, 1)
+    ```
+  }];
+
+  let arguments = (ins AnyType:$data, NetworkTypeOf<AnyType>:$network,
+    I32Attr:$channel);
+
+  let hasVerifier = 1;
+  
+  let assemblyFormat = [{
+    `(` $data `:` type($data) `,` $network `:` type($network) `,` $channel `)` attr-dict
   }];
 }
 
