@@ -7,9 +7,9 @@ func.func @function(%net: !phy.net<i32>) {
   // CHECK: phy.ready
   %b2 = phy.ready(%net : !phy.net<i32>, 0)
   // CHECK: phy.pop
-  %v3 = phy.pop(%net : !phy.net<i32>, 0)
+  %v3 = phy.pop(%net, 0) : i32
   // CHECK: phy.push
-  phy.push(%v3 : i32, %net : !phy.net<i32>, 0)
+  phy.push(%v3 : i32, %net, 0)
   func.return
 }
 

@@ -6,10 +6,12 @@ func.func @function(%bus: !phy.addressedBus<i32>) {
 
   // CHECK: phy.startLoad
   %h0 = phy.startLoad %bus[%address] : !phy.addressedBus<i32>
-  %v0 = phy.wait(%h0 : !phy.handle<i32>)
+  %v0 = phy.wait(%h0) : i32
 
   // CHECK: phy.startStore
   %h1 = phy.startStore %v0, %bus[%address] : !phy.addressedBus<i32>
+  phy.wait(%h1) : none
+
   func.return
 }
 

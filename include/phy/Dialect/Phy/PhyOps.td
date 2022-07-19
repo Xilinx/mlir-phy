@@ -225,9 +225,9 @@ def ReadyOp : Phy_Op<"ready"> {
 //===----------------------------------------------------------------------===//
 
 def PopOp : Phy_Op<"pop",
-    [TypesMatchWith<"result's type matches data type of 'network'",
-                    "network", "result",
-                    "$_self.cast<NetworkType>().getDatatype()">]> {
+    [TypesMatchWith<"'network' data has the same type as result",
+                    "result", "network",
+                    "NetworkType::get($_self.getContext(), $_self)">]> {
 
   let summary = "blocking network data receive";
   let description = [{
@@ -238,7 +238,7 @@ def PopOp : Phy_Op<"pop",
     Example:
 
     ```mlir
-    %0 = phy.pop(%net : !phy.net<i32>, 1)
+    %0 = phy.pop(%net, 1) : i32
     ```
   }];
 
@@ -246,7 +246,7 @@ def PopOp : Phy_Op<"pop",
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
-    `(` $network `:` type($network) `,` $channel `)` attr-dict
+    `(` $network `,` $channel `)` attr-dict `:` type($result) 
   }];
 }
 
@@ -255,9 +255,9 @@ def PopOp : Phy_Op<"pop",
 //===----------------------------------------------------------------------===//
 
 def PushOp : Phy_Op<"push",
-    [TypesMatchWith<"'data' has the same type as the data of 'network'",
-                    "network", "data",
-                    "$_self.cast<NetworkType>().getDatatype()">]> {
+    [TypesMatchWith<"'network' data has the same type as 'data'",
+                    "data", "network",
+                    "NetworkType::get($_self.getContext(), $_self)">]> {
 
   let summary = "blocking network data send";
   let description = [{
@@ -269,7 +269,7 @@ def PushOp : Phy_Op<"push",
     Example:
 
     ```mlir
-    phy.push(%0 : i32, %net : !phy.net<i32>, 1)
+    phy.push(%0 : i32, %net, 1)
     ```
   }];
 
@@ -277,7 +277,7 @@ def PushOp : Phy_Op<"push",
     I32Attr:$channel);
   
   let assemblyFormat = [{
-    `(` $data `:` type($data) `,` $network `:` type($network) `,` $channel `)` attr-dict
+    `(` $data `:` type($data) `,` $network `,` $channel `)` attr-dict
   }];
 }
 
@@ -308,7 +308,7 @@ def StartLoadOp : Phy_Op<"startLoad",
 
     ```mlir
     %load_handle = phy.startLoad %mem[%idx] : memref<1024xi32>
-    %0 = phy.wait(%load_handle : !phy.handle<i32>)
+    %0 = phy.wait(%load_handle) : i32
     ```
   }];
 
@@ -348,8 +348,8 @@ def StartStoreOp : Phy_Op<"startStore",
     Example:
 
     ```mlir
-    %store_handle = phy.startStore %mem[%idx] : memref<1024xi32>
-    %0 = phy.wait(%load_handle : !phy.handle<i32>)
+    %store_handle = phy.startStore %0, %mem[%idx] : memref<1024xi32>
+    phy.wait(%store_handle) : none
     ```
   }];
 
@@ -368,9 +368,9 @@ def StartStoreOp : Phy_Op<"startStore",
 //===----------------------------------------------------------------------===//
 
 def WaitOp : Phy_Op<"wait",
-    [TypesMatchWith<"result's type matches the data type of 'handle'",
-                    "handle", "result",
-                    "$_self.cast<HandleType>().getDatatype()">]> {
+    [TypesMatchWith<"handle's data type matches result's type",
+                    "result", "handle",
+                    "HandleType::get($_self.getContext(), $_self)">]> {
 
   let summary = "blocking wait until a handle is ready";
   let description = [{
@@ -380,8 +380,8 @@ def WaitOp : Phy_Op<"wait",
     Example:
 
     ```mlir
-    %0 = phy.wait(%load_handle : !phy.handle<i32>)
-    phy.wait(%store_handle : !phy.handle)
+    %0 = phy.wait(%load_handle) : i32
+    phy.wait(%store_handle) : none
     ```
   }];
 
@@ -389,7 +389,7 @@ def WaitOp : Phy_Op<"wait",
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
-    `(` $handle `:` type($handle) `)` attr-dict
+    `(` $handle `)` attr-dict `:` type($result) 
   }];
 }
 
@@ -627,7 +627,7 @@ def AddressedBusOp : Phy_Op<"addressedBus"> {
     ```mlir
     %buf = phy.buf() : memref<1024xi32>
     %abus = phy.addressedBus() : !phy.addressedBus<i32>
-    phy.mmap(%abus[10:15], %buf[20:])
+    phy.mmap(%abus[10:15], %buf[20:] : memref<1024xi32>)
     %pe = phy.pe @func(%abus) : (!phy.addressedBus<i32>) -> !phy.pe
     ```
   }];
@@ -659,7 +659,7 @@ def MmapOp : Phy_Op<"mmap",
     Example:
 
     ```mlir
-    phy.mmap(%abus[10:15], %buf[20:])
+    phy.mmap(%abus[10:15], %buf[20:] : memref<1024xi32>)
     // abus[10] will be buf[20], abus[11] will be buf[21], ... until abus[15]
     ```
   }];

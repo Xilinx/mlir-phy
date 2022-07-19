@@ -14,9 +14,9 @@ func.func @function(%mem: memref<1024xi32>) {
   // CHECK: phy.startStore
   %h1 = phy.startStore %0, %mem[%idx] : memref<1024xi32>
   // CHECK: phy.wait
-	%1 = phy.wait(%h0 : !phy.handle<i32>)
+	%1 = phy.wait(%h0) : i32
   // CHECK: phy.wait
-	phy.wait(%h1 : !phy.handle<none>)
+	phy.wait(%h1) : none
   func.return
 }
 
