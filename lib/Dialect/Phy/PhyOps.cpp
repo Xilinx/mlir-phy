@@ -65,13 +65,3 @@ LogicalResult BusOp::verify() {
 
   return success();
 }
-
-LogicalResult PushOp::verify() {
-  auto dataType = (*this).network().getType().cast<NetworkType>().getDatatype();
-  if ((*this).data().getType() != dataType) {
-    return emitOpError("data must have the same type as the network")
-           << ": expected element type " << dataType << ", but provided "
-           << (*this).data().getType();
-  }
-  return success();
-}

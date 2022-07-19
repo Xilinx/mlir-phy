@@ -87,6 +87,21 @@ def BusType : Phy_CommType<"Bus", "bus"> {
 }
 
 //===----------------------------------------------------------------------===//
+// HandleType
+//===----------------------------------------------------------------------===//
+
+def HandleType : Phy_Type<"Handle", "handle"> {
+  let summary = "A type specifiying a on-going bus access";
+  let description = [{
+    A non-blocking bus access returns a handle, which may be waited to get the
+    access result.
+  }];
+
+  let parameters = (ins "Type":$datatype);
+  let assemblyFormat = "`<` $datatype `>`";
+}
+
+//===----------------------------------------------------------------------===//
 // Type Constraints
 //===----------------------------------------------------------------------===//
 
@@ -110,6 +125,17 @@ class BusTypeOf<Type element> : Type<
       element.predicate>
   ]>,
   "a bus of " # element.summary
+>;
+
+class HandleTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<HandleType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<HandleType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a handle of " # element.summary
 >;
 
 def AnyCommType : Type<

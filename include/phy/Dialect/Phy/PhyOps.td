@@ -26,6 +26,7 @@ class Phy_Op<string mnemonic, list<Trait> traits = []> :
 
 def PeOp : Phy_Op<"pe",
     [CallOpInterface, DeclareOpInterfaceMethods<SymbolUserOpInterface>]> {
+
   let summary = "processing element creation operation";
   let description = [{
     The `phy.pe` operation represents a creation of a processing element that
@@ -223,7 +224,11 @@ def ReadyOp : Phy_Op<"ready"> {
 // PopOp
 //===----------------------------------------------------------------------===//
 
-def PopOp : Phy_Op<"pop", [InferTypeOpInterface]> {
+def PopOp : Phy_Op<"pop",
+    [TypesMatchWith<"result's type matches data type of 'network'",
+                    "network", "result",
+                    "$_self.cast<NetworkType>().getDatatype()">]> {
+
   let summary = "blocking network data receive";
   let description = [{
     The `phy.pop` operation receive data from its operand network on the given
@@ -243,25 +248,17 @@ def PopOp : Phy_Op<"pop", [InferTypeOpInterface]> {
   let assemblyFormat = [{
     `(` $network `:` type($network) `,` $channel `)` attr-dict
   }];
-
-  let extraClassDeclaration = [{
-    static mlir::LogicalResult inferReturnTypes(mlir::MLIRContext *context,
-          llvm::Optional<::mlir::Location> location, mlir::ValueRange operands,
-          mlir::DictionaryAttr attributes, mlir::RegionRange regions,
-          llvm::SmallVectorImpl<mlir::Type> &inferredReturnTypes) {
-      inferredReturnTypes.assign({
-          operands[0].getType().cast<NetworkType>().getDatatype()
-      });
-      return mlir::success();
-    }
-  }];
 }
 
 //===----------------------------------------------------------------------===//
 // PushOp
 //===----------------------------------------------------------------------===//
 
-def PushOp : Phy_Op<"push"> {
+def PushOp : Phy_Op<"push",
+    [TypesMatchWith<"'data' has the same type as the data of 'network'",
+                    "network", "data",
+                    "$_self.cast<NetworkType>().getDatatype()">]> {
+
   let summary = "blocking network data send";
   let description = [{
     The `phy.pop` operation send data to its operand network on the given
@@ -278,11 +275,112 @@ def PushOp : Phy_Op<"push"> {
 
   let arguments = (ins AnyType:$data, NetworkTypeOf<AnyType>:$network,
     I32Attr:$channel);
-
-  let hasVerifier = 1;
   
   let assemblyFormat = [{
     `(` $data `:` type($data) `,` $network `:` type($network) `,` $channel `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// #### Bus APIs ####
+//===----------------------------------------------------------------------===//
+// StartLoadOp
+//===----------------------------------------------------------------------===//
+
+def StartLoadOp : Phy_Op<"startLoad",
+    [TypesMatchWith<"result's type is the handle of element type of 'memref'",
+                    "memref", "result",
+                    "HandleType::get($_self.getContext(), "
+                      "$_self.cast<MemRefType>().getElementType())">,
+     MemRefsNormalizable]> {
+
+  let summary = "non-blocking load of the data";
+  let description = [{
+    A non-blocking bus access that reads the data from a buffer.  This operation
+    returns a handle, which may be waited using `phy.wait` to get the access
+    result.
+
+    Example:
+
+    ```mlir
+    %load_handle = phy.startLoad %mem[%idx] : memref<1024xi32>
+    %0 = phy.wait(%load_handle : !phy.handle<i32>)
+    ```
+  }];
+
+  let arguments = (ins AnyStaticShapeMemRef:$memref,
+                       Variadic<Index>:$indices);
+  let results = (outs AnyType:$result);
+
+  let assemblyFormat = [{
+    $memref `[` $indices `]` attr-dict `:` type($memref)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// StartStoreOp
+//===----------------------------------------------------------------------===//
+
+def StartStoreOp : Phy_Op<"startStore",
+    [TypesMatchWith<"type of 'value' matches element type of 'memref'",
+                    "memref", "value",
+                    "$_self.cast<MemRefType>().getElementType()">,
+     TypesMatchWith<"result's type is a handle of NoneType",
+                    "memref", "handle",
+                    "HandleType::get($_self.getContext(), "
+                      "NoneType::get($_self.getContext()))">,
+     MemRefsNormalizable]> {
+
+  let summary = "non-blocking store of the data";
+  let description = [{
+    A non-blocking bus access that stores the data to a buffer.  This operation
+    returns a handle, which may be waited using `phy.wait`.
+
+    Example:
+
+    ```mlir
+    %store_handle = phy.startStore %mem[%idx] : memref<1024xi32>
+    %0 = phy.wait(%load_handle : !phy.handle<i32>)
+    ```
+  }];
+
+  let arguments = (ins AnyType:$value,
+                       AnyStaticShapeMemRef:$memref,
+                       Variadic<Index>:$indices);
+  let results = (outs HandleTypeOf<NoneType>:$handle);
+
+  let assemblyFormat = [{
+    $value `,` $memref `[` $indices `]` attr-dict `:` type($memref)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// WaitOp
+//===----------------------------------------------------------------------===//
+
+def WaitOp : Phy_Op<"wait",
+    [TypesMatchWith<"result's type matches the data type of 'handle'",
+                    "handle", "result",
+                    "$_self.cast<HandleType>().getDatatype()">]> {
+
+  let summary = "blocking wait until a handle is ready";
+  let description = [{
+    A non-blocking bus access returns a handle, which may be waited using this
+    operation to get the access result.  For store access, none is returned.
+
+    Example:
+
+    ```mlir
+    %0 = phy.wait(%load_handle : !phy.handle<i32>)
+    phy.wait(%store_handle : !phy.handle)
+    ```
+  }];
+
+  let arguments = (ins HandleTypeOf<AnyType>:$handle);
+  let results = (outs AnyType:$result);
+
+  let assemblyFormat = [{
+    `(` $handle `:` type($handle) `)` attr-dict
   }];
 }
 

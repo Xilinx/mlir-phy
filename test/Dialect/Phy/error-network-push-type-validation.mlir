@@ -2,7 +2,7 @@
 
 func.func @function(%net: !phy.net<i32>) {
   %0 = llvm.mlir.constant(0) : i1
-  // CHECK-LABEL: 'phy.push' op data must have the same type as the network
+  // CHECK-LABEL: 'phy.push' op failed to verify that 'data' has the same type as the data of 'network'
   phy.push(%0 : i1, %net : !phy.net<i32>, 0)
   func.return
 }
