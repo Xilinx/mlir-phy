@@ -44,7 +44,7 @@ def PeOp : Phy_Op<"pe",
   }];
 
   let arguments = (ins FlatSymbolRefAttr:$callee,
-                   Variadic<AnyCommType>:$operands);
+                   Variadic<AnyPeArgsType>:$operands);
   let results = (outs PeType:$pe);
 
   let builders = [
@@ -291,14 +291,18 @@ def StartLoadOp : Phy_Op<"startLoad",
     [TypesMatchWith<"result's type is the handle of element type of 'memref'",
                     "memref", "result",
                     "HandleType::get($_self.getContext(), "
-                      "$_self.cast<MemRefType>().getElementType())">,
+                      "($_self.isa<MemRefType>() ? ("
+                        "$_self.cast<MemRefType>().getElementType()"
+                      ") : ("
+                        "$_self.cast<AddressedBusType>().getDatatype()"
+                      ")))">,
      MemRefsNormalizable]> {
 
   let summary = "non-blocking load of the data";
   let description = [{
-    A non-blocking bus access that reads the data from a buffer.  This operation
-    returns a handle, which may be waited using `phy.wait` to get the access
-    result.
+    A non-blocking bus access that reads the data from a buffer, or an addressed
+    bus, as specified in 'memref'.  This operation returns a handle, which may be
+    waited using `phy.wait` to get the access result.
 
     Example:
 
@@ -308,7 +312,7 @@ def StartLoadOp : Phy_Op<"startLoad",
     ```
   }];
 
-  let arguments = (ins AnyStaticShapeMemRef:$memref,
+  let arguments = (ins AnyLoadStoreType:$memref,
                        Variadic<Index>:$indices);
   let results = (outs AnyType:$result);
 
@@ -324,7 +328,11 @@ def StartLoadOp : Phy_Op<"startLoad",
 def StartStoreOp : Phy_Op<"startStore",
     [TypesMatchWith<"type of 'value' matches element type of 'memref'",
                     "memref", "value",
-                    "$_self.cast<MemRefType>().getElementType()">,
+                    "$_self.isa<MemRefType>() ? ("
+                        "$_self.cast<MemRefType>().getElementType()"
+                    ") : ("
+                        "$_self.cast<AddressedBusType>().getDatatype()"
+                    ")">,
      TypesMatchWith<"result's type is a handle of NoneType",
                     "memref", "handle",
                     "HandleType::get($_self.getContext(), "
@@ -333,8 +341,9 @@ def StartStoreOp : Phy_Op<"startStore",
 
   let summary = "non-blocking store of the data";
   let description = [{
-    A non-blocking bus access that stores the data to a buffer.  This operation
-    returns a handle, which may be waited using `phy.wait`.
+    A non-blocking bus access that stores the data to a buffer, or an addressed
+    bus, as specified in 'memref'.  This operation returns a handle, which may
+    be waited using `phy.wait`.
 
     Example:
 
@@ -345,7 +354,7 @@ def StartStoreOp : Phy_Op<"startStore",
   }];
 
   let arguments = (ins AnyType:$value,
-                       AnyStaticShapeMemRef:$memref,
+                       AnyLoadStoreType:$memref,
                        Variadic<Index>:$indices);
   let results = (outs HandleTypeOf<NoneType>:$handle);
 
@@ -597,6 +606,73 @@ def RouteOp : Phy_Op<"route"> {
   let arguments = (ins StrArrayAttr:$wires, AnyRoutableType:$communication);
   let assemblyFormat = [{
     `<` $wires `>` `(` $communication `:` type($communication)  `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// #### Address Lowering APIs ####
+//===----------------------------------------------------------------------===//
+// AddressedBusOp
+//===----------------------------------------------------------------------===//
+
+def AddressedBusOp : Phy_Op<"addressedBus"> {
+  let summary = "addressed bus creation operation";
+  let description = [{
+    The `phy.addressedBus` operation represents a creation of an addressed bus
+    that can have buffers mapped to its memory space using the 'phy.mmap'
+    operation.
+
+    Example:
+
+    ```mlir
+    %buf = phy.buf() : memref<1024xi32>
+    %abus = phy.addressedBus() : !phy.addressedBus<i32>
+    phy.mmap(%abus[10:15], %buf[20:])
+    %pe = phy.pe @func(%abus) : (!phy.addressedBus<i32>) -> !phy.pe
+    ```
+  }];
+
+  let arguments = (ins);
+  let results = (outs AddressedBusTypeOf<AnyType>:$bus);
+
+  let assemblyFormat = [{
+    `(` `)` attr-dict `:` type($bus)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// MmapOp
+//===----------------------------------------------------------------------===//
+
+def MmapOp : Phy_Op<"mmap",
+    [TypesMatchWith<"type of 'bus' matches element type of the 'buffer'",
+                    "buffer", "bus",
+                    "AddressedBusType::get($_self.getContext(), "
+                      "$_self.cast<MemRefType>().getElementType())">]> {
+
+  let summary = "creation of a buffer into addressed bus memory space";
+  let description = [{
+    An operation that maps the 'buffer' starting the 'offset'-th element,
+    into the 'bus'.  The mapped address is from 'begin'-th element, to the
+    'end'-th element on the bus.
+
+    Example:
+
+    ```mlir
+    phy.mmap(%abus[10:15], %buf[20:])
+    // abus[10] will be buf[20], abus[11] will be buf[21], ... until abus[15]
+    ```
+  }];
+
+  let arguments = (ins AddressedBusTypeOf<AnyType>:$bus,
+                       I32Attr:$begin,
+                       I32Attr:$end,
+                       AnyStaticShapeMemRef:$buffer,
+                       I32Attr:$offset);
+
+  let assemblyFormat = [{
+    `(` $bus `[` $begin `:` $end `]` `,` $buffer `[` $offset `:` `]`
+    `:` type($buffer) `)` attr-dict 
   }];
 }
 

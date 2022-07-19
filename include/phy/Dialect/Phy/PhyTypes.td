@@ -87,6 +87,23 @@ def BusType : Phy_CommType<"Bus", "bus"> {
 }
 
 //===----------------------------------------------------------------------===//
+// AddressedBusType
+//===----------------------------------------------------------------------===//
+
+def AddressedBusType : Phy_CommType<"AddressedBus", "addressedBus"> {
+  let summary = "A type specifiying a bus with address mapping specification";
+  let description = [{
+    A bus with its address space used by buffers.  In the defining operation, a
+    buffer can specify how its memory address space is mapped to the bus.  An
+    addressed bus can be used in the same way as a 'memref' in a PE with the
+    'phy.startLoad' and 'phy.startStore' operations.
+  }];
+
+  let parameters = (ins "Type":$datatype);
+  let assemblyFormat = "`<` $datatype `>`";
+}
+
+//===----------------------------------------------------------------------===//
 // HandleType
 //===----------------------------------------------------------------------===//
 
@@ -158,6 +175,17 @@ class BusTypeOf<Type element> : Type<
   "a bus of " # element.summary
 >;
 
+class AddressedBusTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<AddressedBusType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<AddressedBusType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a bus of " # element.summary
+>;
+
 class HandleTypeOf<Type element> : Type<
   And<[
     CPred<"$_self.isa<HandleType>()">,
@@ -191,12 +219,21 @@ class CacheTypeOf<Type element> : Type<
   "a cache of " # element.summary
 >;
 
-def AnyCommType : Type<
+def AnyPeArgsType : Type<
   Or<[
     NetworkTypeOf<AnyType>.predicate,
-    AnyStaticShapeMemRef.predicate
+    AnyStaticShapeMemRef.predicate,
+    AddressedBusTypeOf<AnyType>.predicate,
   ]>,
-  "a memref or a network"
+  "a memref, a network or an addressed bus"
+>;
+
+def AnyLoadStoreType : Type<
+  Or<[
+    AnyStaticShapeMemRef.predicate,
+    AddressedBusTypeOf<AnyType>.predicate,
+  ]>,
+  "a memref or an addressed bus"
 >;
 
 def AnyBusEndPoint : Type<
@@ -220,9 +257,10 @@ def AnyPlacableType : Type<
 def AnyRoutableType : Type<
   Or<[
     NetworkTypeOf<AnyType>.predicate,
-    BusTypeOf<AnyType>.predicate
+    BusTypeOf<AnyType>.predicate,
+    AddressedBusTypeOf<AnyType>.predicate
   ]>,
-  "a network or a bus"
+  "a network, a bus, or an addressed bus"
 >;
 
 #endif  // MLIR_DIALECT_PHY_TYPES_TD
