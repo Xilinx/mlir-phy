@@ -1,0 +1,50 @@
+##===- generate-docs.yml - GitHub CI ---------------------------*- yaml -*-===//
+##
+## This file generates the documentation on every push to main.
+##
+## This file is licensed under the Apache License v2.0 with LLVM Exceptions.
+## See https://llvm.org/LICENSE.txt for license information.
+## SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+##
+##===----------------------------------------------------------------------===//
+
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Generate Documentation
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout myself
+        uses: actions/checkout@v2
+
+      - name: Install build dependencies
+        run: |
+          ./.github/scripts/install-build-deps.sh
+
+      - name: Configure myself
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLVM_EXTERNAL_LIT=`which lit` \
+            -DCMAKE_MAKE_PROGRAM=ninja \
+            -G Ninja
+
+      - name: Build documentation
+        run: |
+          cmake --build build --target phy-doc
+          cp README.md ./build/docs/
+
+      - name: Publish to github-pages
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs
+          enable_jekyll: true

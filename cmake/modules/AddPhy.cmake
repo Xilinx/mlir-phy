@@ -36,12 +36,6 @@ function(add_phy_doc tablegen_file output_path command)
   add_dependencies(phy-doc ${output_id}DocGen)
 endfunction()
 
-function(add_phy_dialect_doc dialect dialect_namespace)
-  add_phy_doc(
-    ${dialect} Dialects/${dialect}
-    -gen-dialect-doc -dialect ${dialect_namespace})
-endfunction()
-
 function(add_phy_library name)
   add_mlir_library(${ARGV})
   add_phy_library_install(${name})

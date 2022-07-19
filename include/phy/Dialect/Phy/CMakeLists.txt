@@ -7,7 +7,6 @@
 ##===----------------------------------------------------------------------===//
 
 add_phy_dialect(Phy phy)
-add_phy_dialect_doc(Phy phy)
 
 set(LLVM_TARGET_DEFINITIONS Phy.td)
 mlir_tablegen(PhyEnums.h.inc -gen-enum-decls)
