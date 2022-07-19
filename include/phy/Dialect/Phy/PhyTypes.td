@@ -207,4 +207,22 @@ def AnyBusEndPoint : Type<
   "a memref or a pe"
 >;
 
+def AnyPlacableType : Type<
+  Or<[
+    AnyStaticShapeMemRef.predicate,
+    PeType.predicate,
+    RouterTypeOf<AnyType>.predicate,
+    CacheTypeOf<AnyType>.predicate
+  ]>,
+  "a memref, a network, a router or a cache"
+>;
+
+def AnyRoutableType : Type<
+  Or<[
+    NetworkTypeOf<AnyType>.predicate,
+    BusTypeOf<AnyType>.predicate
+  ]>,
+  "a network or a bus"
+>;
+
 #endif  // MLIR_DIALECT_PHY_TYPES_TD

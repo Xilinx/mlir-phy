@@ -464,4 +464,140 @@ def CacheOp : Phy_Op<"cache",
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// #### Placement and Routing APIs ####
+//===----------------------------------------------------------------------===//
+// EndOp
+//===----------------------------------------------------------------------===//
+
+def EndOp : Phy_Op<"end", [Terminator, ParentOneOf<["PlatformOp", "DeviceOp"]>]> {
+  let summary = "end of usage of platform or device";
+  let description = [{
+    'phy.end' is an implied terminator for the 'phy.platform' or 'phy.device'
+    regions.  You do not need to manually write it.
+  }];
+  let assemblyFormat = "attr-dict";
+}
+
+//===----------------------------------------------------------------------===//
+// PlatformOp
+//===----------------------------------------------------------------------===//
+
+def PlatformOp : Phy_Op<"platform",
+    [SingleBlockImplicitTerminator<"phy::EndOp">,
+     NoRegionArguments]> {
+
+  let summary = "usage of a platform";
+  let description = [{
+    An operation that uses an abstract physical platform for the enclosing region.
+    The region is used to place and route elements onto the platform.  The
+    locations for placement, and the wires for routing, are dependent on which
+    platform is used.
+
+    Example:
+
+    ```mlir
+    phy.platform<"xilinx"> {
+      phy.device<"hls"> {}
+      phy.route<"pl-aie">(%net1)
+    }
+    ```
+  }];
+
+  let arguments = (ins StrAttr:$platform);
+  let regions = (region SizedRegion<1>:$body);
+
+  let assemblyFormat = [{ `<` $platform `>` regions attr-dict }];
+}
+
+//===----------------------------------------------------------------------===//
+// DeviceOp
+//===----------------------------------------------------------------------===//
+
+def DeviceOp : Phy_Op<"device",
+    [SingleBlockImplicitTerminator<"phy::EndOp">,
+     NoRegionArguments, HasParent<"PlatformOp">]> {
+
+  let summary = "usage of a device";
+  let description = [{
+    An operation that uses an abstract physical device for the enclosing region.
+    The region is used to place and route elements onto the device.  The
+    locations for placement, and the wires for routing, are dependent on which
+    device is used.  This operation must be enclosed by a 'phy.platform' operation.
+
+    Example:
+
+    ```mlir
+    phy.platform<"xilinx"> {
+      phy.device<"hls"> {
+        phy.place<"slr0">(%pe)
+      }
+    }
+    ```
+  }];
+
+  let arguments = (ins StrAttr:$device);
+  let regions = (region SizedRegion<1>:$body);
+
+  let assemblyFormat = [{ `<` $device `>` regions attr-dict }];
+}
+
+//===----------------------------------------------------------------------===//
+// PlaceOp
+//===----------------------------------------------------------------------===//
+
+def PlaceOp : Phy_Op<"place", [HasParent<"DeviceOp">]> {
+  let summary = "placement of an element";
+  let description = [{
+    An operation that place the 'element' to the specific location of the
+    enclosing device.  This operation must be enclosed by a 'phy.device'
+    operation.  The 'location' argument is device-dependent.  Please check
+    the documentation of the platform and device plugins.
+
+    Example:
+
+    ```mlir
+    phy.platform<"xilinx"> {
+      phy.device<"hls"> {
+        phy.place<"slr0">(%pe)
+      }
+    }
+    ```
+  }];
+
+  let arguments = (ins StrAttr:$location, AnyPlacableType:$element);
+  let assemblyFormat = [{
+    `<` $location `>` `(` $element `:` type($element)  `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// RouteOp
+//===----------------------------------------------------------------------===//
+
+def RouteOp : Phy_Op<"route"> {
+  let summary = "route of a communication path";
+  let description = [{
+    An operation that route the 'communication' to the specific wires of the
+    enclosing device, platform, or global connections.  The 'wires' argument
+    is device-dependent, platform-dependent, or global-dependent.  Please check
+    the documentation of the platform and device plugins, or the global plugin.
+
+    Example:
+
+    ```mlir
+    phy.platform<"xilinx"> {
+      phy.device<"hls"> {
+        phy.place<"slr0">(%pe)
+      }
+    }
+    ```
+  }];
+
+  let arguments = (ins StrArrayAttr:$wires, AnyRoutableType:$communication);
+  let assemblyFormat = [{
+    `<` $wires `>` `(` $communication `:` type($communication)  `)` attr-dict
+  }];
+}
+
 #endif  // MLIR_DIALECT_PHY_OPS_TD
