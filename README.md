@@ -10,7 +10,7 @@
 
 This repository contains an [MLIR-based](https://mlir.llvm.org/) toolchain for expressing and generating the mapping of a task graph design on an abstract physical device.  This project is intended to be an intermediate representation between high-level tasks as in parallel programming, and their actual physical designs.
 
-Design documentation is available at https://tinyurl.com/heterosys-mlir-phy.
+Documentations: [Design Principle](https://tinyurl.com/heterosys-mlir-phy), [Dialect Reference](https://heterosys.github.io/mlir-phy/PhyDialect.html), [Passes Reference](https://heterosys.github.io/mlir-phy/PhyPasses.html).
 
 ## How to Build
 
