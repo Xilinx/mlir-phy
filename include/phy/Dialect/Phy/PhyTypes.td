@@ -102,6 +102,37 @@ def HandleType : Phy_Type<"Handle", "handle"> {
 }
 
 //===----------------------------------------------------------------------===//
+// RouterType
+//===----------------------------------------------------------------------===//
+
+def RouterType : Phy_Type<"Router", "router"> {
+  let summary = "A type specifiying a router connecting two networks";
+  let description = [{
+    A network can be connected with another network using routers that provides
+    in-transit buffers.  The parameter 'depth' specifies the depth of the fifo
+    buffer in the router.
+  }];
+
+  let parameters = (ins "Type":$datatype, "int":$depth);
+  let assemblyFormat = "`<` $datatype `,` $depth `>`";
+}
+
+//===----------------------------------------------------------------------===//
+// CacheType
+//===----------------------------------------------------------------------===//
+
+def CacheType : Phy_Type<"Cache", "cache"> {
+  let summary = "A type specifiying a cache connecting two buses";
+  let description = [{
+    A bus can be connected to an upstream bus using caches that provides caching.
+    The parameter 'size' specifies the elements to be stored in the cache.
+  }];
+
+  let parameters = (ins "Type":$datatype, "int":$size);
+  let assemblyFormat = "`<` $datatype `,` $size `>`";
+}
+
+//===----------------------------------------------------------------------===//
 // Type Constraints
 //===----------------------------------------------------------------------===//
 
@@ -136,6 +167,28 @@ class HandleTypeOf<Type element> : Type<
       element.predicate>
   ]>,
   "a handle of " # element.summary
+>;
+
+class RouterTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<RouterType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<RouterType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a router of " # element.summary
+>;
+
+class CacheTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<CacheType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<CacheType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a cache of " # element.summary
 >;
 
 def AnyCommType : Type<

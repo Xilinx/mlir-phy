@@ -384,4 +384,84 @@ def WaitOp : Phy_Op<"wait",
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// #### Bridging APIs ####
+//===----------------------------------------------------------------------===//
+// RouterOp
+//===----------------------------------------------------------------------===//
+
+def RouterOp : Phy_Op<"router",
+    [TypesMatchWith<"type of 'network1' matches element type of the router",
+                    "router", "network1",
+                    "NetworkType::get($_self.getContext(), "
+                      "$_self.cast<RouterType>().getDatatype())">,
+     TypesMatchWith<"type of 'network2' matches element type of the router",
+                    "router", "network2",
+                    "NetworkType::get($_self.getContext(), "
+                      "$_self.cast<RouterType>().getDatatype())">]> {
+
+  let summary = "creation of a router connecting two networks";
+  let description = [{
+    An operation creating a router to connect two networks.  With the
+    connection, the data sent on either network will be received on the other.
+    The 'phy.router' type specifies the fifo size of the router.
+
+    Example:
+
+    ```mlir
+    %net1   = phy.net() : !phy.net<i32>
+    %net2   = phy.net() : !phy.net<i32>
+    %router = phy.router(%net1, %net2) : !phy.router<i32, 2>
+    ```
+  }];
+
+  let arguments = (ins NetworkTypeOf<AnyType>:$network1,
+                       NetworkTypeOf<AnyType>:$network2);
+  let results = (outs RouterTypeOf<AnyType>:$router);
+
+  let assemblyFormat = [{
+    `(` $network1 `,` $network2 `)` attr-dict `:` type($router)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// CacheOp
+//===----------------------------------------------------------------------===//
+
+def CacheOp : Phy_Op<"cache",
+    [TypesMatchWith<"type of 'upstream' matches element type of the cache",
+                    "cache", "upstream",
+                    "BusType::get($_self.getContext(), "
+                      "$_self.cast<CacheType>().getDatatype())">,
+     TypesMatchWith<"type of 'downstream' matches element type of the cache",
+                    "cache", "downstream",
+                    "BusType::get($_self.getContext(), "
+                      "$_self.cast<CacheType>().getDatatype())">]> {
+
+  let summary = "creation of a cache layer between two buses";
+  let description = [{
+    An operation creating a cache to connect two buses.  With the cache,
+    the memory access on the 'downstream' bus from the buffers on the 'upstream'
+    bus will be cached, and the 'downstream' bus is able to receive data from
+    the buffers on the 'upstream' bus.  The 'phy.cache' type specifies the
+    number of elements that can be cached.
+
+    Example:
+
+    ```mlir
+    %bus1   = phy.bus(%buffer) : (memref<1024xi32>) -> !phy.bus<i32>
+    %bus2   = phy.bus(%pe) : (!phy.pe) -> !phy.bus<i32>
+    %cache  = phy.cache(%bus1, %bus2) : !phy.cache<i32, 1024>
+    ```
+  }];
+
+  let arguments = (ins BusTypeOf<AnyType>:$upstream,
+                       BusTypeOf<AnyType>:$downstream);
+  let results = (outs CacheTypeOf<AnyType>:$cache);
+
+  let assemblyFormat = [{
+    `(` $upstream `,` $downstream `)` attr-dict `:` type($cache)
+  }];
+}
+
 #endif  // MLIR_DIALECT_PHY_OPS_TD
