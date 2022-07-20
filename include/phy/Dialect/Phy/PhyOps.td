@@ -182,7 +182,7 @@ def ValidOp : Phy_Op<"valid"> {
     Example:
 
     ```mlir
-    %0 = phy.valid(%net : !phy.net<i32>, 1)
+    %0 = phy.valid<1>(%net : !phy.net<i32>)
     ```
   }];
 
@@ -190,7 +190,7 @@ def ValidOp : Phy_Op<"valid"> {
   let results = (outs I1:$result);
 
   let assemblyFormat = [{
-    `(` $network `:` type($network) `,` $channel `)` attr-dict
+    `<` $channel `>` `(` $network `:` type($network) `)` attr-dict
   }];
 }
 
@@ -208,7 +208,7 @@ def ReadyOp : Phy_Op<"ready"> {
     Example:
 
     ```mlir
-    %0 = phy.ready(%net : !phy.net<i32>, 1)
+    %0 = phy.ready<1>(%net : !phy.net<i32>)
     ```
   }];
 
@@ -216,7 +216,7 @@ def ReadyOp : Phy_Op<"ready"> {
   let results = (outs I1:$result);
 
   let assemblyFormat = [{
-    `(` $network `:` type($network) `,` $channel `)` attr-dict
+    `<` $channel `>` `(` $network `:` type($network) `)` attr-dict
   }];
 }
 
@@ -238,7 +238,7 @@ def PopOp : Phy_Op<"pop",
     Example:
 
     ```mlir
-    %0 = phy.pop(%net, 1) : i32
+    %0 = phy.pop<1>(%net) : i32
     ```
   }];
 
@@ -246,7 +246,7 @@ def PopOp : Phy_Op<"pop",
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
-    `(` $network `,` $channel `)` attr-dict `:` type($result) 
+    `<` $channel `>` `(` $network `)` attr-dict `:` type($result) 
   }];
 }
 
@@ -269,7 +269,7 @@ def PushOp : Phy_Op<"push",
     Example:
 
     ```mlir
-    phy.push(%0 : i32, %net, 1)
+    phy.push<1>(%0 : i32, %net)
     ```
   }];
 
@@ -277,7 +277,7 @@ def PushOp : Phy_Op<"push",
     I32Attr:$channel);
   
   let assemblyFormat = [{
-    `(` $data `:` type($data) `,` $network `,` $channel `)` attr-dict
+    `<` $channel `>` `(` $data `:` type($data) `,` $network `)` attr-dict
   }];
 }
 
@@ -693,14 +693,14 @@ def MmapOp : Phy_Op<"mmap",
   let summary = "creation of a buffer into addressed bus memory space";
   let description = [{
     An operation that maps the 'buffer' starting the 'offset'-th element,
-    into the 'bus'.  The mapped address is from 'begin'-th element, to the
-    'end'-th element on the bus.
+    into the 'bus'.  The mapped address is from 'begin'-th element
+    (inclusive), to the 'end'-th element (exclusive) on the bus.
 
     Example:
 
     ```mlir
     phy.mmap(%abus[10:15], %buf[20:] : memref<1024xi32>)
-    // abus[10] will be buf[20], abus[11] will be buf[21], ... until abus[15]
+    // abus[10] will be buf[20], abus[11] will be buf[21], ...
     ```
   }];
 

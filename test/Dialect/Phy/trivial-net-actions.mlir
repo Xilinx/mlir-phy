@@ -3,13 +3,13 @@
 // CHECK-LABEL: func.func @function(%arg0: !phy.net<i32>)
 func.func @function(%net: !phy.net<i32>) {
   // CHECK: phy.valid
-  %b1 = phy.valid(%net : !phy.net<i32>, 0)
+  %b1 = phy.valid<0>(%net : !phy.net<i32>)
   // CHECK: phy.ready
-  %b2 = phy.ready(%net : !phy.net<i32>, 0)
-  // CHECK: phy.pop
-  %v3 = phy.pop(%net, 0) : i32
-  // CHECK: phy.push
-  phy.push(%v3 : i32, %net, 0)
+  %b2 = phy.ready<0>(%net : !phy.net<i32>)
+  // CHECK: phy.pop<0>
+  %v3 = phy.pop<0>(%net) : i32
+  // CHECK: phy.push<0>
+  phy.push<0>(%v3 : i32, %net)
   func.return
 }
 
