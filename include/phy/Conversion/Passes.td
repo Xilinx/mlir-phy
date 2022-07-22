@@ -12,6 +12,22 @@
 include "mlir/Pass/PassBase.td"
 
 //===----------------------------------------------------------------------===//
+// Nop
+//===----------------------------------------------------------------------===//
+
+def Nop : Pass<"convert-nop", "mlir::ModuleOp"> {
+  let summary = "No operation";
+  let description = [{
+    This pass does nothing.  It simply relies on PhyDialect and is used to keep
+    building in case no other conversion has its dependency satisfied.
+  }];
+  let constructor = "phy::createNop()";
+  let dependentDialects = [
+    "phy::PhyDialect",
+  ];
+}
+
+//===----------------------------------------------------------------------===//
 // PhyToAie
 //===----------------------------------------------------------------------===//
 

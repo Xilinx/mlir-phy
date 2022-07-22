@@ -17,6 +17,7 @@
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Pass/Pass.h"
 
+#include "phy/Conversion/Nop.h"
 #include "phy/Conversion/PhyToAie.h"
 #include "phy/Dialect/Phy/PhyDialect.h"
 
