@@ -63,3 +63,14 @@ function(add_phy_translation_library name)
   set_property(GLOBAL APPEND PROPERTY PHY_TRANSLATION_LIBS ${name})
   add_phy_library(${ARGV} DEPENDS phy-headers)
 endfunction()
+
+set(PHY_TABLE_GEN_DEF "")
+
+macro(add_phy_definition)
+  add_definitions(${ARGV})
+  list(APPEND PHY_TABLE_GEN_DEF ${ARGV})
+endmacro()
+
+macro(phy_tablegen)
+  mlir_tablegen(${ARGV} ${PHY_TABLE_GEN_DEF})
+endmacro()

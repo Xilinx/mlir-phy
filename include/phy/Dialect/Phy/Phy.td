@@ -14,7 +14,10 @@ include "mlir/IR/OpBase.td"
 def Phy_Dialect : Dialect {
   let name = "phy";
   let cppNamespace = "::phy";
-  let dependentDialects = ["::mlir::func::FuncDialect"];
+  let dependentDialects = [
+    "mlir::func::FuncDialect",
+    "mlir::memref::MemRefDialect"
+  ];
   let description = [{
     This dialect defines a flattened graph of elements including free-running
     processing elements (PEs), the memory that stores or registers data

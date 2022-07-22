@@ -20,6 +20,7 @@
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/Transforms/Passes.h"
 
+#include "phy/Conversion/Passes.h"
 #include "phy/Dialect/Phy/PhyDialect.h"
 
 int main(int argc, char **argv) {
@@ -37,11 +38,8 @@ int main(int argc, char **argv) {
   // Register Phy Dialect
   registry.insert<phy::PhyDialect>();
 
-  // Register the standard passes we want.
-  mlir::registerCSEPass();
-  mlir::registerSCCPPass();
-  mlir::registerInlinerPass();
-  mlir::registerCanonicalizerPass();
+  // Register the conversion passes.
+  phy::registerConversionPasses();
 
   return mlir::failed(
       mlir::MlirOptMain(argc, argv, "Phy optimizer driver", registry));

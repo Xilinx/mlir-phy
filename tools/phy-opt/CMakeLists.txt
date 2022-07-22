@@ -8,6 +8,9 @@
 ##
 ##===----------------------------------------------------------------------===//
 
+get_property(dialect_libs GLOBAL PROPERTY PHY_DIALECT_LIBS)
+get_property(conversion_libs GLOBAL PROPERTY PHY_CONVERSION_LIBS)
+
 set(LLVM_LINK_COMPONENTS
   Support
 )
@@ -20,7 +23,6 @@ llvm_update_compile_flags(phy-opt)
 
 target_link_libraries(phy-opt
   PRIVATE
-  Phy
   MLIRIR
   MLIRLLVMDialect
   MLIRMemRefDialect
@@ -30,4 +32,6 @@ target_link_libraries(phy-opt
   MLIRSupport
   MLIRTransforms
   MLIRSCFDialect
+  ${dialect_libs}
+  ${conversion_libs}
 )

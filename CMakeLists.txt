@@ -133,6 +133,21 @@ include_directories(${PHY_MAIN_INCLUDE_DIR})
 include_directories(${PHY_INCLUDE_DIR})
 
 #-------------------------------------------------------------------------------
+# Dependency configuration
+#-------------------------------------------------------------------------------
+
+find_package(AIE)
+if(AIE_FOUND)
+  message(STATUS "Building with MLIR-AIE")
+  message(STATUS "Using AIEConfig.cmake in: ${AIE_DIR}")
+  list(APPEND CMAKE_MODULE_PATH "${AIE_CMAKE_DIR}")
+
+  add_phy_definition(-DBUILD_WITH_AIE)
+  link_directories(${AIE_BINARY_DIR}/lib)
+  include_directories(${AIE_INCLUDE_DIRS})
+endif()
+
+#-------------------------------------------------------------------------------
 # Directory setup
 #-------------------------------------------------------------------------------
 
