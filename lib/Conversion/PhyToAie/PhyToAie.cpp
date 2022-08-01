@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "phy/Conversion/Passes.h"
 #include "phy/Conversion/PhyToAie.h"
+#include "phy/Conversion/Passes.h"
 #include "phy/Dialect/Phy/PhyDialect.h"
 #include "llvm/Support/Debug.h"
 
@@ -19,9 +19,7 @@ using namespace phy;
 namespace {
 
 struct PhyToAie : public PhyToAieBase<PhyToAie> {
-  void runOnOperation() override {
-
-  }
+  void runOnOperation() override {}
 };
 
 } // namespace
