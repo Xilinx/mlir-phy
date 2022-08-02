@@ -1,5 +1,5 @@
 # MLIR-based Abstract Physical Design
-⏩ An MLIR dialect to express the mapping of PEs, buffers, networks and buses to an abstract physical floorplan.
+⏩ An MLIR dialect to express the mapping of PEs, RAMs, nets and buses to an abstract physical floorplan.
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/heterosys/mlir-phy/Build%20and%20Test)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr-raw/heterosys/mlir-phy)
