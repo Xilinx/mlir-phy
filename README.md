@@ -1,5 +1,5 @@
-# MLIR-based Physical Designing
-⏩ An MLIR dialect to express the mapping of computing nodes, message queues, and data flows to a physical design.
+# MLIR-based Physical Design
+⏩ An MLIR dialect to express the mapping of computing nodes and message queues to a physical design.
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/heterosys/mlir-phy/Build%20and%20Test)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr-raw/heterosys/mlir-phy)
