@@ -21,7 +21,9 @@
 #include "mlir/Transforms/Passes.h"
 
 #include "phy/Conversion/Passes.h"
-#include "phy/Dialect/Phy/PhyDialect.h"
+#include "phy/Dialect/Layout/LayoutDialect.h"
+#include "phy/Dialect/Physical/PhysicalDialect.h"
+#include "phy/Dialect/Spatial/SpatialDialect.h"
 
 int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
@@ -35,12 +37,14 @@ int main(int argc, char **argv) {
   registry.insert<mlir::cf::ControlFlowDialect>();
   registry.insert<mlir::scf::SCFDialect>();
 
-  // Register Phy Dialect
-  registry.insert<phy::PhyDialect>();
+  // Register MLIR-PHY Dialects
+  registry.insert<phy::layout::LayoutDialect>();
+  registry.insert<phy::physical::PhysicalDialect>();
+  registry.insert<phy::spatial::SpatialDialect>();
 
   // Register the conversion passes.
   phy::registerConversionPasses();
 
   return mlir::failed(
-      mlir::MlirOptMain(argc, argv, "Phy optimizer driver", registry));
+      mlir::MlirOptMain(argc, argv, "MLIR-PHY optimizer driver", registry));
 }

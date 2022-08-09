@@ -12,11 +12,26 @@ This repository contains an [MLIR-based](https://mlir.llvm.org/) toolchain that 
 
 - `spatial`**:**  a target-independent, stateful and free-running description of a spatial design.
 - `layout`: a target-dependent mapping of `spatial` onto the devices and platforms.
-- `phy`: a unified abstract layer over the target-dependent dialects that provides direct access to low-level features.
+- `physical`: a unified abstract layer over the target-dependent dialects that provides direct access to low-level features.
 
-Please see our detailed design at [Design Principle](https://tinyurl.com/heterosys-mlir-phy).
+Please see our detailed design at [Design Principle and Examples](https://tinyurl.com/heterosys-mlir-phy).
 
-Documentations: [Dialect Reference](https://heterosys.github.io/mlir-phy/PhyDialect.html), [Passes Reference](https://heterosys.github.io/mlir-phy/PhyPasses.html).
+## Documentations
+
+### `spatial` Dialect
+
+* [Dialect Reference](https://heterosys.github.io/mlir-phy/SpatialDialect.html)
+* [Passes Reference](https://heterosys.github.io/mlir-phy/SpatialPasses.html)
+
+### `layout` Dialect
+
+* [Dialect Reference](https://heterosys.github.io/mlir-phy/LayoutDialect.html)
+* [Passes Reference](https://heterosys.github.io/mlir-phy/LayoutPasses.html)
+
+### `physical` Dialect
+
+* [Dialect Reference](https://heterosys.github.io/mlir-phy/PhysicalDialect.html)
+* [Passes Reference](https://heterosys.github.io/mlir-phy/PhysicalPasses.html)
 
 ## How to Build
 

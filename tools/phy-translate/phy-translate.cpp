@@ -14,5 +14,5 @@
 
 int main(int argc, char **argv) {
   return mlir::failed(
-      mlir::mlirTranslateMain(argc, argv, "Phy translation tool"));
+      mlir::mlirTranslateMain(argc, argv, "MLIR-PHY translation tool"));
 }

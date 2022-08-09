@@ -18,8 +18,10 @@
 #include "mlir/Pass/Pass.h"
 
 #include "phy/Conversion/Nop.h"
-#include "phy/Conversion/PhyToAie.h"
-#include "phy/Dialect/Phy/PhyDialect.h"
+#include "phy/Conversion/PhysicalToAie.h"
+#include "phy/Dialect/Layout/LayoutDialect.h"
+#include "phy/Dialect/Physical/PhysicalDialect.h"
+#include "phy/Dialect/Spatial/SpatialDialect.h"
 
 namespace phy {
     

@@ -1,2 +1,2 @@
 add_subdirectory(Nop)
-add_subdirectory(PhyToAie)
+add_subdirectory(PhysicalToAie)

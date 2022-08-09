@@ -18,30 +18,32 @@ include "mlir/Pass/PassBase.td"
 def Nop : Pass<"convert-nop", "mlir::ModuleOp"> {
   let summary = "No operation";
   let description = [{
-    This pass does nothing.  It simply relies on PhyDialect and is used to keep
-    building in case no other conversion has its dependency satisfied.
+    This pass does nothing.  It simply relies on all dialects and is used to
+    keep building in case no other conversion has its dependency satisfied.
   }];
   let constructor = "phy::createNop()";
   let dependentDialects = [
-    "phy::PhyDialect",
+    "phy::layout::LayoutDialect",
+    "phy::physical::PhysicalDialect",
+    "phy::spatial::SpatialDialect",
   ];
 }
 
 //===----------------------------------------------------------------------===//
-// PhyToAie
+// PhysicalToAie
 //===----------------------------------------------------------------------===//
 
 #ifdef BUILD_WITH_AIE
 
-def PhyToAie : Pass<"convert-phy-to-aie", "mlir::ModuleOp"> {
-  let summary = "Convert Phy dialect to AIE dialect";
+def PhysicalToAie : Pass<"convert-physical-to-aie", "mlir::ModuleOp"> {
+  let summary = "Convert Physical dialect to AIE dialect";
   let description = [{
-    This pass analyzes 'phy.device' and the nested placed and routed elements,
-    lowers the elements in the 'aie' device to the AIE dialect.
+    This pass analyzes 'physical.device' and the nested placed and routed
+    elements, lowers the elements in the 'aie' device to the AIE dialect.
   }];
-  let constructor = "phy::createPhyToAie()";
+  let constructor = "phy::createPhysicalToAie()";
   let dependentDialects = [
-    "phy::PhyDialect",
+    "phy::physical::PhysicalDialect",
     "xilinx::AIE::AIEDialect",
     "mlir::func::FuncDialect",
     "mlir::memref::MemRefDialect"
