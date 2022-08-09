@@ -12,7 +12,7 @@ set(LLVM_TARGET_DEFINITIONS Layout.td)
 phy_tablegen(LayoutEnums.h.inc -gen-enum-decls)
 phy_tablegen(LayoutEnums.cpp.inc -gen-enum-defs)
 add_public_tablegen_target(MLIRLayoutEnumsIncGen)
-add_phy_doc(Layout LayoutDialect -gen-dialect-doc)
+add_phy_doc(Layout LayoutDialect -gen-dialect-doc -dialect layout)
 add_dependencies(phy-headers MLIRLayoutEnumsIncGen)
 
 set(LLVM_TARGET_DEFINITIONS LayoutPasses.td)

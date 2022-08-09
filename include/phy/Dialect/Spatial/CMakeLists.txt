@@ -12,7 +12,7 @@ set(LLVM_TARGET_DEFINITIONS Spatial.td)
 phy_tablegen(SpatialEnums.h.inc -gen-enum-decls)
 phy_tablegen(SpatialEnums.cpp.inc -gen-enum-defs)
 add_public_tablegen_target(MLIRSpatialEnumsIncGen)
-add_phy_doc(Spatial SpatialDialect -gen-dialect-doc)
+add_phy_doc(Spatial SpatialDialect -gen-dialect-doc -dialect spatial)
 add_dependencies(phy-headers MLIRSpatialEnumsIncGen)
 
 set(LLVM_TARGET_DEFINITIONS SpatialPasses.td)

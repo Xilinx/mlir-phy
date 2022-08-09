@@ -12,7 +12,7 @@ set(LLVM_TARGET_DEFINITIONS Physical.td)
 phy_tablegen(PhysicalEnums.h.inc -gen-enum-decls)
 phy_tablegen(PhysicalEnums.cpp.inc -gen-enum-defs)
 add_public_tablegen_target(MLIRPhysicalEnumsIncGen)
-add_phy_doc(Physical PhysicalDialect -gen-dialect-doc)
+add_phy_doc(Physical PhysicalDialect -gen-dialect-doc -dialect physical)
 add_dependencies(phy-headers MLIRPhysicalEnumsIncGen)
 
 set(LLVM_TARGET_DEFINITIONS PhysicalPasses.td)
