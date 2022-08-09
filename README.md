@@ -1,5 +1,5 @@
 # MLIR-based Physical Design
-⏩ An MLIR dialect to express the mapping of computing nodes and message queues to a physical design.
+⏩ MLIR toolchain to design and map computing nodes and message queues to a physical design.
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/heterosys/mlir-phy/Build%20and%20Test)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr-raw/heterosys/mlir-phy)
@@ -18,12 +18,12 @@ Please see our detailed design at [Design Principle and Examples](https://tinyur
 
 ## Documentations
 
-| Dialect    | References |   |
-| ---------- | ---------- | - |
+|            | Dialect References | Passes References |
+| ---------- | ------------------ | ----------------- |
 | `spatial`  | [Dialect](https://heterosys.github.io/mlir-phy/SpatialDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/SpatialPasses.html) |
 | `layout`   | [Dialect](https://heterosys.github.io/mlir-phy/LayoutDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/LayoutPasses.html) |
 | `physical` | [Dialect](https://heterosys.github.io/mlir-phy/PhysicalDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/PhysicalPasses.html) |
-| Conversion | | [Passes](https://heterosys.github.io/mlir-phy/PhyConversionPass.html) |
+| Conversion | N/A | [Passes](https://heterosys.github.io/mlir-phy/PhyConversionPass.html) |
 
 ## How to Build
 
