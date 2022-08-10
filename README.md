@@ -1,16 +1,13 @@
 # MLIR-based Physical Design
 ⏩ MLIR toolchain to design and map computing nodes and message queues to a physical design.
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/heterosys/mlir-phy/Build%20and%20Test)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr-raw/heterosys/mlir-phy)
-
 ![](https://mlir.llvm.org//mlir-logo.png)
 
 **WARNING:** This is a work-in-progress and will be actively changed.
 
 This repository contains an [MLIR-based](https://mlir.llvm.org/) toolchain that maps a task graph design onto abstract physical devices.  It maps target-independent descriptions to actual physical implementations.  This project is intended to be an intermediate representation between high-level tasks as in parallel programming, and their actual physical designs.  Three dialects are defined to facilitate the lowering from logical spatial design into a physical target:
 
-- `spatial`**:**  a target-independent, stateful and free-running description of a spatial design.
+- `spatial`:  a target-independent, stateful and free-running description of a spatial design.
 - `layout`: a target-dependent mapping of `spatial` onto the devices and platforms.
 - `physical`: a unified abstract layer over the target-dependent dialects that provides direct access to low-level features.
 
