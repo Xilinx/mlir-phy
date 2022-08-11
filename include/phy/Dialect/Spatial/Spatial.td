@@ -9,7 +9,6 @@
 #ifndef MLIR_PHY_DIALECT_SPATIAL_TD
 #define MLIR_PHY_DIALECT_SPATIAL_TD
 
-include "phy/Dialect/Spatial/SpatialTypeConstraints.td"
 include "phy/Dialect/Spatial/SpatialTypes.td"
 include "phy/Dialect/Spatial/SpatialOps.td"
 

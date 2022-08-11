@@ -6,10 +6,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-include "mlir/IR/OpBase.td"
-
 #ifndef MLIR_PHY_DIALECT_LAYOUT_BASE_TD
 #define MLIR_PHY_DIALECT_LAYOUT_BASE_TD
+
+include "mlir/IR/OpBase.td"
 
 def Layout_Dialect : Dialect {
   let name = "layout";
@@ -32,5 +32,8 @@ def Layout_Dialect : Dialect {
     specified.  It separates hardware design from logic.
   }];
 }
+
+class Layout_Op<string mnemonic, list<Trait> traits = []> :
+    Op<Layout_Dialect, mnemonic, traits>;
 
 #endif  // MLIR_PHY_DIALECT_LAYOUT_BASE_TD

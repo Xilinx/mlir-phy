@@ -9,7 +9,6 @@
 #ifndef MLIR_PHY_DIALECT_PHYSICAL_TD
 #define MLIR_PHY_DIALECT_PHYSICAL_TD
 
-include "phy/Dialect/Physical/PhysicalTypeConstraints.td"
 include "phy/Dialect/Physical/PhysicalTypes.td"
 include "phy/Dialect/Physical/PhysicalOps.td"
 

@@ -11,23 +11,6 @@
 
 include "phy/Dialect/Spatial/SpatialBase.td"
 
-include "mlir/IR/AttrTypeBase.td"
-
-class Spatial_Type<string name, string typeMnemonic, list<Trait> traits = []>
-    : TypeDef<Spatial_Dialect, name, traits> {
-  let mnemonic = typeMnemonic;
-}
-
-class Spatial_VertexType<string name, string typeMnemonic, list<Trait> traits = []>
-    : Spatial_Type<name, typeMnemonic, traits> {
-  let mnemonic = typeMnemonic;
-}
-
-class Spatial_EdgeType<string name, string typeMnemonic, list<Trait> traits = []>
-    : Spatial_Type<name, typeMnemonic, traits> {
-  let mnemonic = typeMnemonic;
-}
-
 //===----------------------------------------------------------------------===//
 // NodeType
 //===----------------------------------------------------------------------===//
@@ -59,6 +42,25 @@ def QueueType : Spatial_VertexType<"Queue", "queue"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
+class QueueTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<phy::spatial::QueueType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<phy::spatial::QueueType>().getDatatype()",
+      element.predicate>,
+  ]>,
+  "a queue of " # element.summary
+>;
+
+def AnyQueueType : Type<
+  Or<[
+    QueueTypeOf<AnyStaticShapeMemRef>.predicate,
+    QueueTypeOf<NoneType>.predicate,
+  ]>,
+  "a queue of static shape memref or none"
+>;
+
 //===----------------------------------------------------------------------===//
 // FlowType
 //===----------------------------------------------------------------------===//
@@ -75,19 +77,75 @@ def FlowType : Spatial_EdgeType<"Flow", "flow"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
+class FlowTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<phy::spatial::FlowType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<phy::spatial::FlowType>().getDatatype()",
+      element.predicate>,
+  ]>,
+  "a flow of " # element.summary
+>;
+
+def AnyFlowType : Type<
+  Or<[
+    FlowTypeOf<AnyStaticShapeMemRef>.predicate,
+    FlowTypeOf<NoneType>.predicate,
+  ]>,
+  "a flow of static shape memref or none"
+>;
+
 //===----------------------------------------------------------------------===//
-// HandleType
+// PromiseType
 //===----------------------------------------------------------------------===//
 
-def HandleType : Spatial_Type<"Handle", "handle"> {
+def PromiseType : Spatial_Type<"Promise", "promise"> {
   let summary = "A type specifiying a on-going memory access";
   let description = [{
-    A non-blocking memory access returns a handle, which may be waited to get
+    A non-blocking memory access returns a promise, which may be waited to get
     the access result.
   }];
 
   let parameters = (ins "Type":$datatype);
   let assemblyFormat = "`<` $datatype `>`";
 }
+
+class PromiseTypeOf<Type element> : Type<
+  And<[
+    CPred<"$_self.isa<phy::spatial::PromiseType>()">,
+    SubstLeaves<
+      "$_self",
+      "$_self.cast<phy::spatial::PromiseType>().getDatatype()",
+      element.predicate>
+  ]>,
+  "a promise of " # element.summary
+>;
+
+def AnyPromiseType : Type<
+  Or<[
+    PromiseTypeOf<AnyType>.predicate,
+  ]>,
+  "a promise"
+>;
+
+//===----------------------------------------------------------------------===//
+// Type Constraints
+//===----------------------------------------------------------------------===//
+
+def AnyVertexType : Type<
+  Or<[
+    AnyQueueType.predicate,
+    NodeType.predicate,
+  ]>,
+  "a queue or a node"
+>;
+
+def AnyEdgeType : Type<
+  Or<[
+    AnyFlowType.predicate,
+  ]>,
+  "a flow"
+>;
 
 #endif  // MLIR_PHY_DIALECT_SPATIAL_TYPES_TD

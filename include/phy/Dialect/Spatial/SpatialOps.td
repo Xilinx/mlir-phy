@@ -11,12 +11,6 @@
 
 include "phy/Dialect/Spatial/SpatialBase.td"
 
-include "mlir/IR/EnumAttr.td"
-include "mlir/IR/SymbolInterfaces.td"
-
-class Spatial_Op<string mnemonic, list<Trait> traits = []> :
-    Op<Spatial_Dialect, mnemonic, traits>;
-
 include "phy/Dialect/Spatial/Operations/FlowAccessOps.td"
 include "phy/Dialect/Spatial/Operations/FlowControlOps.td"
 include "phy/Dialect/Spatial/Operations/GraphOps.td"

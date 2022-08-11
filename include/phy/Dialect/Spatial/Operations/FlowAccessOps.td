@@ -16,23 +16,23 @@ include "phy/Dialect/Spatial/SpatialBase.td"
 //===----------------------------------------------------------------------===//
 
 def StartLoadOp : Spatial_Op<"start_load",
-    [TypesMatchWith<"result's type is the handle of element type of 'memref'",
+    [TypesMatchWith<"result's type is the promise of element type of 'memref'",
                     "memref", "result",
-                    "HandleType::get($_self.getContext(), "
+                    "PromiseType::get($_self.getContext(), "
                       "$_self.cast<MemRefType>().getElementType())">,
      MemRefsNormalizable]> {
 
   let summary = "non-blocking load of the data";
   let description = [{
     A non-blocking bus access that reads the data from the memory in a queue
-    as specified in 'memref'.  This operation returns a handle, which may be
+    as specified in 'memref'.  This operation returns a promise, which may be
     waited using `spatial.wait` to get the access result.
 
     Example:
 
     ```mlir
-    %load_handle = spatial.start_load %mem[%idx] : memref<1024xi32>
-    %0 = spatial.wait(%load_handle) : i32
+    %load_promise = spatial.start_load %mem[%idx] : memref<1024xi32>
+    %0 = spatial.wait(%load_promise) : i32
     ```
   }];
 
@@ -53,30 +53,30 @@ def StartStoreOp : Spatial_Op<"start_store",
     [TypesMatchWith<"type of 'value' matches element type of 'memref'",
                     "memref", "value",
                     "$_self.cast<MemRefType>().getElementType()">,
-     TypesMatchWith<"result's type is a handle of NoneType",
-                    "memref", "handle",
-                    "HandleType::get($_self.getContext(), "
+     TypesMatchWith<"result's type is a promise of NoneType",
+                    "memref", "promise",
+                    "PromiseType::get($_self.getContext(), "
                       "NoneType::get($_self.getContext()))">,
      MemRefsNormalizable]> {
 
   let summary = "non-blocking store of the data";
   let description = [{
     A non-blocking bus access that stores the data to a bufferin a queue
-    as specified in 'memref'.  This operation returns a handle, which may
+    as specified in 'memref'.  This operation returns a promise, which may
     be waited using `spatial.wait`.
 
     Example:
 
     ```mlir
-    %store_handle = spatial.start_store %0, %mem[%idx] : memref<1024xi32>
-    spatial.wait(%store_handle) : none
+    %store_promise = spatial.start_store %0, %mem[%idx] : memref<1024xi32>
+    spatial.wait(%store_promise) : none
     ```
   }];
 
   let arguments = (ins AnyType:$value,
                        AnyStaticShapeMemRef:$memref,
                        Variadic<Index>:$indices);
-  let results = (outs HandleTypeOf<NoneType>:$handle);
+  let results = (outs PromiseTypeOf<NoneType>:$promise);
 
   let assemblyFormat = [{
     $value `,` $memref `[` $indices `]` attr-dict `:` type($memref)
@@ -88,28 +88,28 @@ def StartStoreOp : Spatial_Op<"start_store",
 //===----------------------------------------------------------------------===//
 
 def WaitOp : Spatial_Op<"wait",
-    [TypesMatchWith<"handle's data type matches result's type",
-                    "result", "handle",
-                    "HandleType::get($_self.getContext(), $_self)">]> {
+    [TypesMatchWith<"promise's data type matches result's type",
+                    "result", "promise",
+                    "PromiseType::get($_self.getContext(), $_self)">]> {
 
-  let summary = "blocking wait until a handle is ready";
+  let summary = "blocking wait until a promise is ready";
   let description = [{
-    A non-blocking bus access returns a handle, which may be waited using this
+    A non-blocking bus access returns a promise, which may be waited using this
     operation to get the access result.  For store access, none is returned.
 
     Example:
 
     ```mlir
-    %0 = spatial.wait(%load_handle) : i32
-    spatial.wait(%store_handle) : none
+    %0 = spatial.wait(%load_promise) : i32
+    spatial.wait(%store_promise) : none
     ```
   }];
 
-  let arguments = (ins HandleTypeOf<AnyType>:$handle);
+  let arguments = (ins AnyPromiseType:$promise);
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
-    `(` $handle `)` attr-dict `:` type($result) 
+    `(` $promise `)` attr-dict `:` type($result) 
   }];
 }
 

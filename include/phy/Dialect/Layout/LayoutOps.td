@@ -10,12 +10,9 @@
 #define MLIR_PHY_DIALECT_LAYOUT_OPS_TD
 
 include "phy/Dialect/Layout/LayoutBase.td"
-include "phy/Dialect/Spatial/SpatialTypeConstraints.td"
+include "phy/Dialect/Spatial/SpatialTypes.td"
 
 include "mlir/IR/EnumAttr.td"
-
-class Layout_Op<string mnemonic, list<Trait> traits = []> :
-    Op<Layout_Dialect, mnemonic, traits>;
 
 //===----------------------------------------------------------------------===//
 // EndOp

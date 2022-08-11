@@ -6,10 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-include "mlir/IR/OpBase.td"
-
 #ifndef MLIR_PHY_DIALECT_PHYSICAL_BASE_TD
 #define MLIR_PHY_DIALECT_PHYSICAL_BASE_TD
+
+include "mlir/IR/AttrTypeBase.td"
+include "mlir/IR/EnumAttr.td"
+include "mlir/IR/OpBase.td"
+include "mlir/IR/SymbolInterfaces.td"
 
 def Physical_Dialect : Dialect {
   let name = "physical";
@@ -35,6 +38,14 @@ def Physical_Dialect : Dialect {
     operations defined might not be supported.
   }];
   let useDefaultTypePrinterParser = 1;
+}
+
+class Physical_Op<string mnemonic, list<Trait> traits = []> :
+    Op<Physical_Dialect, mnemonic, traits>;
+
+class Physical_Type<string name, string typeMnemonic, list<Trait> traits = []>
+    : TypeDef<Physical_Dialect, name, traits> {
+  let mnemonic = typeMnemonic;
 }
 
 #endif  // MLIR_PHY_DIALECT_PHYSICAL_BASE_TD
