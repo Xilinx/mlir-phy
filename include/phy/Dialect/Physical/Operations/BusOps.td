@@ -19,15 +19,15 @@ def BusOp : Physical_Op<"bus"> {
   let summary = "addressed bus creation operation";
   let description = [{
     The `physical.bus` operation represents a creation of an addressed bus
-    that can have buffers mapped to its memory space using the 'physical.mmap'
-    operation.
+    that can have buffers mapped to its memory space using the
+    'physical.bus_mmap' operation.
 
     Example:
 
     ```mlir
     %buf = physical.buffer() : memref<1024xi32>
     %bus = physical.bus() : !physical.bus<i32>
-    physical.mmap(%bus[10:15], %buf[20:] : memref<1024xi32>)
+    physical.bus_mmap(%bus[10:15], %buf[20:] : memref<1024xi32>)
     %pe = physical.core @func(%bus) : (!physical.bus<i32>) -> !physical.core
     ```
   }];
@@ -41,10 +41,10 @@ def BusOp : Physical_Op<"bus"> {
 }
 
 //===----------------------------------------------------------------------===//
-// MmapOp
+// BusMmapOp
 //===----------------------------------------------------------------------===//
 
-def MmapOp : Physical_Op<"mmap",
+def BusMmapOp : Physical_Op<"bus_mmap",
     [TypesMatchWith<"type of 'bus' matches element type of the 'buffer'",
                     "buffer", "bus",
                     "BusType::get($_self.getContext(), "
@@ -59,8 +59,8 @@ def MmapOp : Physical_Op<"mmap",
     Example:
 
     ```mlir
-    physical.mmap(%abus[10:15], %buf[20:] : memref<1024xi32>)
-    // abus[10] will be buf[20], abus[11] will be buf[21], ...
+    physical.bus_mmap(%bus[10:15], %buf[20:] : memref<1024xi32>)
+    // bus[10] will be buf[20], bus[11] will be buf[21], ...
     ```
   }];
 
@@ -73,116 +73,6 @@ def MmapOp : Physical_Op<"mmap",
   let assemblyFormat = [{
     `(` $bus `[` $begin `:` $end `]` `,` $buffer `[` $offset `:` `]`
     `:` type($buffer) `)` attr-dict 
-  }];
-}
-
-//===----------------------------------------------------------------------===//
-// StartLoadOp
-//===----------------------------------------------------------------------===//
-
-def StartLoadOp : Physical_Op<"start_load",
-    [TypesMatchWith<"result's type is the handle of element type of 'memref'",
-                    "memref", "result",
-                    "HandleType::get($_self.getContext(), "
-                      "($_self.isa<MemRefType>() ? ("
-                        "$_self.cast<MemRefType>().getElementType()"
-                      ") : ("
-                        "$_self.cast<BusType>().getDatatype()"
-                      ")))">,
-     MemRefsNormalizable]> {
-
-  let summary = "non-blocking load of the data";
-  let description = [{
-    A non-blocking bus access that reads the data from a buffer, or an addressed
-    bus, as specified in 'memref'.  This operation returns a handle, which may be
-    waited using `physical.wait` to get the access result.
-
-    Example:
-
-    ```mlir
-    %load_handle = physical.start_load %mem[%idx] : memref<1024xi32>
-    %0 = physical.wait(%load_handle) : i32
-    ```
-  }];
-
-  let arguments = (ins AnyLoadStoreType:$memref,
-                       Variadic<Index>:$indices);
-  let results = (outs AnyType:$result);
-
-  let assemblyFormat = [{
-    $memref `[` $indices `]` attr-dict `:` type($memref)
-  }];
-}
-
-//===----------------------------------------------------------------------===//
-// StartStoreOp
-//===----------------------------------------------------------------------===//
-
-def StartStoreOp : Physical_Op<"start_store",
-    [TypesMatchWith<"type of 'value' matches element type of 'memref'",
-                    "memref", "value",
-                    "$_self.isa<MemRefType>() ? ("
-                        "$_self.cast<MemRefType>().getElementType()"
-                    ") : ("
-                        "$_self.cast<BusType>().getDatatype()"
-                    ")">,
-     TypesMatchWith<"result's type is a handle of NoneType",
-                    "memref", "handle",
-                    "HandleType::get($_self.getContext(), "
-                      "NoneType::get($_self.getContext()))">,
-     MemRefsNormalizable]> {
-
-  let summary = "non-blocking store of the data";
-  let description = [{
-    A non-blocking bus access that stores the data to a buffer, or an addressed
-    bus, as specified in 'memref'.  This operation returns a handle, which may
-    be waited using `physical.wait`.
-
-    Example:
-
-    ```mlir
-    %store_handle = physical.start_store %0, %mem[%idx] : memref<1024xi32>
-    physical.wait(%store_handle) : none
-    ```
-  }];
-
-  let arguments = (ins AnyType:$value,
-                       AnyLoadStoreType:$memref,
-                       Variadic<Index>:$indices);
-  let results = (outs HandleTypeOf<NoneType>:$handle);
-
-  let assemblyFormat = [{
-    $value `,` $memref `[` $indices `]` attr-dict `:` type($memref)
-  }];
-}
-
-//===----------------------------------------------------------------------===//
-// WaitOp
-//===----------------------------------------------------------------------===//
-
-def WaitOp : Physical_Op<"wait",
-    [TypesMatchWith<"handle's data type matches result's type",
-                    "result", "handle",
-                    "HandleType::get($_self.getContext(), $_self)">]> {
-
-  let summary = "blocking wait until a handle is ready";
-  let description = [{
-    A non-blocking bus access returns a handle, which may be waited using this
-    operation to get the access result.  For store access, none is returned.
-
-    Example:
-
-    ```mlir
-    %0 = physical.wait(%load_handle) : i32
-    physical.wait(%store_handle) : none
-    ```
-  }];
-
-  let arguments = (ins AnyHandleType:$handle);
-  let results = (outs AnyType:$result);
-
-  let assemblyFormat = [{
-    `(` $handle `)` attr-dict `:` type($result) 
   }];
 }
 

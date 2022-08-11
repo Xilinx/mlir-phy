@@ -19,8 +19,8 @@ func.func @function(%bus: !physical.bus<i32>) {
 %buf = physical.buffer() : memref<1024xi32>
 // CHECK: physical.bus
 %bus = physical.bus() : !physical.bus<i32>
-// CHECK: physical.mmap
-physical.mmap(%bus[10:15], %buf[20:]: memref<1024xi32>)
+// CHECK: physical.bus_mmap
+physical.bus_mmap(%bus[10:15], %buf[20:]: memref<1024xi32>)
 
 // CHECK: physical.core @function
 %pe = physical.core @function(%bus) : (!physical.bus<i32>) -> !physical.core

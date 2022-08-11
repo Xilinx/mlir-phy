@@ -1,4 +1,4 @@
-//===- CacheTypes.td ---------------------------------------*- tablegen -*-===//
+//===- BusCacheTypes.td ------------------------------------*- tablegen -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,16 +6,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_DIALECT_PHYSICAL_CACHE_TYPES_TD
-#define MLIR_PHY_DIALECT_PHYSICAL_CACHE_TYPES_TD
+#ifndef MLIR_PHY_DIALECT_PHYSICAL_BUS_CACHE_TYPES_TD
+#define MLIR_PHY_DIALECT_PHYSICAL_BUS_CACHE_TYPES_TD
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 
 //===----------------------------------------------------------------------===//
-// CacheType
+// BusCacheType
 //===----------------------------------------------------------------------===//
 
-def CacheType : Physical_Type<"Cache", "cache"> {
+def BusCacheType : Physical_Type<"BusCache", "bus_cache"> {
   let summary = "A type specifiying a cache connecting two buses";
   let description = [{
     A bus can be connected to an upstream bus using caches that provides caching.
@@ -26,22 +26,22 @@ def CacheType : Physical_Type<"Cache", "cache"> {
   let assemblyFormat = "`<` $datatype `,` $size `>`";
 }
 
-class CacheTypeOf<Type element> : Type<
+class BusCacheTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::CacheType>()">,
+    CPred<"$_self.isa<phy::physical::BusCacheType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::CacheType>().getDatatype()",
+      "$_self.cast<phy::physical::BusCacheType>().getDatatype()",
       element.predicate>
   ]>,
   "a cache of " # element.summary
 >;
 
-def AnyCacheType : Type<
+def AnyBusCacheType : Type<
   Or<[
-    CacheTypeOf<AnyType>.predicate,
+    BusCacheTypeOf<AnyType>.predicate,
   ]>,
   "a cache"
 >;
 
-#endif  // MLIR_PHY_DIALECT_PHYSICAL_CACHE_TYPES_TD
+#endif  // MLIR_PHY_DIALECT_PHYSICAL_BUS_CACHE_TYPES_TD

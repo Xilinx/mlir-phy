@@ -1,4 +1,4 @@
-//===- BasicOps.td -----------------------------------------*- tablegen -*-===//
+//===- CoreOps.td ------------------------------------------*- tablegen -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,38 +6,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_DIALECT_PHYSICAL_BASIC_OPS_TD
-#define MLIR_PHY_DIALECT_PHYSICAL_BASIC_OPS_TD
+#ifndef MLIR_PHY_DIALECT_PHYSICAL_CORE_OPS_TD
+#define MLIR_PHY_DIALECT_PHYSICAL_CORE_OPS_TD
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 
 include "mlir/Interfaces/CallInterfaces.td"
-
-//===----------------------------------------------------------------------===//
-// BufferOp
-//===----------------------------------------------------------------------===//
-
-def BufferOp : Physical_Op<"buffer"> {
-  let summary = "buffer creation operation";
-  let description = [{
-    The `physical.buffer` operation represents a creation of a buffer that has
-    the type argument as its datatype.  A buffer is a memory space that stores
-    data.  A buffer can be randomly accessed.  It can have a device-specific
-    attribute of location.
-
-    Example:
-
-    ```mlir
-    %buffer = physical.buffer() : memref<1024xi32>
-    ```
-  }];
-
-  let results = (outs AnyStaticShapeMemRef:$buffer);
-
-  let assemblyFormat = [{
-    `(` `)` attr-dict `:` type($buffer)
-  }];
-}
 
 //===----------------------------------------------------------------------===//
 // CoreOp
@@ -87,4 +61,4 @@ def CoreOp : Physical_Op<"core",
   }];
 }
 
-#endif  // MLIR_PHY_DIALECT_PHYSICAL_BASIC_OPS_TD
+#endif  // MLIR_PHY_DIALECT_PHYSICAL_CORE_OPS_TD

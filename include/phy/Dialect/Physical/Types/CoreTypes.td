@@ -1,4 +1,4 @@
-//===- BasicTypes.td ---------------------------------------*- tablegen -*-===//
+//===- CoreTypes.td ----------------------------------------*- tablegen -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,11 +6,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_DIALECT_PHYSICAL_BASIC_TYPES_TD
-#define MLIR_PHY_DIALECT_PHYSICAL_BASIC_TYPES_TD
+#ifndef MLIR_PHY_DIALECT_PHYSICAL_CORE_TYPES_TD
+#define MLIR_PHY_DIALECT_PHYSICAL_CORE_TYPES_TD
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 include "phy/Dialect/Physical/Types/BusTypes.td"
+include "phy/Dialect/Physical/Types/StreamTypes.td"
 
 //===----------------------------------------------------------------------===//
 // CoreType
@@ -32,8 +33,9 @@ def AnyCoreArgsType : Type<
   Or<[
     AnyStaticShapeMemRef.predicate,
     AnyBusType.predicate,
+    AnyStreamType.predicate,
   ]>,
   "a memref or a bus"
 >;
 
-#endif  // MLIR_PHY_DIALECT_PHYSICAL_BASIC_TYPES_TD
+#endif  // MLIR_PHY_DIALECT_PHYSICAL_CORE_TYPES_TD

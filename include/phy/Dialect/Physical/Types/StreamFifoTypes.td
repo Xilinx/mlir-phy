@@ -6,19 +6,19 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_DIALECT_PHYSICAL_FIFO_TYPES_TD
-#define MLIR_PHY_DIALECT_PHYSICAL_FIFO_TYPES_TD
+#ifndef MLIR_PHY_DIALECT_PHYSICAL_STREAM_FIFO_TYPES_TD
+#define MLIR_PHY_DIALECT_PHYSICAL_STREAM_FIFO_TYPES_TD
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 
 //===----------------------------------------------------------------------===//
-// FifoType
+// StreamFifoType
 //===----------------------------------------------------------------------===//
 
-def FifoType : Physical_Type<"Fifo", "fifo"> {
+def StreamFifoType : Physical_Type<"StreamFifo", "stream_fifo"> {
   let summary = "A streaming first-in first-out storage unit";
   let description = [{
-    Fifo are first-in first-out storage elements, which takes an element in
+    Fifos are first-in first-out storage elements, which takes an element in
     a basic data type as input and buffers it.  The elements in the fifo is
     sent to the output whenever they are ready.  A fifo can have only one input
     connection and one output connection.
@@ -28,22 +28,22 @@ def FifoType : Physical_Type<"Fifo", "fifo"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
-class FifoTypeOf<Type element> : Type<
+class StreamFifoTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::FifoType>()">,
+    CPred<"$_self.isa<phy::physical::StreamFifoType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::FifoType>().getDatatype()",
+      "$_self.cast<phy::physical::StreamFifoType>().getDatatype()",
       element.predicate>
   ]>,
-  "a fifo of " # element.summary
+  "a stream fifo of " # element.summary
 >;
 
-def AnyFifoType : Type<
+def AnyStreamFifoType : Type<
   Or<[
-    FifoTypeOf<AnyType>.predicate,
+    StreamFifoTypeOf<AnyType>.predicate,
   ]>,
-  "a fifo"
+  "a stream fifo fifo"
 >;
 
-#endif  // MLIR_PHY_DIALECT_PHYSICAL_FIFO_TYPES_TD
+#endif  // MLIR_PHY_DIALECT_PHYSICAL_STREAM_FIFO_TYPES_TD

@@ -11,9 +11,13 @@
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 
-include "phy/Dialect/Physical/Types/BasicTypes.td"
+include "phy/Dialect/Physical/Types/AsyncTypes.td"
+include "phy/Dialect/Physical/Types/BusCacheTypes.td"
 include "phy/Dialect/Physical/Types/BusTypes.td"
-include "phy/Dialect/Physical/Types/CacheTypes.td"
-include "phy/Dialect/Physical/Types/FifoTypes.td"
+include "phy/Dialect/Physical/Types/CoreTypes.td"
+include "phy/Dialect/Physical/Types/LockTypes.td"
+include "phy/Dialect/Physical/Types/StreamFifoTypes.td"
+include "phy/Dialect/Physical/Types/StreamTypes.td"
+include "phy/Dialect/Physical/Types/StreamHubTypes.td"
 
 #endif  // MLIR_PHY_DIALECT_PHYSICAL_TYPES_TD

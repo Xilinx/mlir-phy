@@ -46,49 +46,4 @@ def AnyBusType : Type<
   "a bus"
 >;
 
-//===----------------------------------------------------------------------===//
-// HandleType
-//===----------------------------------------------------------------------===//
-
-def HandleType : Physical_Type<"Handle", "handle"> {
-  let summary = "A type specifiying a on-going memory access";
-  let description = [{
-    A non-blocking memory access returns a handle, which may be waited to get
-    the access result.
-  }];
-
-  let parameters = (ins "Type":$datatype);
-  let assemblyFormat = "`<` $datatype `>`";
-}
-
-class HandleTypeOf<Type element> : Type<
-  And<[
-    CPred<"$_self.isa<phy::physical::HandleType>()">,
-    SubstLeaves<
-      "$_self",
-      "$_self.cast<phy::physical::HandleType>().getDatatype()",
-      element.predicate>
-  ]>,
-  "a handle of " # element.summary
->;
-
-def AnyHandleType : Type<
-  Or<[
-    HandleTypeOf<AnyType>.predicate,
-  ]>,
-  "a handle"
->;
-
-//===----------------------------------------------------------------------===//
-// Type Constraints
-//===----------------------------------------------------------------------===//
-
-def AnyLoadStoreType : Type<
-  Or<[
-    AnyStaticShapeMemRef.predicate,
-    AnyBusType.predicate,
-  ]>,
-  "a memref or a bus"
->;
-
 #endif  // MLIR_PHY_DIALECT_PHYSICAL_BUS_TYPES_TD
