@@ -16,12 +16,11 @@ include "phy/Dialect/Physical/PhysicalBase.td"
 //===----------------------------------------------------------------------===//
 
 def StreamType : Physical_Type<"Stream", "stream"> {
-  let summary = "A type specifiying a streaming connection of a basic type";
+  let summary = "A type specifiying a streaming connection";
   let description = [{
-    A stream connects two endpoints and provides a streaming connection of a
-    basic datatype.  It does not provide inflight data buffering, which is
-    instead implemented as a `physical.stream_fifo` or `physical.buffer`s and
-    `physical.stream_dma`s.
+    A stream connects two endpoints and provides a streaming connection.  It
+    does not provide inflight data buffering, which is instead implemented as
+    a `physical.stream_fifo` or `physical.buffer`s and `physical.stream_dma`s.
   }];
 
   let parameters = (ins "Type":$datatype);
@@ -53,7 +52,7 @@ def AnyStreamType : Type<
 def IStreamEndpointType : Physical_Type<"IStreamEndpoint", "istream"> {
   let summary = "A type specifiying a streaming endpoint for input";
   let description = [{
-    A stream endpoint that takes data of a basic datatype as input.
+    A stream endpoint that takes data as input.
   }];
 
   let parameters = (ins "Type":$datatype);
@@ -85,7 +84,7 @@ def AnyIStreamEndpointType : Type<
 def OStreamEndpointType : Physical_Type<"OStreamEndpoint", "ostream"> {
   let summary = "A type specifiying a streaming endpoint for output";
   let description = [{
-    A stream endpoint that outputs data of a basic datatype.
+    A stream endpoint that outputs data.
   }];
 
   let parameters = (ins "Type":$datatype);
