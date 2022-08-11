@@ -19,16 +19,16 @@ def StreamHubOp : Physical_Op<"stream_hub"> {
   let summary = "creation of a stream hub connecting multiple streams";
   let description = [{
     An operation creating a stream hub to connect multiple streams.  A stream
-    reads data from all `phy.stream_in` endpoints, and broadcast data to all
-    `phy.stream_out` endpoints.  Depending on the target, one or multiple input
+    reads data from all `phy.istream` endpoints, and broadcast data to all
+    `phy.ostream` endpoints.  Depending on the target, one or multiple input
     or output endpoints are supported.
 
     Example:
 
     ```mlir
     %stream_hub = physical.stream_hub(%src1, %src2, %dest1, %dest2)
-            : (!physical.stream_in<i32>,  !physical.stream_in<i32>,
-               !physical.stream_out<i32>, !physical.stream_out<i32>)
+            : (!physical.istream<i32>,  !physical.istream<i32>,
+               !physical.ostream<i32>, !physical.ostream<i32>)
             -> !physical.stream_hub<i32>
     ```
   }];

@@ -47,10 +47,10 @@ def AnyStreamType : Type<
 >;
 
 //===----------------------------------------------------------------------===//
-// StreamInEndpointType
+// IStreamEndpointType
 //===----------------------------------------------------------------------===//
 
-def StreamInEndpointType : Physical_Type<"StreamInEndpoint", "stream_in"> {
+def IStreamEndpointType : Physical_Type<"IStreamEndpoint", "istream"> {
   let summary = "A type specifiying a streaming endpoint for input";
   let description = [{
     A stream endpoint that takes data of a basic datatype as input.
@@ -60,29 +60,29 @@ def StreamInEndpointType : Physical_Type<"StreamInEndpoint", "stream_in"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
-class StreamInEndpointTypeOf<Type element> : Type<
+class IStreamEndpointTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::StreamInEndpointType>()">,
+    CPred<"$_self.isa<phy::physical::IStreamEndpointType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::StreamInEndpointType>().getDatatype()",
+      "$_self.cast<phy::physical::IStreamEndpointType>().getDatatype()",
       element.predicate>
   ]>,
   "an input endpoint of a stream of " # element.summary
 >;
 
-def AnyStreamInEndpointType : Type<
+def AnyIStreamEndpointType : Type<
   Or<[
-    StreamInEndpointTypeOf<AnyType>.predicate,
+    IStreamEndpointTypeOf<AnyType>.predicate,
   ]>,
   "an input endpoint of a stream"
 >;
 
 //===----------------------------------------------------------------------===//
-// StreamOutEndpointType
+// OStreamEndpointType
 //===----------------------------------------------------------------------===//
 
-def StreamOutEndpointType : Physical_Type<"StreamOutEndpoint", "stream_out"> {
+def OStreamEndpointType : Physical_Type<"OStreamEndpoint", "ostream"> {
   let summary = "A type specifiying a streaming endpoint for output";
   let description = [{
     A stream endpoint that outputs data of a basic datatype.
@@ -92,20 +92,20 @@ def StreamOutEndpointType : Physical_Type<"StreamOutEndpoint", "stream_out"> {
   let assemblyFormat = "`<` $datatype `>`";
 }
 
-class StreamOutEndpointTypeOf<Type element> : Type<
+class OStreamEndpointTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::StreamOutEndpointType>()">,
+    CPred<"$_self.isa<phy::physical::OStreamEndpointType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::StreamOutEndpointType>().getDatatype()",
+      "$_self.cast<phy::physical::OStreamEndpointType>().getDatatype()",
       element.predicate>
   ]>,
   "an output endpoint of a stream of " # element.summary
 >;
 
-def AnyStreamOutEndpointType : Type<
+def AnyOStreamEndpointType : Type<
   Or<[
-    StreamOutEndpointTypeOf<AnyType>.predicate,
+    OStreamEndpointTypeOf<AnyType>.predicate,
   ]>,
   "an output endpoint of a stream"
 >;
@@ -116,8 +116,8 @@ def AnyStreamOutEndpointType : Type<
 
 def AnyStreamEndpointType : Type<
   Or<[
-    AnyStreamInEndpointType.predicate,
-    AnyStreamOutEndpointType.predicate,
+    AnyIStreamEndpointType.predicate,
+    AnyOStreamEndpointType.predicate,
   ]>,
   "a stream endpoint"
 >;

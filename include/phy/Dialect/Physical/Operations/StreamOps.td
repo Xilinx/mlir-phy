@@ -39,29 +39,29 @@ def StreamOp : Physical_Op<"stream"> {
 }
 
 //===----------------------------------------------------------------------===//
-// StreamInOp
+// IStreamOp
 //===----------------------------------------------------------------------===//
 
-def StreamInOp : Physical_Op<"stream_in",
+def IStreamOp : Physical_Op<"istream",
     [TypesMatchWith<"endpoint's data type is the same as 'stream'",
                     "stream", "endpoint",
-                    "StreamInEndpointType::get($_self.getContext(), "
+                    "IStreamEndpointType::get($_self.getContext(), "
                       "$_self.cast<StreamType>().getDatatype()"
                       ")">]> {
   let summary = "obtaining the input endpoint of the stream";
   let description = [{
-    The `physical.stream_in` operation returns the input endpoint of the stream
+    The `physical.istream` operation returns the input endpoint of the stream
     for usage as a `physical.core` operand, etc, to push data into the stream.
 
     Example:
 
     ```mlir
-    %endpoint = physical.stream_in(%stream: !physical.stream<i32>)
+    %endpoint = physical.istream(%stream: !physical.stream<i32>)
     ```
   }];
 
   let arguments = (ins AnyStreamType:$stream);
-  let results = (outs AnyStreamInEndpointType:$endpoint);
+  let results = (outs AnyIStreamEndpointType:$endpoint);
 
   let assemblyFormat = [{
     `(` $stream `:` type($stream) `)` attr-dict
@@ -69,29 +69,29 @@ def StreamInOp : Physical_Op<"stream_in",
 }
 
 //===----------------------------------------------------------------------===//
-// StreamOutOp
+// OStreamOp
 //===----------------------------------------------------------------------===//
 
-def StreamOutOp : Physical_Op<"stream_out",
+def OStreamOp : Physical_Op<"ostream",
     [TypesMatchWith<"endpoint's data type is the same as 'stream'",
                     "stream", "endpoint",
-                    "StreamOutEndpointType::get($_self.getContext(), "
+                    "OStreamEndpointType::get($_self.getContext(), "
                       "$_self.cast<StreamType>().getDatatype()"
                       ")">]> {
   let summary = "obtaining the output endpoint of the stream";
   let description = [{
-    The `physical.stream_out` operation returns the output endpoint of the stream
+    The `physical.ostream` operation returns the output endpoint of the stream
     for usage as a `physical.core` operand, etc, to pop data from the stream.
 
     Example:
 
     ```mlir
-    %endpoint = physical.stream_out(%stream: !physical.stream<i32>)
+    %endpoint = physical.ostream(%stream: !physical.stream<i32>)
     ```
   }];
 
   let arguments = (ins AnyStreamType:$stream);
-  let results = (outs AnyStreamOutEndpointType:$endpoint);
+  let results = (outs AnyOStreamEndpointType:$endpoint);
 
   let assemblyFormat = [{
     `(` $stream `:` type($stream) `)` attr-dict

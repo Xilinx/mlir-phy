@@ -16,7 +16,7 @@ include "phy/Dialect/Physical/PhysicalBase.td"
 //===----------------------------------------------------------------------===//
 
 def LockType : Physical_Type<"Lock", "lock"> {
-  let summary = "A streaming first-in first-out storage unit";
+  let summary = "An atomic synchronization element";
   let description = [{
     Locks are atomic storage elements, which provides a primitive synchronization
     mechanism that limits access to a resource.  A lock can be assigned a state,

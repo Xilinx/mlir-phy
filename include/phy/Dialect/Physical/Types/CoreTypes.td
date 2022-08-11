@@ -11,6 +11,7 @@
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 include "phy/Dialect/Physical/Types/BusTypes.td"
+include "phy/Dialect/Physical/Types/LockTypes.td"
 include "phy/Dialect/Physical/Types/StreamTypes.td"
 
 //===----------------------------------------------------------------------===//
@@ -33,9 +34,10 @@ def AnyCoreArgsType : Type<
   Or<[
     AnyStaticShapeMemRef.predicate,
     AnyBusType.predicate,
-    AnyStreamType.predicate,
+    AnyStreamEndpointType.predicate,
+    LockType.predicate,
   ]>,
-  "a memref or a bus"
+  "a memref, a bus, a stream endpoint or a lock"
 >;
 
 #endif  // MLIR_PHY_DIALECT_PHYSICAL_CORE_TYPES_TD
