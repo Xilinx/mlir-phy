@@ -8,3 +8,6 @@
 
 // CHECK: physical.ostream
 %output = physical.ostream(%stream: !physical.stream<i32>)
+
+// CHECK: physical.stream
+%stream_tag = physical.stream<[1, 2]>(): !physical.stream<i32>

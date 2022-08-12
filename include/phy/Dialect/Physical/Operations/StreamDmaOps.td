@@ -11,11 +11,14 @@
 
 include "phy/Dialect/Physical/PhysicalBase.td"
 
+include "mlir/IR/RegionKindInterface.td"
+
 //===----------------------------------------------------------------------===//
 // StreamDmaOp
 //===----------------------------------------------------------------------===//
 
-def StreamDmaOp : Physical_Op<"stream_dma"> {
+def StreamDmaOp : Physical_Op<"stream_dma", [
+    SingleBlockImplicitTerminator<"EndOp">, RegionKindInterface]> {
 
   let summary = "creation of a dma engine that connects buffers with a stream";
   let description = [{
@@ -33,11 +36,10 @@ def StreamDmaOp : Physical_Op<"stream_dma"> {
 
     ```mlir
     physical.stream_dma(%endpoint: !physical.istream<i32>) {
-      ^bb0: physical.stream_dma_connect(
-        %lock1[0->1], %buffer1[0:1024]: memref<1024xi32>, ^bb1)
-      ^bb1: physical.stream_dma_connect(
-        %lock2[0->1], %buffer2[0:1024]: memref<1024xi32>, ^end)
-      ^end: physical.end
+      %0 = physical.stream_dma_connect(
+        %lock1[0->1], %buffer1[0:1024]: memref<1024xi32>, %1)
+      %1 = physical.stream_dma_connect(
+        %lock2[0->1], %buffer2[0:1024]: memref<1024xi32>, %0)
     }
     ```
   }];
@@ -45,18 +47,29 @@ def StreamDmaOp : Physical_Op<"stream_dma"> {
   let arguments = (ins AnyStreamEndpointType:$endpoint);
   let regions = (region AnyRegion:$connections);
 
+  let extraClassDeclaration = [{
+    static mlir::RegionKind getRegionKind(unsigned index) {
+      return mlir::RegionKind::Graph;
+    }
+  }];
+
   let assemblyFormat = [{
     `(` $endpoint `:` type($endpoint) `)` regions attr-dict
   }];
 }
 
-def StreamDmaConnectOp : Physical_Op<"stream_dma_connect", [Terminator]> {
+//===----------------------------------------------------------------------===//
+// StreamDmaConnectOp
+//===----------------------------------------------------------------------===//
+
+def StreamDmaConnectOp : Physical_Op<"stream_dma_connect"> {
+      
   let summary = "creation of a dma connection that connects to a buffer";
   let description = [{
     `physical.stream_dma_connect` connects a buffer to/from the stream endpoint
     and when the data transfer in this connection is completed, the next
     connection as specified in `next` will be established.  If the `next` is
-    a `physical.end`, the DMA engine will be terminated when the current
+    not specified, the DMA engine will be terminated when the current
     connection is completed.
     
     In each connection, the `buffer` is specified with the `start` point,
@@ -65,25 +78,33 @@ def StreamDmaConnectOp : Physical_Op<"stream_dma_connect", [Terminator]> {
     be acquired from the `acquire` state before the transfer is performed, and
     released to the `release` state when the transfer is done.
 
+    A connection can have an optional `tag` attribute.  When the `tag` is
+    specified, an output connection will have the stream data tagged with
+    `tag`.  For input connections, the `tag` will be ignored and all data
+    received from the stream will be part of the connection.
+
     Example:
 
     ```mlir
-    ^bb0: physical.stream_dma_connect(
-      %lock[0->1], %buffer[0:1024]: memref<1024xi32>, ^bb0)
+    %0 = physical.stream_dma_connect<1>(
+      %lock[0->1], %buffer[0:1024]: memref<1024xi32>, %0)
     }
     ```
   }];
 
-  let arguments = (ins LockType:$lock,
-                       I32Attr:$acquire, I32Attr:$release,
+  let arguments = (ins OptionalAttr<I64Attr>:$tag,
+                       LockType:$lock,
+                       I64Attr:$acquire, I64Attr:$release,
                        AnyStaticShapeMemRef:$buffer,
-                       I32Attr:$start, I32Attr:$end);
-  let successors = (successor AnySuccessor:$next);
+                       I64Attr:$start, I64Attr:$end,
+                       Optional<StreamDmaConnectType>:$next);
+  let results = (outs StreamDmaConnectType:$connection);
 
   let assemblyFormat = [{
+    (`<` $tag^ `>`)?
     `(` $lock `[` $acquire `->` $release `]` `,`
-        $buffer `[` $start `:` $end `]` `:` type($buffer) `,`
-        $next
+        $buffer `[` $start `:` $end `]` `:` type($buffer)
+        ( `,` $next^ )?
     `)` regions attr-dict
   }];
 }

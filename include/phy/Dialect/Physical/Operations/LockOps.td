@@ -29,7 +29,7 @@ def LockOp: Physical_Op<"lock"> {
     ```
   }];
   
-  let arguments = (ins I32Attr:$state);
+  let arguments = (ins I64Attr:$state);
   let results = (outs LockType:$lock);
 
   let assemblyFormat = [{
@@ -55,7 +55,7 @@ def LockAcquireOp: Physical_Op<"lock_acquire"> {
     ```
   }];
   
-  let arguments = (ins I32Attr:$state, LockType:$lock);
+  let arguments = (ins I64Attr:$state, LockType:$lock);
 
   let assemblyFormat = [{
     `<` $state `>`  `(` $lock `)` attr-dict
@@ -78,7 +78,7 @@ def LockReleaseOp: Physical_Op<"lock_release"> {
     ```
   }];
   
-  let arguments = (ins I32Attr:$state, LockType:$lock);
+  let arguments = (ins I64Attr:$state, LockType:$lock);
 
   let assemblyFormat = [{
     `<` $state `>`  `(` $lock `)` attr-dict

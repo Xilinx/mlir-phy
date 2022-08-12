@@ -21,7 +21,7 @@ def StreamFifoType : Physical_Type<"StreamFifo", "stream_fifo"> {
     Fifos are first-in first-out storage elements, which takes an element in
     as input and buffers it.  The elements in the fifo is sent to the output
     whenever they are ready.  A fifo can have only one input connection and one
-    output connection.
+    output connection.  The tag of the stream data will be preseved.
   }];
 
   let parameters = (ins "Type":$datatype);

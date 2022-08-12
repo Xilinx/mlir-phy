@@ -20,6 +20,8 @@ def StreamHubType : Physical_Type<"StreamHub", "stream_hub"> {
   let description = [{
     A stream hub receives data from input streams and broadcast to output
     stream.  The supported endpoint count of a stream hub is target-dependent.
+    If the data in a stream is optionally tagged for packet switching, only
+    the streams accepting the tags will receive the data.
   }];
 
   let parameters = (ins "Type":$datatype);

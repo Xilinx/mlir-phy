@@ -21,7 +21,9 @@ def StreamHubOp : Physical_Op<"stream_hub"> {
     An operation creating a stream hub to connect multiple streams.  A stream
     reads data from all `phy.istream` endpoints, and broadcast data to all
     `phy.ostream` endpoints.  Depending on the target, one or multiple input
-    or output endpoints are supported.
+    or output endpoints are supported.  Depending on the target, multicasting
+    using data tags may be supported and only streams observing the tag of a
+    piece of data will receive the data.
 
     Example:
 

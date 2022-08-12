@@ -22,19 +22,23 @@ def StreamOp : Physical_Op<"stream"> {
     connects two endpoints and provides a streaming connection.  The created
     stream can be connected as an operand in `physical.core` operations for the
     software function to access and communicate, or by a `physical.stream_dma`
-    operation.  Streams can be connected using `physical.stream_hub`s.
+    operation.  Streams can be connected using `physical.stream_hub`s.  A
+    stream can optionally observe tagged data, and the observed tags shall be
+    specified as the `tags` attribute.  Data's tag will be preseved when
+    passing from the input endpoint to the output endpoint.
 
     Example:
 
     ```mlir
-    %stream = physical.stream(): !physical.stream<i32>
+    %stream = physical.stream<[0,1]>(): !physical.stream<i32>
     ```
   }];
 
+  let arguments = (ins OptionalAttr<I64ArrayAttr>:$tags);
   let results = (outs AnyStreamType:$stream);
 
   let assemblyFormat = [{
-    `(` `)` attr-dict `:` type($stream)
+    (`<` $tags^ `>`)? `(` `)` attr-dict `:` type($stream)
   }];
 }
 

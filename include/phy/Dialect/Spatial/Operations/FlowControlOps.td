@@ -34,7 +34,7 @@ def ValidOp : Spatial_Op<"valid"> {
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   let results = (outs I1:$result);
 
   let assemblyFormat = [{
@@ -64,7 +64,7 @@ def FullOp : Spatial_Op<"full"> {
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   let results = (outs I1:$result);
 
   let assemblyFormat = [{
@@ -99,7 +99,7 @@ def FrontOp : Spatial_Op<"front",
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
@@ -133,7 +133,7 @@ def EmplaceOp : Spatial_Op<"embrace",
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   let results = (outs AnyType:$result);
 
   let assemblyFormat = [{
@@ -163,7 +163,7 @@ def PopOp : Spatial_Op<"pop"> {
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   
   let assemblyFormat = [{
     (`<` $tag^ `>`)? `(` $queue `:` type($queue) `)` attr-dict
@@ -195,7 +195,7 @@ def PushOp : Spatial_Op<"push"> {
   }];
 
   let arguments = (ins AnyQueueType:$queue,
-                       OptionalAttr<I32Attr>:$tag);
+                       OptionalAttr<I64Attr>:$tag);
   
   let assemblyFormat = [{
     (`<` $tag^ `>`)? `(` $queue `:` type($queue) `)` attr-dict

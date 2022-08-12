@@ -65,10 +65,10 @@ def BusMmapOp : Physical_Op<"bus_mmap",
   }];
 
   let arguments = (ins BusTypeOf<AnyType>:$bus,
-                       I32Attr:$begin,
-                       I32Attr:$end,
+                       I64Attr:$begin,
+                       I64Attr:$end,
                        AnyStaticShapeMemRef:$buffer,
-                       I32Attr:$offset);
+                       I64Attr:$offset);
 
   let assemblyFormat = [{
     `(` $bus `[` $begin `:` $end `]` `,` $buffer `[` $offset `:` `]`

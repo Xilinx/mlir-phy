@@ -21,6 +21,8 @@ def StreamType : Physical_Type<"Stream", "stream"> {
     A stream connects two endpoints and provides a streaming connection.  It
     does not provide inflight data buffering, which is instead implemented as
     a `physical.stream_fifo` or `physical.buffer`s and `physical.stream_dma`s.
+    A stream data can be optionally tagged for packet switching, and this
+    feature is target-dependent.
   }];
 
   let parameters = (ins "Type":$datatype);

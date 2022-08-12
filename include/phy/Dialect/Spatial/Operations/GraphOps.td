@@ -80,7 +80,7 @@ def QueueOp : Spatial_Op<"queue"> {
     ```
   }];
 
-  let arguments = (ins I32Attr:$depth);
+  let arguments = (ins I64Attr:$depth);
   let results = (outs AnyQueueType:$queue);
 
   let assemblyFormat = [{
