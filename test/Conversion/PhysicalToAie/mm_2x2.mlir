@@ -10,7 +10,7 @@ module @MM_2x2 {
   %eB_1_0 = physical.buffer() { aie.external_address = 0x020100004000 }: memref<1024xi32>
   %eB_1_1 = physical.buffer() { aie.external_address = 0x020100005000 }: memref<1024xi32>
   %eC_0   = physical.buffer() { aie.external_address = 0x020100006000 }: memref<1024xi32>
-  %eC_1   = physical.buffer() { aie.external_address = 0x020100008000 }: memref<1024xi32>
+  %eC_1   = physical.buffer() { aie.external_address = 0x020100007000 }: memref<1024xi32>
   %A_0_a  = physical.buffer() { aie.tile = [6, 3] }: memref<1024xi32>
   %A_0_b  = physical.buffer() { aie.tile = [7, 3] }: memref<1024xi32>
   %A_1_a  = physical.buffer() { aie.tile = [6, 4] }: memref<1024xi32>
@@ -60,9 +60,10 @@ module @MM_2x2 {
   %sB_1:2    = physical.stream<[4, 5]>(){ aie.tile = [7, 0], aie.port = "O.DMA.0" }: (!physical.ostream<i32>, !physical.istream<i32>)
   %sB_1_0:2  = physical.stream<[4]>()   { aie.tile = [7, 3], aie.port = "I.DMA.1" }: (!physical.ostream<i32>, !physical.istream<i32>)
   %sB_1_1:2  = physical.stream<[5]>()   { aie.tile = [7, 4], aie.port = "I.DMA.1" }: (!physical.ostream<i32>, !physical.istream<i32>)
-  %sC:2      = physical.stream<[6, 7]>(){ aie.tile = [7, 0], aie.port = "I.DMA.0" }: (!physical.ostream<i32>, !physical.istream<i32>)
   %sC_0:2    = physical.stream<[6]>()   { aie.tile = [6, 4], aie.port = "O.DMA.0" }: (!physical.ostream<i32>, !physical.istream<i32>)
+  %seC_0:2   = physical.stream<[6]>()   { aie.tile = [7, 0], aie.port = "I.DMA.0" }: (!physical.ostream<i32>, !physical.istream<i32>)
   %sC_1:2    = physical.stream<[7]>()   { aie.tile = [7, 4], aie.port = "O.DMA.0" }: (!physical.ostream<i32>, !physical.istream<i32>)
+  %seC_1:2   = physical.stream<[7]>()   { aie.tile = [7, 0], aie.port = "I.DMA.1" }: (!physical.ostream<i32>, !physical.istream<i32>)
 
   physical.stream_dma(%sA#0: !physical.ostream<i32>) {
     %0 = physical.stream_dma_connect<0>(%leA_0[1->0], %eA_0[0:1024]: memref<1024xi32>, %1)
@@ -108,19 +109,27 @@ module @MM_2x2 {
   physical.stream_dma(%sC_1#0: !physical.ostream<i32>) {
     %0 = physical.stream_dma_connect<7>(%lC_1[1->0], %C_1[0:1024]: memref<1024xi32>, %0)
   } { aie.tile = [7, 4], aie.engine = "MM2S0" }
-  physical.stream_dma(%sC#1: !physical.istream<i32>) {
-    %0 = physical.stream_dma_connect(%leC_0[0->1], %eC_0[0:1024]: memref<1024xi32>, %1)
-    %1 = physical.stream_dma_connect(%leC_1[0->1], %eC_1[0:1024]: memref<1024xi32>, %0)
+  physical.stream_dma(%seC_0#1: !physical.istream<i32>) {
+    %0 = physical.stream_dma_connect(%leC_0[0->1], %eC_0[0:1024]: memref<1024xi32>, %0)
   } { aie.tile = [7, 0], aie.engine = "S2MM0" }
+  physical.stream_dma(%seC_1#1: !physical.istream<i32>) {
+    %1 = physical.stream_dma_connect(%leC_1[0->1], %eC_1[0:1024]: memref<1024xi32>, %1)
+  } { aie.tile = [7, 0], aie.engine = "S2MM1" }
 
   physical.stream_hub(
-          %sA#1,   %sB_0#1,   %sB_1#1,   %sC_0#1, %sC_1#1,
+          %sA#1,
+        %sB_0#1,   %sB_1#1,
+        %sC_0#1,   %sC_1#1,
       %sA_0_a#0, %sA_0_b#0, %sA_1_a#0, %sA_1_b#0,
-      %sB_0_0#0, %sB_0_1#0, %sB_1_0#0, %sB_1_1#0,   %sC#0)
+      %sB_0_0#0, %sB_0_1#0, %sB_1_0#0, %sB_1_1#0,
+       %seC_0#0,  %seC_1#0)
     { aie.impl = "broadcast_packet" }
-    : (!physical.istream<i32>, !physical.istream<i32>, !physical.istream<i32>, !physical.istream<i32>, !physical.istream<i32>,
+    : (!physical.istream<i32>,
+       !physical.istream<i32>, !physical.istream<i32>,
+       !physical.istream<i32>, !physical.istream<i32>,
        !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>,
-       !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>)
+       !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>, !physical.ostream<i32>,
+       !physical.ostream<i32>, !physical.ostream<i32>)
     -> !physical.stream_hub<i32>
 
   func.func private @extern_kernel(%A: memref<1024xi32>, %B: memref<1024xi32>, %acc: memref<1024xi32>, %C: memref<1024xi32>) -> ()
