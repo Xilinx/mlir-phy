@@ -7,5 +7,5 @@ func.func @function() {
 layout.platform<"xilinx"> {
 
   // CHECK: 'layout.place' op expects parent op 'layout.device'
-  layout.place<"slr0">(%node: !spatial.node)
+  layout.place<["slr0"]>(%node: !spatial.node)
 }

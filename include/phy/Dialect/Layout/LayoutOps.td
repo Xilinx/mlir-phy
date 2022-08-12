@@ -101,7 +101,7 @@ def DeviceOp : Layout_Op<"device",
 def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
   let summary = "placement of a vertex";
   let description = [{
-    An operation that place the 'vertex' to the specific location of the
+    An operation that place the 'vertex' to the specific slots of the
     enclosing device.  This operation must be enclosed by a 'layout.device'
     operation.  The 'slot' argument is target-dependent.  Please check the
     documentation of the platform and the device.
@@ -114,14 +114,15 @@ def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
     Example:
 
     ```mlir
-    layout.place<"tile/7.2/core">(%node)
-    layout.place<"tile/7.2/buffer">(%queue)
+    layout.place<["tile/7.2/core"]>(%node)
+    layout.place<["tile/7.2/buffer",
+                  "tile/7.2/lock#1"]>(%queue)
     ```
   }];
 
-  let arguments = (ins StrAttr:$slot, AnyVertexType:$vertex);
+  let arguments = (ins StrArrayAttr:$slots, AnyVertexType:$vertex);
   let assemblyFormat = [{
-    `<` $slot `>` `(` $vertex `:` type($vertex)  `)` attr-dict
+    `<` $slots `>` `(` $vertex `:` type($vertex)  `)` attr-dict
   }];
 }
 
