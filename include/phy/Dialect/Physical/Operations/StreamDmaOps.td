@@ -62,7 +62,8 @@ def StreamDmaOp : Physical_Op<"stream_dma", [
 // StreamDmaConnectOp
 //===----------------------------------------------------------------------===//
 
-def StreamDmaConnectOp : Physical_Op<"stream_dma_connect"> {
+def StreamDmaConnectOp : Physical_Op<"stream_dma_connect",
+                                     [HasParent<"StreamDmaOp">]> {
       
   let summary = "creation of a dma connection that connects to a buffer";
   let description = [{

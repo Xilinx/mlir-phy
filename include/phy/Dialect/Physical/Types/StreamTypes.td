@@ -12,103 +12,67 @@
 include "phy/Dialect/Physical/PhysicalBase.td"
 
 //===----------------------------------------------------------------------===//
-// StreamType
+// IStreamType
 //===----------------------------------------------------------------------===//
 
-def StreamType : Physical_Type<"Stream", "stream"> {
-  let summary = "A type specifiying a streaming connection";
-  let description = [{
-    A stream connects two endpoints and provides a streaming connection.  It
-    does not provide inflight data buffering, which is instead implemented as
-    a `physical.stream_fifo` or `physical.buffer`s and `physical.stream_dma`s.
-    A stream data can be optionally tagged for packet switching, and this
-    feature is target-dependent.
-  }];
-
-  let parameters = (ins "Type":$datatype);
-  let assemblyFormat = "`<` $datatype `>`";
-}
-
-class StreamTypeOf<Type element> : Type<
-  And<[
-    CPred<"$_self.isa<phy::physical::StreamType>()">,
-    SubstLeaves<
-      "$_self",
-      "$_self.cast<phy::physical::StreamType>().getDatatype()",
-      element.predicate>
-  ]>,
-  "a stream of " # element.summary
->;
-
-def AnyStreamType : Type<
-  Or<[
-    StreamTypeOf<AnyType>.predicate,
-  ]>,
-  "a stream"
->;
-
-//===----------------------------------------------------------------------===//
-// IStreamEndpointType
-//===----------------------------------------------------------------------===//
-
-def IStreamEndpointType : Physical_Type<"IStreamEndpoint", "istream"> {
+def IStreamType : Physical_Type<"IStream", "istream"> {
   let summary = "A type specifiying a streaming endpoint for input";
   let description = [{
-    A stream endpoint that takes data as input.
+    A stream endpoint that can be used for reading data from a stream
   }];
 
   let parameters = (ins "Type":$datatype);
   let assemblyFormat = "`<` $datatype `>`";
 }
 
-class IStreamEndpointTypeOf<Type element> : Type<
+class IStreamTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::IStreamEndpointType>()">,
+    CPred<"$_self.isa<phy::physical::IStreamType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::IStreamEndpointType>().getDatatype()",
+      "$_self.cast<phy::physical::IStreamType>().getDatatype()",
       element.predicate>
   ]>,
-  "an input endpoint of a stream of " # element.summary
+  "a reading endpoint (istream) of a stream of " # element.summary
 >;
 
-def AnyIStreamEndpointType : Type<
+def AnyIStreamType : Type<
   Or<[
-    IStreamEndpointTypeOf<AnyType>.predicate,
+    IStreamTypeOf<AnyType>.predicate,
   ]>,
-  "an input endpoint of a stream"
+  "a reading endpoint (istream) of a stream"
 >;
 
 //===----------------------------------------------------------------------===//
-// OStreamEndpointType
+// OStreamType
 //===----------------------------------------------------------------------===//
 
-def OStreamEndpointType : Physical_Type<"OStreamEndpoint", "ostream"> {
+def OStreamType : Physical_Type<"OStream", "ostream"> {
   let summary = "A type specifiying a streaming endpoint for output";
   let description = [{
-    A stream endpoint that outputs data.
+    A stream endpoint that can be used for writing data to a stream
   }];
 
   let parameters = (ins "Type":$datatype);
   let assemblyFormat = "`<` $datatype `>`";
 }
 
-class OStreamEndpointTypeOf<Type element> : Type<
+class OStreamTypeOf<Type element> : Type<
   And<[
-    CPred<"$_self.isa<phy::physical::OStreamEndpointType>()">,
+    CPred<"$_self.isa<phy::physical::OStreamType>()">,
     SubstLeaves<
       "$_self",
-      "$_self.cast<phy::physical::OStreamEndpointType>().getDatatype()",
+      "$_self.cast<phy::physical::OStreamType>().getDatatype()",
       element.predicate>
   ]>,
-  "an output endpoint of a stream of " # element.summary
+  "a writing endpoint (ostream) of a stream of " # element.summary
 >;
 
-def AnyOStreamEndpointType : Type<
+def AnyOStreamType : Type<
   Or<[
-    OStreamEndpointTypeOf<AnyType>.predicate,
+    OStreamTypeOf<AnyType>.predicate,
   ]>,
-  "an output endpoint of a stream"
+  "a writing endpoint (ostream) of a stream"
 >;
 
 //===----------------------------------------------------------------------===//
@@ -117,8 +81,8 @@ def AnyOStreamEndpointType : Type<
 
 def AnyStreamEndpointType : Type<
   Or<[
-    AnyIStreamEndpointType.predicate,
-    AnyOStreamEndpointType.predicate,
+    AnyIStreamType.predicate,
+    AnyOStreamType.predicate,
   ]>,
   "a stream endpoint"
 >;

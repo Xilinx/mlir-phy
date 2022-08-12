@@ -13,13 +13,10 @@
 %lock2 = physical.lock<0>()
 
 // CHECK: physical.stream
-%stream = physical.stream<[0, 1]>(): !physical.stream<i32>
-
-// CHECK: physical.istream
-%input = physical.istream(%stream: !physical.stream<i32>)
+%stream:2 = physical.stream<[0, 1]>(): (!physical.ostream<i32>, !physical.istream<i32>)
 
 // CHECK: physical.stream_dma
-physical.stream_dma(%input: !physical.istream<i32>) {
+physical.stream_dma(%stream#1: !physical.istream<i32>) {
 
   // CHECK: physical.stream_dma_connect
   %0 = physical.stream_dma_connect<0>(
@@ -31,14 +28,8 @@ physical.stream_dma(%input: !physical.istream<i32>) {
 
 }
 
-// CHECK: physical.stream
-%stream2 = physical.stream(): !physical.stream<i32>
-
-// CHECK: physical.istream
-%input2 = physical.istream(%stream2: !physical.stream<i32>)
-
 // CHECK: physical.stream_dma
-physical.stream_dma(%input2: !physical.istream<i32>) {
+physical.stream_dma(%stream#1: !physical.istream<i32>) {
 
   // CHECK: physical.stream_dma_connect
   %0 = physical.stream_dma_connect(

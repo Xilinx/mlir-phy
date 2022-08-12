@@ -7,15 +7,9 @@ func.func @function(%in:  !physical.istream<i32>,
 }
 
 // CHECK: physical.stream
-%stream = physical.stream(): !physical.stream<i32>
-
-// CHECK: physical.istream
-%input = physical.istream(%stream: !physical.stream<i32>)
-
-// CHECK: physical.ostream
-%output = physical.ostream(%stream: !physical.stream<i32>)
+%stream:2 = physical.stream<[0, 1]>(): (!physical.ostream<i32>, !physical.istream<i32>)
 
 // CHECK: physical.core @function
-%pe = physical.core @function(%input, %output)
+%pe = physical.core @function(%stream#1, %stream#0)
     : (!physical.istream<i32>, !physical.ostream<i32>)
     -> !physical.core

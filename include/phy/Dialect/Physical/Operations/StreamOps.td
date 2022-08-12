@@ -25,80 +25,24 @@ def StreamOp : Physical_Op<"stream"> {
     operation.  Streams can be connected using `physical.stream_hub`s.  A
     stream can optionally observe tagged data, and the observed tags shall be
     specified as the `tags` attribute.  Data's tag will be preseved when
-    passing from the input endpoint to the output endpoint.
+    passing from the ostream endpoint to the istream endpoint.
 
     Example:
 
     ```mlir
-    %stream = physical.stream<[0,1]>(): !physical.stream<i32>
+    %stream:2 = physical.stream<[0,1]>()
+              : (!physical.ostream<i32>, !physical.istream<i32>)
+    // %stream#0 is the ostream, and %stream#1 is the istream
     ```
   }];
 
   let arguments = (ins OptionalAttr<I64ArrayAttr>:$tags);
-  let results = (outs AnyStreamType:$stream);
+  let results = (outs AnyOStreamType:$ostream,
+                      AnyIStreamType:$istream);
 
   let assemblyFormat = [{
-    (`<` $tags^ `>`)? `(` `)` attr-dict `:` type($stream)
-  }];
-}
-
-//===----------------------------------------------------------------------===//
-// IStreamOp
-//===----------------------------------------------------------------------===//
-
-def IStreamOp : Physical_Op<"istream",
-    [TypesMatchWith<"endpoint's data type is the same as 'stream'",
-                    "stream", "endpoint",
-                    "IStreamEndpointType::get($_self.getContext(), "
-                      "$_self.cast<StreamType>().getDatatype()"
-                      ")">]> {
-  let summary = "obtaining the input endpoint of the stream";
-  let description = [{
-    The `physical.istream` operation returns the input endpoint of the stream
-    for usage as a `physical.core` operand, etc, to push data into the stream.
-
-    Example:
-
-    ```mlir
-    %endpoint = physical.istream(%stream: !physical.stream<i32>)
-    ```
-  }];
-
-  let arguments = (ins AnyStreamType:$stream);
-  let results = (outs AnyIStreamEndpointType:$endpoint);
-
-  let assemblyFormat = [{
-    `(` $stream `:` type($stream) `)` attr-dict
-  }];
-}
-
-//===----------------------------------------------------------------------===//
-// OStreamOp
-//===----------------------------------------------------------------------===//
-
-def OStreamOp : Physical_Op<"ostream",
-    [TypesMatchWith<"endpoint's data type is the same as 'stream'",
-                    "stream", "endpoint",
-                    "OStreamEndpointType::get($_self.getContext(), "
-                      "$_self.cast<StreamType>().getDatatype()"
-                      ")">]> {
-  let summary = "obtaining the output endpoint of the stream";
-  let description = [{
-    The `physical.ostream` operation returns the output endpoint of the stream
-    for usage as a `physical.core` operand, etc, to pop data from the stream.
-
-    Example:
-
-    ```mlir
-    %endpoint = physical.ostream(%stream: !physical.stream<i32>)
-    ```
-  }];
-
-  let arguments = (ins AnyStreamType:$stream);
-  let results = (outs AnyOStreamEndpointType:$endpoint);
-
-  let assemblyFormat = [{
-    `(` $stream `:` type($stream) `)` attr-dict
+    (`<` $tags^ `>`)? `(` `)` attr-dict
+    `:` `(` type($ostream) `,` type($istream) `)`
   }];
 }
 
