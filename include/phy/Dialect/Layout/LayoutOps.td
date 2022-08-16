@@ -101,9 +101,9 @@ def DeviceOp : Layout_Op<"device",
 def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
   let summary = "placement of a vertex";
   let description = [{
-    An operation that place the 'vertex' to the specific slots of the
+    An operation that place the 'vertex' to the specific slot of the
     enclosing device.  This operation must be enclosed by a 'layout.device'
-    operation.  The 'slots' argument is target-dependent and is
+    operation.  The 'slot' argument is target-dependent and is
     comma-seperated.  Please check the documentation of the platform and the
     device.
 
@@ -116,13 +116,13 @@ def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
 
     ```mlir
     layout.place<["tile/7.2/core"]>(%node)
-    layout.place<["tile/7.2/buffer,tile/7.2/lock#1"]>(%queue)
+    layout.place<["tile/7.2/buffer"]>(%queue)
     ```
   }];
 
-  let arguments = (ins StrAttr:$slots, AnyVertexType:$vertex);
+  let arguments = (ins StrAttr:$slot, AnyVertexType:$vertex);
   let assemblyFormat = [{
-    `<` $slots `>` `(` $vertex `:` type($vertex)  `)` attr-dict
+    `<` $slot `>` `(` $vertex `:` type($vertex)  `)` attr-dict
   }];
 }
 
@@ -134,8 +134,9 @@ def RouteOp : Layout_Op<"route", [ParentOneOf<["PlatformOp", "DeviceOp"]>]> {
   let summary = "route of a flow";
   let description = [{
     An operation that route the 'flow' to the specific wires of the enclosing
-    device or platform.  The 'wires' argument is target-dependent.  Please check
-    the documentation of the platform and the device.
+    device or platform.  The 'wires' argument is a list of slots and is
+    target-dependent.  Please check the documentation of the platform and the
+    device.
 
     Depending on the device, a wire may be time-multiplexed by multiple flows.
     In this case, the actual supported concurrency may be reduced.  This

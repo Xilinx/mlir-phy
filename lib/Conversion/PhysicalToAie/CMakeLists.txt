@@ -17,6 +17,7 @@ add_phy_conversion_library(PhysicalToAie
   LINK_LIBS
   MLIRPass
   AIE
+  TargetAIE
 )
 
 endif()

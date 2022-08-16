@@ -1,4 +1,4 @@
-##===- CMakeLists.txt - nop pass cmake  -----------------------*- cmake -*-===//
+##===- CMakeLists.txt - AIE target cmake  ---------------------*- cmake -*-===//
 ##
 ## This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 ## See https://llvm.org/LICENSE.txt for license information.
@@ -6,13 +6,14 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-add_phy_conversion_library(Nop
-  Nop.cpp
+if(AIE_FOUND)
 
-  DEPENDS
-  Connectivity
-  MLIRPhyConversionPassIncGen
+add_phy_library(TargetAIE
+  Affinity.cpp
+  Resource.cpp
 
   LINK_LIBS
-  MLIRPass
+  Connectivity
 )
+
+endif()
