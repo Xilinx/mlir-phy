@@ -103,8 +103,9 @@ def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
   let description = [{
     An operation that place the 'vertex' to the specific slots of the
     enclosing device.  This operation must be enclosed by a 'layout.device'
-    operation.  The 'slot' argument is target-dependent.  Please check the
-    documentation of the platform and the device.
+    operation.  The 'slots' argument is target-dependent and is
+    comma-seperated.  Please check the documentation of the platform and the
+    device.
 
     Depending on the device, a slot may be time-multiplexed by multiple nodes
     or queues.  In this case, the actual supported concurrency may be reduced.
@@ -115,12 +116,11 @@ def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
 
     ```mlir
     layout.place<["tile/7.2/core"]>(%node)
-    layout.place<["tile/7.2/buffer",
-                  "tile/7.2/lock#1"]>(%queue)
+    layout.place<["tile/7.2/buffer,tile/7.2/lock#1"]>(%queue)
     ```
   }];
 
-  let arguments = (ins StrArrayAttr:$slots, AnyVertexType:$vertex);
+  let arguments = (ins StrAttr:$slots, AnyVertexType:$vertex);
   let assemblyFormat = [{
     `<` $slots `>` `(` $vertex `:` type($vertex)  `)` attr-dict
   }];
