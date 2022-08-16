@@ -15,11 +15,22 @@ configure_lit_site_cfg(
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg.py
 )
 
+configure_lit_site_cfg(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Unit/lit.site.cfg.py.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Unit/lit.site.cfg.py
+  MAIN_CONFIG
+  ${CMAKE_CURRENT_SOURCE_DIR}/Unit/lit.cfg.py
+)
+
 set(PHY_TEST_DEPENDS
   FileCheck count not
   phy-opt
   phy-translate
 )
+
+if (PHY_GTEST_AVAILABLE)
+list(APPEND PHY_TEST_DEPENDS PhyUnitTests)
+endif()
 
 add_lit_testsuite(check-phy
   "Running the MLIR-PHY regression tests"
