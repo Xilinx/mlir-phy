@@ -1,4 +1,4 @@
-//===- Resource.h -----------------------------------------------*- C++ -*-===//
+//===- TargetResources.h ----------------------------------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,10 +6,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_TARGET_AIE_RESOURCE_H
-#define MLIR_PHY_TARGET_AIE_RESOURCE_H
+#ifndef MLIR_PHY_TARGET_AIE_TARGET_RESOURCES_H
+#define MLIR_PHY_TARGET_AIE_TARGET_RESOURCES_H
 
-#include "phy/Target/Base/Resource.h"
+#include "phy/Target/Base/TargetResources.h"
 
 #include <set>
 
@@ -21,16 +21,16 @@ namespace aie {
 
 using namespace phy::connectivity;
 
-class Resource : phy::target::ResourceBase {
+class TargetResources : phy::target::TargetResourcesBase {
   int array_height = 8;
   int array_width = 50;
 
-  std::map<std::string, TargetSupport> method_support = {
+  std::map<std::string, TargetSupport> physical_support = {
       {"lock", {{"states", 2}}},
       {"stream", {{"width_bytes", 32}}},
   };
 
-  std::map<std::string, Capacity> method_capacity = {
+  std::map<std::string, Capacity> physical_capacity = {
       {"buffer", {{"depth_bytes", 32 * 1024}}},
       {"core", {{"count", 1}, {"depth_bytes", 16 * 1024}}},
       {"lock", {{"count", 16}}},
@@ -54,18 +54,22 @@ class Resource : phy::target::ResourceBase {
   bool isLegalAffinity(int coreCol, int coreRow, int bufCol, int bufRow);
   std::set<std::pair<int, int>> getAffinity(int col, int row,
                                             std::string neigh_type);
-  std::list<Phy> getDummyPhys(std::set<std::pair<int, int>> tiles,
-                              std::string phy_key);
 
 public:
-  Capacity PhyCapacity(Phy &phy) override;
-  TargetSupport PhyTargetSupport(Phy &phy) override;
-  std::list<Slot> FittableSlots(mlir::Operation *vertex) override;
-  std::list<Slot> SlotNeighbors(Slot &slot) override;
+  std::list<VirtualResource>
+  VirtualResourceVertices(std::string virt_key) override;
+  std::list<VirtualResource>
+  VirtualResourceNeighbors(VirtualResource &slot) override;
+  Capacity VirtualResourceCapacity(VirtualResource &virt) override;
+
+  TargetSupport PhysicalResourceSupport(PhysicalResource &phy) override;
+  Capacity PhysicalResourceCapacity(PhysicalResource &phy) override;
+  Utilization PhysicalResourceUtilization(PhysicalResource &phy,
+                                          mlir::Operation *vertex) override;
 };
 
 } // namespace aie
 } // namespace target
 } // namespace phy
 
-#endif // MLIR_PHY_TARGET_AIE_RESOURCE_H
+#endif // MLIR_PHY_TARGET_AIE_TARGET_RESOURCES_H

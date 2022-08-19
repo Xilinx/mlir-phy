@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "phy/Target/AIE/Resource.h"
+#include "phy/Target/AIE/TargetResources.h"
 
 #include <utility>
 
@@ -30,8 +30,8 @@ static bool isNorth(int src_col, int src_row, int dst_col, int dst_row) {
   return ((src_col == dst_col) && (src_row == dst_row - 1));
 }
 
-bool Resource::isLegalAffinity(int core_col, int core_row, int buf_col,
-                               int buf_row) {
+bool TargetResources::isLegalAffinity(int core_col, int core_row, int buf_col,
+                                      int buf_row) {
   bool isLegalCore = (core_col > 0 && core_col <= array_width) &&
                      (core_row > 0 && core_row <= array_height);
   bool isLegalBuf = (buf_col > 0 && buf_col <= array_width) &&
@@ -54,8 +54,8 @@ bool Resource::isLegalAffinity(int core_col, int core_row, int buf_col,
 
 // End Xilinx code.
 
-std::set<std::pair<int, int>> Resource::getAffinity(int col, int row,
-                                                    std::string neigh_type) {
+std::set<std::pair<int, int>>
+TargetResources::getAffinity(int col, int row, std::string neigh_type) {
   std::list<std::pair<int, int>> neighbors = {
       {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {0, 0}};
 

@@ -7,5 +7,6 @@
 ##===----------------------------------------------------------------------===//
 
 add_phy_library(Connectivity
-  Graph.cpp
+  Implementation.cpp
+  Resource.cpp
 )

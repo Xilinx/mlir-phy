@@ -6,11 +6,12 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-add_phy_unittest(PHYConnectivityGraphTests
-  GraphTests.cpp
+add_phy_unittest(PHYConnectivityTests
+  ImplementationTests.cpp
+  ResourceTests.cpp
 )
 
-target_link_libraries(PHYConnectivityGraphTests
+target_link_libraries(PHYConnectivityTests
   PRIVATE
   Connectivity
 )

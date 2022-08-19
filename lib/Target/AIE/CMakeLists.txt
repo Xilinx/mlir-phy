@@ -10,7 +10,7 @@ if(AIE_FOUND)
 
 add_phy_library(TargetAIE
   Affinity.cpp
-  Resource.cpp
+  TargetResources.cpp
 
   LINK_LIBS
   Connectivity
