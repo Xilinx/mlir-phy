@@ -135,9 +135,9 @@ module @MM_2x2 {
   func.func private @extern_kernel(%A: memref<1024xi32>, %B: memref<1024xi32>, %acc: memref<1024xi32>, %C: memref<1024xi32>) -> ()
 
   func.func private @kernel(%A: memref<1024xi32>, %lA: !physical.lock,
-                   %B: memref<1024xi32>, %lB: !physical.lock,
-                   %acc: memref<1024xi32>, %lacc: !physical.lock,
-                   %C: memref<1024xi32>, %lC: !physical.lock) {
+                            %B: memref<1024xi32>, %lB: !physical.lock,
+                            %acc: memref<1024xi32>, %lacc: !physical.lock,
+                            %C: memref<1024xi32>, %lC: !physical.lock) {
     cf.br ^bb
 ^bb:
     physical.lock_acquire<1>(%lA)
