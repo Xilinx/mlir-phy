@@ -89,37 +89,6 @@ def QueueOp : Spatial_Op<"queue"> {
 }
 
 //===----------------------------------------------------------------------===//
-// FlowOp
-//===----------------------------------------------------------------------===//
-
-def FlowOp : Spatial_Op<"flow"> {
-  let summary = "flow connection creation operation";
-  let description = [{
-    The `spatial.flow` operation represents an explicit creation of a flow that
-    has the type argument as its connection's datatype.  The created flow
-    connects the 'src' vertex to the 'dest' vertex.
-
-    Example:
-
-    ```mlir
-    %flow = spatial.flow(%n: !spatial.node
-                      -> %q: !spatial.queue<memref<8xi32>>)
-           : !spatial.flow<memref<8xi32>>
-    ```
-  }];
-
-  let arguments = (ins AnyVertexType:$src, AnyVertexType:$dest);
-  let results = (outs AnyFlowType:$flow);
-
-  let hasVerifier = 1;
-
-  let assemblyFormat = [{
-    `(` $src `:` type($src) `->` $dest `:` type($dest) `)`
-    attr-dict `:` type($flow)
-  }];
-}
-
-//===----------------------------------------------------------------------===//
 // BridgeOp
 //===----------------------------------------------------------------------===//
 

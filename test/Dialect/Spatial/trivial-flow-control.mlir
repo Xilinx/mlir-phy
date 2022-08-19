@@ -14,10 +14,10 @@ func.func @function(%q: !spatial.queue<memref<i32>>) {
   %accessor0 = spatial.front(%q) : memref<i32>
   // CHECK: spatial.front
   %accessor1 = spatial.front<1>(%q) : memref<i32>
-  // CHECK: spatial.embrace
-  %writer0 = spatial.embrace(%q) : memref<i32>
-  // CHECK: spatial.embrace
-  %writer1 = spatial.embrace<1>(%q) : memref<i32>
+  // CHECK: spatial.emplace
+  %writer0 = spatial.emplace(%q) : memref<i32>
+  // CHECK: spatial.emplace
+  %writer1 = spatial.emplace<1>(%q) : memref<i32>
   // CHECK: spatial.pop
   spatial.pop(%q: !spatial.queue<memref<i32>>)
   // CHECK: spatial.pop

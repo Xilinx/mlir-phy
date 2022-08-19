@@ -44,27 +44,3 @@ LogicalResult NodeOp::verifySymbolUses(SymbolTableCollection &symbolTable) {
 
   return success();
 }
-
-LogicalResult FlowOp::verify() {
-  Type srcType = src().getType();
-  Type destType = dest().getType();
-
-  if (srcType.isa<NodeType>() && destType.isa<NodeType>())
-    return emitOpError("a node cannot be connected to a node using a flow");
-
-  if (srcType.isa<QueueType>() && destType.isa<QueueType>())
-    return emitOpError("a queue cannot be connected to a queue using a flow");
-
-  Type datatype;
-  if (auto srcQueue = srcType.dyn_cast<QueueType>())
-    datatype = srcQueue.getDatatype();
-  else if (auto destQueue = destType.dyn_cast<QueueType>())
-    datatype = destQueue.getDatatype();
-  else
-    return emitOpError("one endpoint of the flow must be a queue");
-
-  if (flow().getType().dyn_cast<FlowType>().getDatatype() != datatype)
-    return emitOpError("the datatype of the flow must match the queue");
-
-  return success();
-}

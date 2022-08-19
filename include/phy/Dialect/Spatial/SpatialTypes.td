@@ -62,41 +62,6 @@ def AnyQueueType : Type<
 >;
 
 //===----------------------------------------------------------------------===//
-// FlowType
-//===----------------------------------------------------------------------===//
-
-def FlowType : Spatial_EdgeType<"Flow", "flow"> {
-  let summary = "A directed connection between a node and a queue";
-  let description = [{
-    Flows are implicitly created between nodes and queues when a queue is
-    passed to a node function.  A flow connects a node vertex with a queue
-    vertex.  A flow is directed.
-  }];
-
-  let parameters = (ins "Type":$datatype);
-  let assemblyFormat = "`<` $datatype `>`";
-}
-
-class FlowTypeOf<Type element> : Type<
-  And<[
-    CPred<"$_self.isa<phy::spatial::FlowType>()">,
-    SubstLeaves<
-      "$_self",
-      "$_self.cast<phy::spatial::FlowType>().getDatatype()",
-      element.predicate>,
-  ]>,
-  "a flow of " # element.summary
->;
-
-def AnyFlowType : Type<
-  Or<[
-    FlowTypeOf<AnyStaticShapeMemRef>.predicate,
-    FlowTypeOf<NoneType>.predicate,
-  ]>,
-  "a flow of static shape memref or none"
->;
-
-//===----------------------------------------------------------------------===//
 // PromiseType
 //===----------------------------------------------------------------------===//
 
@@ -139,13 +104,6 @@ def AnyVertexType : Type<
     NodeType.predicate,
   ]>,
   "a queue or a node"
->;
-
-def AnyEdgeType : Type<
-  Or<[
-    AnyFlowType.predicate,
-  ]>,
-  "a flow"
 >;
 
 #endif  // MLIR_PHY_DIALECT_SPATIAL_TYPES_TD

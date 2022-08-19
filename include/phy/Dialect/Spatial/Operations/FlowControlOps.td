@@ -53,7 +53,7 @@ def FullOp : Spatial_Op<"full"> {
     ready for enqueuing elements with the given tag.  This operation is
     non-blocking and returns a boolean result, which is true if it is full,
     or false if it is ready for enqueuing.  When `spatial.valid` returns true,
-    `spatial.embrace` and `spatial.push` return immediately without blocking.  
+    `spatial.emplace` and `spatial.push` return immediately without blocking.  
     If the 'tag' is not specified, tag #0 is used by default.
 
     Example:
@@ -93,7 +93,7 @@ def FrontOp : Spatial_Op<"front",
     Example:
 
     ```mlir
-    %queue = spatial.queue() : !spatial.flow<memref<i32>>
+    %queue = spatial.queue<1>() : !spatial.flow<memref<i32>>
     %accessor = spatial.front<1>(%queue) : memref<i32>
     ```
   }];
@@ -111,14 +111,14 @@ def FrontOp : Spatial_Op<"front",
 // EmplaceOp
 //===----------------------------------------------------------------------===//
 
-def EmplaceOp : Spatial_Op<"embrace",
+def EmplaceOp : Spatial_Op<"emplace",
     [TypesMatchWith<"'queue' data has the same type as result",
                     "result", "queue",
                     "QueueType::get($_self.getContext(), $_self)">]> {
 
   let summary = "blocking construct the last data accessor";
   let description = [{
-    The `spatial.embrace` operation allocate a memory space at the last of the
+    The `spatial.emplace` operation allocate a memory space at the last of the
     queue for preparing an element to enqueue.  The element is tagged with the
     given tag, or tagged #0 by default.  When the queue has no space to be
     allocated, this operation blocks until it is available.  It returns the
@@ -127,8 +127,8 @@ def EmplaceOp : Spatial_Op<"embrace",
     Example:
 
     ```mlir
-    %queue = spatial.queue() : !spatial.flow<memref<i32>>
-    %accessor = spatial.embrace<1>(%queue) : memref<i32>
+    %queue = spatial.queue<1>() : !spatial.flow<memref<i32>>
+    %accessor = spatial.emplace<1>(%queue) : memref<i32>
     ```
   }];
 

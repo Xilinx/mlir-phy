@@ -131,12 +131,12 @@ def PlaceOp : Layout_Op<"place", [HasParent<"DeviceOp">]> {
 //===----------------------------------------------------------------------===//
 
 def RouteOp : Layout_Op<"route", [ParentOneOf<["PlatformOp", "DeviceOp"]>]> {
-  let summary = "route of a flow";
+  let summary = "route of a flow connection";
   let description = [{
-    An operation that route the 'flow' to the specific wires of the enclosing
-    device or platform.  The 'wires' argument is a list of slots and is
-    target-dependent.  Please check the documentation of the platform and the
-    device.
+    An operation that route the flow, which connects the 'src' vertex to the
+    'dest' vertex, to the specific wires of the enclosing device or platform.
+    The 'wires' argument is a list of slots and is target-dependent.  Please
+    check the documentation of the platform and the device.
 
     Depending on the device, a wire may be time-multiplexed by multiple flows.
     In this case, the actual supported concurrency may be reduced.  This
@@ -154,13 +154,17 @@ def RouteOp : Layout_Op<"route", [ParentOneOf<["PlatformOp", "DeviceOp"]>]> {
                   "tile/7.3/switchbox/7.2-8.3",
                   "tile/8.3/dma/s2mm0",
                   "tile/8.3/double-buffering",
-                  "tile/8.3/memory-access"]>(%flow)
+                  "tile/8.3/memory-access"]>(
+                    %n: !spatial.node
+                 -> %q: !spatial.queue<memref<8xi32>>)
     ```
   }];
 
-  let arguments = (ins StrArrayAttr:$wires, AnyEdgeType:$flow);
+  let hasVerifier = 1;
+
+  let arguments = (ins StrArrayAttr:$wires, AnyVertexType:$src, AnyVertexType:$dest);
   let assemblyFormat = [{
-    `<` $wires `>` `(` $flow `:` type($flow)  `)` attr-dict
+    `<` $wires `>` `(` $src `:` type($src) `->` $dest `:` type($dest) `)` attr-dict
   }];
 }
 
