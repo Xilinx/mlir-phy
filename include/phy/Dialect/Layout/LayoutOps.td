@@ -145,7 +145,7 @@ def RouteOp : Layout_Op<"route", [ParentOneOf<["PlatformOp", "DeviceOp"]>]> {
 
     Depending on the device, a wire may contain buffering or caching.  Usage
     or rejection of such a wire can be specified using `layout.wire.*`
-    attributes on the `spatial.flow` operations.
+    attributes on this operation.
     
     Example:
 
