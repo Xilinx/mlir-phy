@@ -9,6 +9,10 @@
 #include "phy/Conversion/PhysicalToAie.h"
 #include "phy/Conversion/Passes.h"
 #include "phy/Dialect/Physical/PhysicalDialect.h"
+#include "phy/Target/AIE/LoweringPatterns.h"
+
+#include "aie/AIEDialect.h"
+#include "mlir/Transforms/DialectConversion.h"
 #include "llvm/Support/Debug.h"
 
 #define DEBUG_TYPE "convert-physical-to-aie"
@@ -19,7 +23,22 @@ using namespace phy;
 namespace {
 
 struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
-  void runOnOperation() override {}
+  void runOnOperation() override {
+    mlir::ModuleOp module = getOperation();
+    mlir::ConversionTarget target(getContext());
+    target.addLegalDialect<xilinx::AIE::AIEDialect>();
+
+    mlir::RewritePatternSet patterns(&getContext());
+    for (auto &pattern :
+         phy::target::aie::AIELoweringPatternSets().getPatternSets()) {
+      pattern->populatePatternSet(patterns, &getContext());
+    }
+
+    if (mlir::failed(
+            mlir::applyFullConversion(module, target, std::move(patterns)))) {
+      signalPassFailure();
+    }
+  }
 };
 
 } // namespace
