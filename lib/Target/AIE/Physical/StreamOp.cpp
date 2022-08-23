@@ -1,4 +1,4 @@
-//===- StreamOp.cpp -----------------------------------------------*- C++ -*-===//
+//===- StreamOp.cpp ---------------------------------------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -23,7 +23,7 @@ class StreamOpToAieLowering : public OpConversionPattern<StreamOp> {
 
 public:
   StreamOpToAieLowering(mlir::MLIRContext *context,
-                      AIELoweringPatternSets *lowering)
+                        AIELoweringPatternSets *lowering)
       : OpConversionPattern<StreamOp>(context), lowering(lowering) {}
 
   mlir::LogicalResult

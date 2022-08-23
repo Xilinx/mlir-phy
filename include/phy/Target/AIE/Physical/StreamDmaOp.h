@@ -1,4 +1,4 @@
-//===- StreamOp.h -------------------------------------------------*- C++
+//===- StreamDmaOp.h -------------------------------------------------*- C++
 //-*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
@@ -12,18 +12,18 @@
 
 #include "mlir/Transforms/DialectConversion.h"
 
-#ifndef MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAMOP_H
-#define MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAMOP_H
+#ifndef MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAM_DMA_OP_H
+#define MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAM_DMA_OP_H
 
 namespace phy {
 namespace target {
 namespace aie {
 
-class StreamOpLoweringPatternSet : public LoweringPatternSet {
+class StreamDmaOpLoweringPatternSet : public LoweringPatternSet {
   AIELoweringPatternSets *lowering;
 
 public:
-  StreamOpLoweringPatternSet(AIELoweringPatternSets *lowering)
+  StreamDmaOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
 };
@@ -32,4 +32,4 @@ public:
 } // namespace target
 } // namespace phy
 
-#endif // MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAMOP_H
+#endif // MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_STREAM_DMA_OP_H

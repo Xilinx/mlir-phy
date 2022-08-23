@@ -54,6 +54,8 @@ bool TargetResources::isLegalAffinity(int core_col, int core_row, int buf_col,
 
 // End Xilinx code.
 
+bool TargetResources::isShimTile(int col, int row) { return row == 0; }
+
 std::set<std::pair<int, int>>
 TargetResources::getAffinity(int col, int row, std::string neigh_type) {
   std::list<std::pair<int, int>> neighbors = {

@@ -16,6 +16,7 @@ add_phy_library(TargetAIE
   Physical/BufferOp.cpp
   Physical/CoreOp.cpp
   Physical/LockOp.cpp
+  Physical/StreamDmaOp.cpp
   Physical/StreamOp.cpp
 
   LINK_LIBS

@@ -51,11 +51,12 @@ class TargetResources : phy::target::TargetResourcesBase {
       // West.O is the same endpoint of East.I of its south switch
   };
 
+public:
+  bool isShimTile(int col, int row);
   bool isLegalAffinity(int coreCol, int coreRow, int bufCol, int bufRow);
   std::set<std::pair<int, int>> getAffinity(int col, int row,
                                             std::string neigh_type);
 
-public:
   std::list<VirtualResource>
   VirtualResourceVertices(std::string virt_key) override;
   std::list<VirtualResource>

@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "phy/Dialect/Physical/PhysicalDialect.h"
+
 #include "phy/Target/Base/LoweringPatterns.h"
 
 #include "aie/AIEDialect.h"
@@ -30,16 +31,28 @@ public:
   std::list<std::unique_ptr<LoweringPatternSet>> getPatternSets() override;
 
   ModuleOp module;
+
+  // tiles[{col, row}] == TileOp
   std::map<std::pair<int, int>, xilinx::AIE::TileOp> tiles;
+
+  // dmas/shim_dmas[{col, row}] == DMAOp/ShimDMAOp
+  std::map<std::pair<int, int>, xilinx::AIE::MemOp> dmas;
+  std::map<std::pair<int, int>, xilinx::AIE::ShimDMAOp> shim_dmas;
+
   std::map<phy::physical::BufferOp, xilinx::AIE::BufferOp> buffers;
+  std::map<phy::physical::BufferOp, xilinx::AIE::ExternalBufferOp>
+      external_buffers;
   std::map<phy::physical::CoreOp, xilinx::AIE::CoreOp> cores;
   std::map<phy::physical::LockOp, xilinx::AIE::LockOp> locks;
 
-  xilinx::AIE::TileOp getTile(mlir::OpState &op);
+  xilinx::AIE::MemOp getDma(std::pair<int, int> index);
+  xilinx::AIE::ShimDMAOp getShimDma(std::pair<int, int> index);
+
   int getId(mlir::OpState &op);
 
-  std::pair<int, int> getTileAttr(mlir::OpState &op);
-  xilinx::AIE::TileOp getTileOp(std::pair<int, int> index);
+  xilinx::AIE::TileOp getTile(mlir::OpState &op);
+  xilinx::AIE::TileOp getTile(std::pair<int, int> index);
+  std::pair<int, int> getTileIndex(mlir::OpState &op);
 };
 
 } // namespace aie
