@@ -8,6 +8,7 @@
 
 add_phy_unittest(PHYConnectivityTests
   ImplementationTests.cpp
+  LiteralVectorTests.cpp
   ResourceTests.cpp
 )
 
