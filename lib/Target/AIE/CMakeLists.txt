@@ -15,6 +15,7 @@ add_phy_library(TargetAIE
 
   Physical/BufferOp.cpp
   Physical/CoreOp.cpp
+  Physical/LockOp.cpp
 
   LINK_LIBS
   Connectivity

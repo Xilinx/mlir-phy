@@ -11,6 +11,7 @@
 #include "phy/Connectivity/Serialization/LiteralVector.h"
 #include "phy/Target/AIE/Physical/BufferOp.h"
 #include "phy/Target/AIE/Physical/CoreOp.h"
+#include "phy/Target/AIE/Physical/LockOp.h"
 
 #include "aie/AIEDialect.h"
 
@@ -24,6 +25,8 @@ AIELoweringPatternSets::getPatternSets() {
   std::list<std::unique_ptr<LoweringPatternSet>> patterns;
 
   patterns.push_back(std::make_unique<BufferOpLoweringPatternSet>(this));
+  patterns.push_back(std::make_unique<LockOpLoweringPatternSet>(this));
+
   patterns.push_back(std::make_unique<CoreOpLoweringPatternSet>(this));
 
   return patterns;
@@ -37,6 +40,11 @@ std::pair<int, int> AIELoweringPatternSets::getTileAttr(mlir::OpState &op) {
   auto tile = LiteralVector<int>(
       op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
   return std::make_pair(tile.vec()[0], tile.vec()[1]);
+}
+
+int AIELoweringPatternSets::getId(mlir::OpState &op) {
+  return lexical_cast<int>(
+      op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
 }
 
 xilinx::AIE::TileOp

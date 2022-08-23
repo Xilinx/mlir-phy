@@ -33,8 +33,10 @@ public:
   std::map<std::pair<int, int>, xilinx::AIE::TileOp> tiles;
   std::map<phy::physical::BufferOp, xilinx::AIE::BufferOp> buffers;
   std::map<phy::physical::CoreOp, xilinx::AIE::CoreOp> cores;
+  std::map<phy::physical::LockOp, xilinx::AIE::LockOp> locks;
 
   xilinx::AIE::TileOp getTile(mlir::OpState &op);
+  int getId(mlir::OpState &op);
 
   std::pair<int, int> getTileAttr(mlir::OpState &op);
   xilinx::AIE::TileOp getTileOp(std::pair<int, int> index);
