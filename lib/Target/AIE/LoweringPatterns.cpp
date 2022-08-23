@@ -12,6 +12,7 @@
 #include "phy/Target/AIE/Physical/BufferOp.h"
 #include "phy/Target/AIE/Physical/CoreOp.h"
 #include "phy/Target/AIE/Physical/LockOp.h"
+#include "phy/Target/AIE/Physical/StreamOp.h"
 
 #include "aie/AIEDialect.h"
 
@@ -26,6 +27,7 @@ AIELoweringPatternSets::getPatternSets() {
 
   patterns.push_back(std::make_unique<BufferOpLoweringPatternSet>(this));
   patterns.push_back(std::make_unique<LockOpLoweringPatternSet>(this));
+  patterns.push_back(std::make_unique<StreamOpLoweringPatternSet>(this));
 
   patterns.push_back(std::make_unique<CoreOpLoweringPatternSet>(this));
 
@@ -36,15 +38,15 @@ xilinx::AIE::TileOp AIELoweringPatternSets::getTile(mlir::OpState &op) {
   return getTileOp(getTileAttr(op));
 }
 
+int AIELoweringPatternSets::getId(mlir::OpState &op) {
+  return lexical_cast<int>(
+      op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
+}
+
 std::pair<int, int> AIELoweringPatternSets::getTileAttr(mlir::OpState &op) {
   auto tile = LiteralVector<int>(
       op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
   return std::make_pair(tile.vec()[0], tile.vec()[1]);
-}
-
-int AIELoweringPatternSets::getId(mlir::OpState &op) {
-  return lexical_cast<int>(
-      op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
 }
 
 xilinx::AIE::TileOp
