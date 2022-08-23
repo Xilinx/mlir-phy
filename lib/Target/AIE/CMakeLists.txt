@@ -13,6 +13,7 @@ add_phy_library(TargetAIE
   LoweringPatterns.cpp
   TargetResources.cpp
 
+  Physical/BufferOp.cpp
   Physical/CoreOp.cpp
 
   LINK_LIBS

@@ -30,12 +30,12 @@ struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
 
     mlir::RewritePatternSet patterns(&getContext());
     for (auto &pattern :
-         phy::target::aie::AIELoweringPatternSets().getPatternSets()) {
-      pattern->populatePatternSet(patterns, &getContext());
+         phy::target::aie::AIELoweringPatternSets(module).getPatternSets()) {
+      pattern->populatePatternSet(patterns);
     }
 
-    if (mlir::failed(
-            mlir::applyFullConversion(module, target, std::move(patterns)))) {
+    if (mlir::failed(mlir::applyPartialConversion(module, target,
+                                                  std::move(patterns)))) {
       signalPassFailure();
     }
   }

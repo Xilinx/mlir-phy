@@ -1,4 +1,4 @@
-//===- CoreOp.h -------------------------------------------------*- C++ -*-===//
+//===- BufferOp.h -----------------------------------------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -11,18 +11,18 @@
 
 #include "mlir/Transforms/DialectConversion.h"
 
-#ifndef MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_COREOP_H
-#define MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_COREOP_H
+#ifndef MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_BUFFEROP_H
+#define MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_BUFFEROP_H
 
 namespace phy {
 namespace target {
 namespace aie {
 
-class CoreOpLoweringPatternSet : public LoweringPatternSet {
+class BufferOpLoweringPatternSet : public LoweringPatternSet {
   AIELoweringPatternSets *lowering;
 
 public:
-  CoreOpLoweringPatternSet(AIELoweringPatternSets *lowering)
+  BufferOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
 };
@@ -31,4 +31,4 @@ public:
 } // namespace target
 } // namespace phy
 
-#endif // MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_COREOP_H
+#endif // MLIR_PHY_TARGET_AIE_TARGET_PHYSICAL_BUFFEROP_H
