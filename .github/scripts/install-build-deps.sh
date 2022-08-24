@@ -26,3 +26,7 @@ LLVM_VERSION="snapshot-20220706"
 LLVM_URL="https://github.com/heterosys/llvm-nightly/releases/download/${LLVM_VERSION}/llvm-clang-mlir-dev-15.${OS_DISTRIBUTER}-${OS_RELEASE}.deb"
 TEMP_DEB="$(mktemp)" && wget -O "${TEMP_DEB}" ${LLVM_URL} && (sudo dpkg -i "${TEMP_DEB}" || sudo apt-get -yf install)
 rm -f "${TEMP_DEB}"
+
+AIE_URL="https://github.com/heterosys/mlir-aie/releases/latest/download/mlir-aie-${OS_DISTRIBUTER}-${OS_RELEASE}.deb"
+TEMP_DEB="$(mktemp)" && wget -O "${TEMP_DEB}" ${AIE_URL} && (sudo dpkg -i "${TEMP_DEB}" || sudo apt-get -yf install)
+rm -f "${TEMP_DEB}"
