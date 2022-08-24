@@ -8,17 +8,12 @@
 
 if(AIE_FOUND)
 
+file(GLOB_RECURSE TargetAIE_Src
+  "*.cpp"
+)
+
 add_phy_library(TargetAIE
-  Affinity.cpp
-  LoweringPatterns.cpp
-  TargetResources.cpp
-
-  Physical/BufferOp.cpp
-  Physical/CoreOp.cpp
-  Physical/LockOp.cpp
-  Physical/StreamDmaOp.cpp
-  Physical/StreamOp.cpp
-
+  ${TargetAIE_Src}
   LINK_LIBS
   Connectivity
 )

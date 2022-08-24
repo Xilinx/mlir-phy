@@ -62,10 +62,10 @@ public:
     auto &aie_end = dma.body().back();
 
     // Create DMA BD blocks
-    for (auto &connectOp : *connections) {
-      if (isa<EndOp>(connectOp))
+    for (auto &connect_op : *connections) {
+      if (isa<EndOp>(connect_op))
         continue;
-      auto connect = dyn_cast<StreamDmaConnectOp>(connectOp);
+      auto connect = dyn_cast<StreamDmaConnectOp>(connect_op);
       assert(connect && "stream dma can only contain StreamDmaConnectOp.");
 
       auto bd_block = new mlir::Block();
@@ -88,6 +88,7 @@ public:
     // AIE.dmaStart("${engine}${id}", ^first_block, ^last_bd)
     auto chain_block = new mlir::Block();
     dma.body().push_front(chain_block);
+    // TODO: verify if "${engine}${id}" matches the stream port
 
     auto builder = OpBuilder::atBlockBegin(chain_block);
     builder.create<AIE::DMAStartOp>(builder.getUnknownLoc(),
