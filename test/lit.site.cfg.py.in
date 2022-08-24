@@ -46,6 +46,9 @@ config.phy_obj_root = "@PHY_BINARY_DIR@"
 config.phy_tools_dir = "@PHY_TOOLS_DIR@"
 config.phy_shlib_dir = "@LLVM_LIBRARY_OUTPUT_INTDIR@"
 
+if @AIE_FOUND@:
+    config.available_features.add('aie_found')
+
 # Support substitution of the tools_dir with user parameters. This is
 # used when we can't determine the tool dir at configuration time.
 try:

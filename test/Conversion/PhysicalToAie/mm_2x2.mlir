@@ -1,3 +1,4 @@
+// REQUIRES: aie_found
 // RUN: phy-opt %s | FileCheck %s
 
 // CHECK-LABEL: module @MM_2x2

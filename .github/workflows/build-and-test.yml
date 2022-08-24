@@ -47,3 +47,6 @@ jobs:
 
       - name: Build myself
         run: cmake --build build --target all
+
+      - name: Test myself
+        run: cmake --build build --target check-phy

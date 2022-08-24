@@ -1,3 +1,4 @@
+// REQUIRES: aie_found
 // RUN: phy-opt --convert-physical-to-aie %s | FileCheck %s
 
 // CHECK: %[[Tile7:.*]] = AIE.tile(7, 0)
