@@ -49,6 +49,7 @@ public:
   xilinx::AIE::ShimDMAOp getShimDma(std::pair<int, int> index);
 
   int getId(mlir::OpState &op);
+  xilinx::AIE::DMAChan getChannel(mlir::OpState &op);
 
   xilinx::AIE::TileOp getTile(mlir::OpState &op);
   xilinx::AIE::TileOp getTile(std::pair<int, int> index);

@@ -12,6 +12,7 @@
 #include "phy/Target/AIE/LoweringPatterns.h"
 
 #include "aie/AIEDialect.h"
+#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "llvm/Support/Debug.h"
 
@@ -27,6 +28,7 @@ struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
     mlir::ModuleOp module = getOperation();
     mlir::ConversionTarget target(getContext());
     target.addLegalDialect<xilinx::AIE::AIEDialect>();
+    target.addLegalOp<cf::BranchOp>();
 
     mlir::RewritePatternSet patterns(&getContext());
     for (auto &pattern :

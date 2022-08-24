@@ -45,6 +45,7 @@ def PhysicalToAie : Pass<"convert-physical-to-aie", "mlir::ModuleOp"> {
   let dependentDialects = [
     "phy::physical::PhysicalDialect",
     "xilinx::AIE::AIEDialect",
+    "mlir::cf::ControlFlowDialect",
     "mlir::func::FuncDialect",
     "mlir::memref::MemRefDialect"
   ];

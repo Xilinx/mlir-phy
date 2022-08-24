@@ -11,6 +11,10 @@
 #include "phy/Dialect/Physical/PhysicalDialect.h"
 #include "phy/Target/AIE/TargetResources.h"
 
+#include <list>
+#include <map>
+
+#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
 #include "mlir/Transforms/DialectConversion.h"
 
 using namespace mlir;
@@ -31,16 +35,108 @@ public:
   matchAndRewrite(StreamDmaOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
 
+    mlir::LogicalResult result = success();
+
     auto tile = lowering->getTileIndex(op);
+    auto &connections = op.connections().front();
 
     if (TargetResources().isShimTile(tile.first, tile.second)) {
-      lowering->getShimDma(tile);
+      result = rewriteBlock(op, &connections, lowering->getShimDma(tile));
     } else {
-      lowering->getDma(tile);
+      result = rewriteBlock(op, &connections, lowering->getDma(tile));
     }
 
-    rewriter.eraseOp(op);
+    if (result.succeeded())
+      rewriter.eraseOp(op);
+    return result;
+  }
+
+  template <typename DMAOp>
+  mlir::LogicalResult rewriteBlock(StreamDmaOp op, mlir::Block *connections,
+                                   DMAOp dma) const {
+
+    std::map<StreamDmaConnectOp, mlir::Block *> connect_bd_blocks;
+    std::list<mlir::Block *> bd_blocks;
+
+    auto &last_bd = dma.body().front();
+    auto &aie_end = dma.body().back();
+
+    // Create DMA BD blocks
+    for (auto &connectOp : *connections) {
+      if (isa<EndOp>(connectOp))
+        continue;
+      auto connect = dyn_cast<StreamDmaConnectOp>(connectOp);
+      assert(connect && "stream dma can only contain StreamDmaConnectOp.");
+
+      auto bd_block = new mlir::Block();
+      bd_blocks.push_back(bd_block);
+      connect_bd_blocks[connect] = bd_block;
+    }
+
+    // Push DMA BD blocks to the front in the order
+    for (auto it = bd_blocks.rbegin(); it != bd_blocks.rend(); it++) {
+      dma.body().push_front(*it);
+    }
+
+    // Construct the DMA BD block
+    for (auto bd_block : connect_bd_blocks) {
+      constructDMABDBlock(bd_block.first, bd_block.second, &aie_end,
+                          connect_bd_blocks);
+    }
+
+    // Prepend and chain BDs
+    // AIE.dmaStart("${engine}${id}", ^first_block, ^last_bd)
+    auto chain_block = new mlir::Block();
+    dma.body().push_front(chain_block);
+
+    auto builder = OpBuilder::atBlockBegin(chain_block);
+    builder.create<AIE::DMAStartOp>(builder.getUnknownLoc(),
+                                    lowering->getChannel(op), bd_blocks.front(),
+                                    &last_bd);
+
     return success();
+  }
+
+  void constructDMABDBlock(
+      StreamDmaConnectOp connect, mlir::Block *bd_block, mlir::Block *aie_end,
+      std::map<StreamDmaConnectOp, mlir::Block *> &connect_bd_blocks) const {
+
+    auto builder = OpBuilder::atBlockBegin(bd_block);
+
+    auto lock =
+        lowering->locks[dyn_cast<LockOp>(connect.lock().getDefiningOp())];
+
+    // AIE.useLock(%lock, Acquire, acquire())
+    builder.create<AIE::UseLockOp>(builder.getUnknownLoc(), lock,
+                                   connect.acquire(), AIE::LockAction::Acquire);
+
+    // AIE.dmaBdPacket(tag(), tag())
+    if (connect.tag().hasValue()) {
+      builder.create<AIE::DMABDPACKETOp>(
+          builder.getUnknownLoc(),
+          builder.getI32IntegerAttr(connect.tag().getValue()),
+          builder.getI32IntegerAttr(connect.tag().getValue()));
+    }
+
+    // AIE.dmaBd(<%buffer, start(), end() - start()>, 0)
+    builder.create<AIE::DMABDOp>(
+        builder.getUnknownLoc(), connect.buffer(),
+        builder.getI32IntegerAttr(connect.start()),
+        builder.getI32IntegerAttr(connect.end() - connect.start()),
+        builder.getI32IntegerAttr(0));
+
+    // AIE.useLock(%lock, Release, release())
+    builder.create<AIE::UseLockOp>(builder.getUnknownLoc(), lock,
+                                   connect.release(), AIE::LockAction::Release);
+
+    // cf.br ^next
+    auto next_bd_block = aie_end;
+    if (connect.next()) {
+      auto next_op = connect.next().getDefiningOp();
+      auto next_connect = dyn_cast<StreamDmaConnectOp>(next_op);
+      next_bd_block = connect_bd_blocks[next_connect];
+    }
+    builder.create<cf::BranchOp>(builder.getUnknownLoc(), next_bd_block);
   }
 };
 

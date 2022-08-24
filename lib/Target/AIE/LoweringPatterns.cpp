@@ -16,42 +16,46 @@
 #include "phy/Target/AIE/Physical/StreamOp.h"
 #include "phy/Target/AIE/TargetResources.h"
 
+#include <map>
+#include <utility>
+
 #include "aie/AIEDialect.h"
 
 using namespace mlir;
 using namespace phy::connectivity;
 using namespace phy::target;
 using namespace phy::target::aie;
+using namespace std;
+using namespace xilinx;
 
-std::list<std::unique_ptr<LoweringPatternSet>>
-AIELoweringPatternSets::getPatternSets() {
-  std::list<std::unique_ptr<LoweringPatternSet>> patterns;
+list<unique_ptr<LoweringPatternSet>> AIELoweringPatternSets::getPatternSets() {
+  list<unique_ptr<LoweringPatternSet>> patterns;
 
-  patterns.push_back(std::make_unique<BufferOpLoweringPatternSet>(this));
-  patterns.push_back(std::make_unique<LockOpLoweringPatternSet>(this));
-  patterns.push_back(std::make_unique<StreamOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<BufferOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<LockOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<StreamOpLoweringPatternSet>(this));
 
-  patterns.push_back(std::make_unique<CoreOpLoweringPatternSet>(this));
-  patterns.push_back(std::make_unique<StreamDmaOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<CoreOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<StreamDmaOpLoweringPatternSet>(this));
 
   return patterns;
 }
 
-xilinx::AIE::TileOp AIELoweringPatternSets::getTile(mlir::OpState &op) {
+AIE::TileOp AIELoweringPatternSets::getTile(mlir::OpState &op) {
   return getTile(getTileIndex(op));
 }
 
-std::pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {
+pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {
   auto tile = LiteralVector<int>(
       op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
-  return std::make_pair(tile.vec()[0], tile.vec()[1]);
+  return make_pair(tile.vec()[0], tile.vec()[1]);
 }
 
-xilinx::AIE::TileOp AIELoweringPatternSets::getTile(std::pair<int, int> index) {
+AIE::TileOp AIELoweringPatternSets::getTile(pair<int, int> index) {
   if (!tiles.count(index)) {
     auto builder = OpBuilder::atBlockBegin(module.getBody());
-    tiles[index] = builder.create<xilinx::AIE::TileOp>(
-        builder.getUnknownLoc(), index.first, index.second);
+    tiles[index] = builder.create<AIE::TileOp>(builder.getUnknownLoc(),
+                                               index.first, index.second);
   }
 
   return tiles[index];
@@ -62,10 +66,25 @@ int AIELoweringPatternSets::getId(mlir::OpState &op) {
       op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
 }
 
+AIE::DMAChan AIELoweringPatternSets::getChannel(mlir::OpState &op) {
+  map<pair<string, int>, AIE::DMAChan> channels = {
+      {{"S2MM", 0}, AIE::DMAChan::S2MM0},
+      {{"S2MM", 1}, AIE::DMAChan::S2MM1},
+      {{"MM2S", 0}, AIE::DMAChan::MM2S0},
+      {{"MM2S", 1}, AIE::DMAChan::MM2S1}};
+
+  auto engine =
+      op.getOperation()->getAttrOfType<StringAttr>("aie.engine").str();
+  auto id = getId(op);
+  auto pair = make_pair(engine, id);
+
+  assert(channels.count(pair) && "unknown engine");
+  return channels[pair];
+}
+
 template <typename DMAOp>
-static DMAOp getDmaGeneric(std::pair<int, int> index, mlir::ModuleOp module,
-                           xilinx::AIE::TileOp tile,
-                           std::map<std::pair<int, int>, DMAOp> &dmas) {
+static DMAOp getDmaGeneric(pair<int, int> index, mlir::ModuleOp module,
+                           AIE::TileOp tile, map<pair<int, int>, DMAOp> &dmas) {
 
   if (!dmas.count(index)) {
     auto builder = OpBuilder::atBlockEnd(module.getBody());
@@ -73,20 +92,19 @@ static DMAOp getDmaGeneric(std::pair<int, int> index, mlir::ModuleOp module,
         builder.getUnknownLoc(), builder.getIndexType(), tile);
 
     builder = OpBuilder::atBlockEnd(&dma.body().emplaceBlock());
-    builder.create<xilinx::AIE::EndOp>(builder.getUnknownLoc());
+    builder.create<AIE::EndOp>(builder.getUnknownLoc());
   }
 
   return dmas[index];
 }
 
-xilinx::AIE::MemOp AIELoweringPatternSets::getDma(std::pair<int, int> index) {
+AIE::MemOp AIELoweringPatternSets::getDma(pair<int, int> index) {
   assert(!TargetResources().isShimTile(index.first, index.second));
-  return getDmaGeneric<xilinx::AIE::MemOp>(index, module, getTile(index), dmas);
+  return getDmaGeneric<AIE::MemOp>(index, module, getTile(index), dmas);
 }
 
-xilinx::AIE::ShimDMAOp
-AIELoweringPatternSets::getShimDma(std::pair<int, int> index) {
+AIE::ShimDMAOp AIELoweringPatternSets::getShimDma(pair<int, int> index) {
   assert(TargetResources().isShimTile(index.first, index.second));
-  return getDmaGeneric<xilinx::AIE::ShimDMAOp>(index, module, getTile(index),
-                                               shim_dmas);
+  return getDmaGeneric<AIE::ShimDMAOp>(index, module, getTile(index),
+                                       shim_dmas);
 }
