@@ -31,8 +31,9 @@ struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
     target.addLegalOp<cf::BranchOp>();
 
     mlir::RewritePatternSet patterns(&getContext());
-    for (auto &pattern :
-         phy::target::aie::AIELoweringPatternSets(module).getPatternSets()) {
+    target::aie::AIELoweringPatternSets pattern_sets(module);
+
+    for (auto &pattern : pattern_sets.getPatternSets()) {
       pattern->populatePatternSet(patterns);
     }
 
