@@ -7,9 +7,11 @@
 // CHECK: %[[Buffer:.*]] = AIE.external_buffer
 // CHECK: %[[Lock:.*]] = AIE.lock(%[[Tile6]], 0)
 
-%0:2 = physical.stream<[0, 1]>(){ aie.tile = "6.0", aie.port = "DMA.O", aie.id = 0 }: (!physical.ostream<i32>, !physical.istream<i32>)
-%1   = physical.buffer() { aie.external_address = "2203318222848" }: memref<1024xi32>
-%2   = physical.lock<0>() { aie.tile = "6.0", aie.id = "0" }
+%0:2 = physical.stream<[0, 1]>(){ aie.tile = "6.0", aie.port = "DMA.O", aie.id = "0" }: (!physical.ostream<i32>, !physical.istream<i32>)
+%1:2 = physical.stream<[0, 1]>(){ aie.tile = "6.0", aie.port = "DMA.I", aie.id = "1" }: (!physical.ostream<i32>, !physical.istream<i32>)
+%2:2 = physical.stream<[0, 1]>(){ aie.tile = "7.0", aie.port = "DMA.O", aie.id = "1" }: (!physical.ostream<i32>, !physical.istream<i32>)
+%b   = physical.buffer() { aie.external_address = "2203318222848" }: memref<1024xi32>
+%l   = physical.lock<0>() { aie.tile = "6.0", aie.id = "0" }
 
 // CHECK: AIE.shimDMA(%[[Tile6]]) {
 // CHECK:   AIE.dmaStart(S2MM1, ^[[S2MM1:.*]], ^[[MM2SBD:.*]])
@@ -31,11 +33,11 @@
 // CHECK: }
 
 physical.stream_dma(%0#0: !physical.ostream<i32>) {
-  %m = physical.stream_dma_connect<0>(%2[1->0], %1[0:1024]: memref<1024xi32>)
+  %m = physical.stream_dma_connect<0>(%l[1->0], %b[0:1024]: memref<1024xi32>)
 } { aie.tile = "6.0", aie.engine = "MM2S", aie.id = "0" }
 
-physical.stream_dma(%0#0: !physical.ostream<i32>) {
-  %m = physical.stream_dma_connect(%2[0->1], %1[0:1024]: memref<1024xi32>)
+physical.stream_dma(%1#0: !physical.ostream<i32>) {
+  %m = physical.stream_dma_connect(%l[0->1], %b[0:1024]: memref<1024xi32>)
 } { aie.tile = "6.0", aie.engine = "S2MM", aie.id = "1" }
 
 // CHECK: AIE.shimDMA(%[[Tile7]]) {
@@ -55,7 +57,7 @@ physical.stream_dma(%0#0: !physical.ostream<i32>) {
 // CHECK:   AIE.end
 // CHECK: }
 
-physical.stream_dma(%0#0: !physical.ostream<i32>) {
-  %m0 = physical.stream_dma_connect(%2[1->0], %1[0:1024]: memref<1024xi32>, %m1)
-  %m1 = physical.stream_dma_connect<0>(%2[1->0], %1[0:1024]: memref<1024xi32>, %m1)
+physical.stream_dma(%2#0: !physical.ostream<i32>) {
+  %m0 = physical.stream_dma_connect(%l[1->0], %b[0:1024]: memref<1024xi32>, %m1)
+  %m1 = physical.stream_dma_connect<0>(%l[1->0], %b[0:1024]: memref<1024xi32>, %m1)
 } { aie.tile = "7.0", aie.engine = "MM2S", aie.id = "1" }

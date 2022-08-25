@@ -104,15 +104,17 @@ AIE::DMAChan AIELoweringPatternSets::getChannel(mlir::OpState &op,
 }
 
 int AIELoweringPatternSets::getId(mlir::OpState &op) {
-  if (!op.getOperation()->hasAttr("aie.id"))
+  if (!op.getOperation()->getAttrOfType<StringAttr>("aie.id")) {
+    assert(!op.getOperation()->hasAttr("aie.id") && "aie.id must be a string");
     return 0;
-  else
+  } else {
     return lexical_cast<int>(
         op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
+  }
 }
 
 std::string AIELoweringPatternSets::getImpl(mlir::OpState &op) {
-  if (!op.getOperation()->hasAttr("aie.impl"))
+  if (!op.getOperation()->getAttrOfType<StringAttr>("aie.impl"))
     return "";
   else
     return op.getOperation()->getAttrOfType<StringAttr>("aie.impl").str();
