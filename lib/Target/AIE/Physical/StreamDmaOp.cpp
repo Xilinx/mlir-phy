@@ -60,6 +60,7 @@ public:
 
     auto &last_bd = dma.body().front();
     auto &aie_end = dma.body().back();
+    auto stream = dyn_cast<StreamOp>(op.endpoint().getDefiningOp());
 
     // Create DMA BD blocks
     for (auto &connect_op : *connections) {
@@ -85,15 +86,13 @@ public:
     }
 
     // Prepend and chain BDs
-    // AIE.dmaStart("${engine}${id}", ^first_block, ^last_bd)
+    // AIE.dmaStart("${engine/port}${id}", ^first_block, ^last_bd)
     auto chain_block = new mlir::Block();
     dma.body().push_front(chain_block);
-    // TODO: verify if "${engine}${id}" matches the stream port
-
     auto builder = OpBuilder::atBlockBegin(chain_block);
     builder.create<AIE::DMAStartOp>(builder.getUnknownLoc(),
-                                    lowering->getChannel(op), bd_blocks.front(),
-                                    &last_bd);
+                                    lowering->getChannel(op, stream),
+                                    bd_blocks.front(), &last_bd);
 
     return success();
   }

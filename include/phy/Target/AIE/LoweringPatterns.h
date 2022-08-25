@@ -48,7 +48,8 @@ public:
   xilinx::AIE::MemOp getDma(std::pair<int, int> index);
   xilinx::AIE::ShimDMAOp getShimDma(std::pair<int, int> index);
 
-  xilinx::AIE::DMAChan getChannel(mlir::OpState &op);
+  xilinx::AIE::DMAChan getChannel(mlir::OpState &op,
+                                  phy::physical::StreamOp stream);
   int getId(mlir::OpState &op);
   std::string getImpl(mlir::OpState &op);
   xilinx::AIE::WireBundle getWireBundle(phy::physical::StreamOp &op);

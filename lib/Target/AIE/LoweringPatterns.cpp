@@ -70,20 +70,37 @@ AIE::ShimDMAOp AIELoweringPatternSets::getShimDma(pair<int, int> index) {
                                        shim_dmas);
 }
 
-AIE::DMAChan AIELoweringPatternSets::getChannel(mlir::OpState &op) {
-  map<pair<string, int>, AIE::DMAChan> channels = {
+AIE::DMAChan AIELoweringPatternSets::getChannel(mlir::OpState &op,
+                                                physical::StreamOp stream) {
+  map<pair<string, int>, AIE::DMAChan> engine_channels = {
       {{"S2MM", 0}, AIE::DMAChan::S2MM0},
       {{"S2MM", 1}, AIE::DMAChan::S2MM1},
       {{"MM2S", 0}, AIE::DMAChan::MM2S0},
       {{"MM2S", 1}, AIE::DMAChan::MM2S1}};
 
+  map<pair<string, int>, AIE::DMAChan> port_channels = {
+      {{"DMA.I", 0}, AIE::DMAChan::S2MM0},
+      {{"DMA.I", 1}, AIE::DMAChan::S2MM1},
+      {{"DMA.O", 0}, AIE::DMAChan::MM2S0},
+      {{"DMA.O", 1}, AIE::DMAChan::MM2S1}};
+
   auto engine =
       op.getOperation()->getAttrOfType<StringAttr>("aie.engine").str();
-  auto id = getId(op);
-  auto pair = make_pair(engine, id);
+  auto engine_id = getId(op);
+  auto engine_pair = make_pair(engine, engine_id);
 
-  assert(channels.count(pair) && "unknown engine");
-  return channels[pair];
+  assert(engine_channels.count(engine_pair) && "unknown engine");
+
+  auto port =
+      stream.getOperation()->getAttrOfType<StringAttr>("aie.port").str();
+  auto port_id = getId(stream);
+  auto port_pair = make_pair(port, port_id);
+  assert(port_channels.count(port_pair) && "unknown engine");
+
+  assert(engine_channels[engine_pair] == port_channels[port_pair] &&
+         "the dma engine cannot be connected to the given endpoint");
+
+  return engine_channels[engine_pair];
 }
 
 int AIELoweringPatternSets::getId(mlir::OpState &op) {
