@@ -28,9 +28,7 @@ set(PHY_TEST_DEPENDS
   phy-translate
 )
 
-if (PHY_GTEST_AVAILABLE)
 list(APPEND PHY_TEST_DEPENDS PhyUnitTests)
-endif()
 
 add_lit_testsuite(check-phy
   "Running the MLIR-PHY regression tests"

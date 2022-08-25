@@ -83,46 +83,6 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   set(PHY_BUILT_STANDALONE 1)
   set(BACKEND_PACKAGE_STRING "LLVM ${LLVM_PACKAGE_VERSION}")
 
-  # Handle unittests when building out-of-tree against an installed version of
-  # LLVM/MLIR (not a build tree). Adapted from `llvm/circt/CMakeLists.txt`.
-  set(PHY_GTEST_AVAILABLE 0)
-  set(UNITTEST_DIR ${LLVM_BUILD_MAIN_SRC_DIR}/utils/unittest)
-  if (NOT EXISTS ${UNITTEST_DIR}/googletest/include/gtest/gtest.h)
-    set(UNITTEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm/llvm/utils/unittest)
-  endif()
-  if (EXISTS ${UNITTEST_DIR}/googletest/include/gtest/gtest.h)
-    if (NOT TARGET llvm_gtest)
-      find_package(Threads)
-      add_llvm_library(llvm_gtest
-        ${UNITTEST_DIR}/googletest/src/gtest-all.cc
-        ${UNITTEST_DIR}/googlemock/src/gmock-all.cc
-        LINK_LIBS pthread
-        LINK_COMPONENTS Support # llvm::raw_ostream
-        BUILDTREE_ONLY
-      )
-      target_include_directories(llvm_gtest
-        PUBLIC
-        "${UNITTEST_DIR}/googletest/include"
-        "${UNITTEST_DIR}/googlemock/include"
-        PRIVATE
-        "${UNITTEST_DIR}/googletest"
-        "${UNITTEST_DIR}/googlemock"
-      )
-      add_llvm_library(llvm_gtest_main
-        ${UNITTEST_DIR}/UnitTestMain/TestMain.cpp
-        LINK_LIBS llvm_gtest
-        LINK_COMPONENTS Support # llvm::cl
-        BUILDTREE_ONLY
-      )
-    endif()
-    message(STATUS "Unittests are enabled")
-    set(PHY_GTEST_AVAILABLE 1)
-  else()
-    message(WARNING "Skipping unittests since LLVM install does not include \
-      gtest headers and libraries")
-    set(PHY_GTEST_AVAILABLE 0)
-  endif()
-
 else()
 
   set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/../mlir ) # --src-root
@@ -200,9 +160,7 @@ endif()
 add_subdirectory(include/phy)
 add_subdirectory(lib)
 add_subdirectory(tools)
-if(PHY_GTEST_AVAILABLE)
-  add_subdirectory(unittests)
-endif()
+add_subdirectory(unittests)
 add_subdirectory(test)
 
 option(PHY_INCLUDE_DOCS "Generate build targets for the Phy docs.")

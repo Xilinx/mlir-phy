@@ -6,7 +6,7 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-add_phy_unittest(PHYConnectivityTests
+add_executable(PHYConnectivityTests
   ImplementationTests.cpp
   LiteralVectorTests.cpp
   ResourceTests.cpp
@@ -15,4 +15,5 @@ add_phy_unittest(PHYConnectivityTests
 target_link_libraries(PHYConnectivityTests
   PRIVATE
   Connectivity
+  GTest::gtest_main
 )

@@ -9,8 +9,14 @@
 add_custom_target(PhyUnitTests)
 set_target_properties(PhyUnitTests PROPERTIES FOLDER "PHY Tests")
 
-function(add_phy_unittest test_dirname)
-  add_unittest(PhyUnitTests ${test_dirname} ${ARGN})
-endfunction()
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
 
 add_subdirectory(Connectivity)
