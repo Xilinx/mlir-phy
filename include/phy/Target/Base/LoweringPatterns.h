@@ -20,6 +20,7 @@ namespace target {
 class LoweringPatternSet {
 public:
   virtual void populatePatternSet(mlir::RewritePatternSet &patterns) {}
+  virtual void populateTarget(mlir::ConversionTarget &target) {}
 };
 
 class LoweringPatternSets {

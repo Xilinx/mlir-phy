@@ -7,10 +7,15 @@
 //===----------------------------------------------------------------------===//
 
 #include "phy/Target/AIE/Physical/CoreOp.h"
+
 #include "phy/Dialect/Physical/PhysicalDialect.h"
+#include "phy/Rewrite/InlineFunction.h"
 
 #include "aie/AIEDialect.h"
+#include "mlir/Dialect/Func/IR/FuncOps.h"
+#include "mlir/IR/TypeRange.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "mlir/Transforms/InliningUtils.h"
 
 using namespace mlir;
 using namespace phy::physical;
@@ -29,14 +34,40 @@ public:
   mlir::LogicalResult
   matchAndRewrite(CoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
-    auto Op = op.getOperation();
-    rewriter.eraseOp(Op);
+    auto tile = lowering->getTile(op);
+    auto core = lowering->cores[op] =
+        rewriter.replaceOpWithNewOp<xilinx::AIE::CoreOp>(op, tile);
+
+    auto builder = OpBuilder::atBlockEnd(&core.body().emplaceBlock());
+    auto callop = builder.create<func::CallOp>(
+        builder.getUnknownLoc(), op.callee(), TypeRange(), op.operands());
+
+    builder.create<AIE::EndOp>(builder.getUnknownLoc());
+
+    // failsafe: try to inline the call
+    auto sym = callop.getCallableForCallee().dyn_cast<SymbolRefAttr>();
+    if (!sym)
+      return failure();
+
+    auto func = dyn_cast_or_null<func::FuncOp>(
+        SymbolTable::lookupNearestSymbolFrom(callop, sym));
+    if (!func)
+      return success();
+
+    Inliner inliner(rewriter.getContext());
+    if (inlineCall(inliner, callop, func, func.getCallableRegion())
+            .succeeded()) {
+      callop.erase();
+    }
     return success();
   }
 };
 
 void CoreOpLoweringPatternSet::populatePatternSet(
     mlir::RewritePatternSet &patterns) {
-
   patterns.add<CoreOpToAieLowering>(patterns.getContext(), lowering);
+}
+
+void CoreOpLoweringPatternSet::populateTarget(mlir::ConversionTarget &target) {
+  target.addLegalOp<func::CallOp>();
 }

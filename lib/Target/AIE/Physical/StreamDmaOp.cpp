@@ -145,3 +145,8 @@ void StreamDmaOpLoweringPatternSet::populatePatternSet(
 
   patterns.add<StreamDmaOpToAieLowering>(patterns.getContext(), lowering);
 }
+
+void StreamDmaOpLoweringPatternSet::populateTarget(
+    mlir::ConversionTarget &target) {
+  target.addLegalOp<cf::BranchOp>();
+}

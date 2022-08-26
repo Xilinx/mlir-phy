@@ -33,12 +33,11 @@ list<unique_ptr<LoweringPatternSet>> AIELoweringPatternSets::getPatternSets() {
   list<unique_ptr<LoweringPatternSet>> patterns;
 
   patterns.push_back(make_unique<BufferOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<LockOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<StreamOpLoweringPatternSet>(this));
-
   patterns.push_back(make_unique<CoreOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<LockOpLoweringPatternSet>(this));
   patterns.push_back(make_unique<StreamDmaOpLoweringPatternSet>(this));
   patterns.push_back(make_unique<StreamHubOpLoweringPatternSet>(this));
+  patterns.push_back(make_unique<StreamOpLoweringPatternSet>(this));
 
   return patterns;
 }

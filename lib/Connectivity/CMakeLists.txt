@@ -6,7 +6,7 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-add_phy_library(Connectivity
+add_phy_library(PhyConnectivity
   Implementation.cpp
   Resource.cpp
 )

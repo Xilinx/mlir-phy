@@ -10,7 +10,7 @@ add_phy_conversion_library(Nop
   Nop.cpp
 
   DEPENDS
-  Connectivity
+  PhyConnectivity
   MLIRPhyConversionPassIncGen
 
   LINK_LIBS

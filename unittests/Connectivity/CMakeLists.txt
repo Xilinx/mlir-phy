@@ -14,6 +14,6 @@ add_executable(PHYConnectivityTests
 
 target_link_libraries(PHYConnectivityTests
   PRIVATE
-  Connectivity
+  PhyConnectivity
   GTest::gtest_main
 )

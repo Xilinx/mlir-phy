@@ -25,6 +25,7 @@ public:
   LockOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
+  void populateTarget(mlir::ConversionTarget &target) override;
 };
 
 } // namespace aie

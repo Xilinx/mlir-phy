@@ -1,4 +1,4 @@
-##===- CMakeLists.txt - AIE target cmake  ---------------------*- cmake -*-===//
+##===- CMakeLists.txt - rewrite cmake  ------------------------*- cmake -*-===//
 ##
 ## This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 ## See https://llvm.org/LICENSE.txt for license information.
@@ -6,17 +6,10 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-if(AIE_FOUND)
-
-file(GLOB_RECURSE TargetAIE_Src
+file(GLOB_RECURSE Rewrite_Src
   "*.cpp"
 )
 
-add_phy_library(PhyTargetAIE
-  ${TargetAIE_Src}
-  LINK_LIBS
-  PhyConnectivity
-  PhyRewrite
+add_phy_library(PhyRewrite
+  ${Rewrite_Src}
 )
-
-endif()
