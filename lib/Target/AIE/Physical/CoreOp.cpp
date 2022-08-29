@@ -35,14 +35,13 @@ public:
   matchAndRewrite(CoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
     auto tile = lowering->getTile(op);
-    auto core = lowering->cores[op] =
-        rewriter.replaceOpWithNewOp<xilinx::AIE::CoreOp>(op, tile);
+    auto core = rewriter.replaceOpWithNewOp<xilinx::AIE::CoreOp>(op, tile);
 
     auto builder = OpBuilder::atBlockEnd(&core.body().emplaceBlock());
     auto callop = builder.create<func::CallOp>(
         builder.getUnknownLoc(), op.callee(), TypeRange(), op.operands());
 
-    builder.create<AIE::EndOp>(builder.getUnknownLoc());
+    auto endop = builder.create<AIE::EndOp>(builder.getUnknownLoc());
 
     // failsafe: try to inline the call
     auto sym = callop.getCallableForCallee().dyn_cast<SymbolRefAttr>();
@@ -57,8 +56,16 @@ public:
     Inliner inliner(rewriter.getContext());
     if (inlineCall(inliner, callop, func, func.getCallableRegion())
             .succeeded()) {
+      // erase the call op if the inlining is done
       callop.erase();
+
+      // if the endop block is not reachable, erase it as well
+      auto endblock = endop.getOperation()->getBlock();
+      if (!endblock->isEntryBlock() && endblock->hasNoPredecessors()) {
+        rewriter.eraseBlock(endblock);
+      }
     }
+
     return success();
   }
 };

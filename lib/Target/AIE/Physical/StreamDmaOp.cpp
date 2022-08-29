@@ -103,8 +103,10 @@ public:
 
     auto builder = OpBuilder::atBlockBegin(bd_block);
 
-    auto lock =
-        lowering->locks[dyn_cast<LockOp>(connect.lock().getDefiningOp())];
+    auto phy_lock = dyn_cast<LockOp>(connect.lock().getDefiningOp());
+    auto tile = lowering->getTile(phy_lock);
+    auto id = lowering->getId(phy_lock);
+    auto lock = lowering->getLock(tile, id);
 
     // AIE.useLock(%lock, Acquire, acquire())
     builder.create<AIE::UseLockOp>(builder.getUnknownLoc(), lock,

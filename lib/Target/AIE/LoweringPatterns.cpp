@@ -29,6 +29,10 @@ using namespace phy::target::aie;
 using namespace std;
 using namespace xilinx;
 
+//===----------------------------------------------------------------------===//
+// List lowering pattern sets.
+//===----------------------------------------------------------------------===//
+
 list<unique_ptr<LoweringPatternSet>> AIELoweringPatternSets::getPatternSets() {
   list<unique_ptr<LoweringPatternSet>> patterns;
 
@@ -41,6 +45,10 @@ list<unique_ptr<LoweringPatternSet>> AIELoweringPatternSets::getPatternSets() {
 
   return patterns;
 }
+
+//===----------------------------------------------------------------------===//
+// Shared resources constructors and getters.
+//===----------------------------------------------------------------------===//
 
 template <typename DMAOp>
 static DMAOp getDmaGeneric(pair<int, int> index, mlir::ModuleOp module,
@@ -63,11 +71,43 @@ AIE::MemOp AIELoweringPatternSets::getDma(pair<int, int> index) {
   return getDmaGeneric<AIE::MemOp>(index, module, getTile(index), dmas);
 }
 
+xilinx::AIE::LockOp AIELoweringPatternSets::getLock(xilinx::AIE::TileOp tile,
+                                                    int id) {
+  auto pair = std::make_pair(tile, id);
+
+  if (!locks.count(pair)) {
+    auto builder = OpBuilder::atBlockBegin(module.getBody());
+    builder.setInsertionPointAfter(tile);
+    locks[pair] =
+        builder.create<xilinx::AIE::LockOp>(builder.getUnknownLoc(), tile, id);
+  }
+
+  return locks[pair];
+}
+
 AIE::ShimDMAOp AIELoweringPatternSets::getShimDma(pair<int, int> index) {
   assert(TargetResources().isShimTile(index.first, index.second));
   return getDmaGeneric<AIE::ShimDMAOp>(index, module, getTile(index),
                                        shim_dmas);
 }
+
+AIE::TileOp AIELoweringPatternSets::getTile(mlir::OpState &op) {
+  return getTile(getTileIndex(op));
+}
+
+AIE::TileOp AIELoweringPatternSets::getTile(pair<int, int> index) {
+  if (!tiles.count(index)) {
+    auto builder = OpBuilder::atBlockBegin(module.getBody());
+    tiles[index] = builder.create<AIE::TileOp>(builder.getUnknownLoc(),
+                                               index.first, index.second);
+  }
+
+  return tiles[index];
+}
+
+//===----------------------------------------------------------------------===//
+// Common attribute getters.
+//===----------------------------------------------------------------------===//
 
 AIE::DMAChan AIELoweringPatternSets::getChannel(mlir::OpState &op,
                                                 physical::StreamOp stream) {
@@ -119,6 +159,12 @@ std::string AIELoweringPatternSets::getImpl(mlir::OpState &op) {
     return op.getOperation()->getAttrOfType<StringAttr>("aie.impl").str();
 }
 
+pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {
+  auto tile = LiteralVector<int>(
+      op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
+  return make_pair(tile.vec()[0], tile.vec()[1]);
+}
+
 AIE::WireBundle AIELoweringPatternSets::getWireBundle(physical::StreamOp &op) {
   map<string, AIE::WireBundle> bundles = {
       {"Core.I", AIE::WireBundle::Core},   {"Core.O", AIE::WireBundle::Core},
@@ -131,24 +177,4 @@ AIE::WireBundle AIELoweringPatternSets::getWireBundle(physical::StreamOp &op) {
   auto port = op.getOperation()->getAttrOfType<StringAttr>("aie.port").str();
   assert(bundles.count(port) && "unknown port");
   return bundles[port];
-}
-
-AIE::TileOp AIELoweringPatternSets::getTile(mlir::OpState &op) {
-  return getTile(getTileIndex(op));
-}
-
-AIE::TileOp AIELoweringPatternSets::getTile(pair<int, int> index) {
-  if (!tiles.count(index)) {
-    auto builder = OpBuilder::atBlockBegin(module.getBody());
-    tiles[index] = builder.create<AIE::TileOp>(builder.getUnknownLoc(),
-                                               index.first, index.second);
-  }
-
-  return tiles[index];
-}
-
-pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {
-  auto tile = LiteralVector<int>(
-      op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
-  return make_pair(tile.vec()[0], tile.vec()[1]);
 }

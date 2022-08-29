@@ -26,37 +26,36 @@ namespace target {
 namespace aie {
 
 class AIELoweringPatternSets : public LoweringPatternSets {
-public:
-  AIELoweringPatternSets(ModuleOp &module) : module(module) {}
-  std::list<std::unique_ptr<LoweringPatternSet>> getPatternSets() override;
-
   ModuleOp module;
-
-  // tiles[{col, row}] == TileOp
-  std::map<std::pair<int, int>, xilinx::AIE::TileOp> tiles;
 
   // dmas/shim_dmas[{col, row}] == DMAOp/ShimDMAOp
   std::map<std::pair<int, int>, xilinx::AIE::MemOp> dmas;
   std::map<std::pair<int, int>, xilinx::AIE::ShimDMAOp> shim_dmas;
 
-  std::map<phy::physical::BufferOp, xilinx::AIE::BufferOp> buffers;
-  std::map<phy::physical::BufferOp, xilinx::AIE::ExternalBufferOp>
-      external_buffers;
-  std::map<phy::physical::CoreOp, xilinx::AIE::CoreOp> cores;
-  std::map<phy::physical::LockOp, xilinx::AIE::LockOp> locks;
+  // locks[{TileOp, id}] == LockOp
+  std::map<std::pair<xilinx::AIE::TileOp, int>, xilinx::AIE::LockOp> locks;
 
+  // tiles[{col, row}] == TileOp
+  std::map<std::pair<int, int>, xilinx::AIE::TileOp> tiles;
+
+public:
+  AIELoweringPatternSets(ModuleOp &module) : module(module) {}
+  std::list<std::unique_ptr<LoweringPatternSet>> getPatternSets() override;
+
+  // Shared resources constructors and getters.
   xilinx::AIE::MemOp getDma(std::pair<int, int> index);
+  xilinx::AIE::LockOp getLock(xilinx::AIE::TileOp tile, int id);
   xilinx::AIE::ShimDMAOp getShimDma(std::pair<int, int> index);
+  xilinx::AIE::TileOp getTile(mlir::OpState &op);
+  xilinx::AIE::TileOp getTile(std::pair<int, int> index);
 
+  // Common attribute getters.
   xilinx::AIE::DMAChan getChannel(mlir::OpState &op,
                                   phy::physical::StreamOp stream);
   int getId(mlir::OpState &op);
   std::string getImpl(mlir::OpState &op);
-  xilinx::AIE::WireBundle getWireBundle(phy::physical::StreamOp &op);
-
-  xilinx::AIE::TileOp getTile(mlir::OpState &op);
-  xilinx::AIE::TileOp getTile(std::pair<int, int> index);
   std::pair<int, int> getTileIndex(mlir::OpState &op);
+  xilinx::AIE::WireBundle getWireBundle(phy::physical::StreamOp &op);
 };
 
 } // namespace aie

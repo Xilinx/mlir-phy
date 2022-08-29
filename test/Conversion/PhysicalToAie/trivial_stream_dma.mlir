@@ -4,14 +4,14 @@
 // CHECK: %[[Tile7:.*]] = AIE.tile(7, 0)
 // CHECK: %[[Tile6:.*]] = AIE.tile(6, 0)
 
-// CHECK: %[[Buffer:.*]] = AIE.external_buffer
 // CHECK: %[[Lock:.*]] = AIE.lock(%[[Tile6]], 0)
+// CHECK: %[[Buffer:.*]] = AIE.external_buffer
 
 %0:2 = physical.stream<[0, 1]>(){ aie.tile = "6.0", aie.port = "DMA.O", aie.id = "0" }: (!physical.ostream<i32>, !physical.istream<i32>)
 %1:2 = physical.stream<[0, 1]>(){ aie.tile = "6.0", aie.port = "DMA.I", aie.id = "1" }: (!physical.ostream<i32>, !physical.istream<i32>)
 %2:2 = physical.stream<[0, 1]>(){ aie.tile = "7.0", aie.port = "DMA.O", aie.id = "1" }: (!physical.ostream<i32>, !physical.istream<i32>)
-%b   = physical.buffer() { aie.external_address = "2203318222848" }: memref<1024xi32>
 %l   = physical.lock<0>() { aie.tile = "6.0", aie.id = "0" }
+%b   = physical.buffer() { aie.external_address = "2203318222848" }: memref<1024xi32>
 
 // CHECK: AIE.shimDMA(%[[Tile6]]) {
 // CHECK:   AIE.dmaStart(S2MM1, ^[[S2MM1:.*]], ^[[MM2SBD:.*]])

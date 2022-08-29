@@ -33,15 +33,13 @@ public:
 
     if (auto address = op.getOperation()->getAttrOfType<StringAttr>(
             "aie.external_address")) {
-      lowering->external_buffers[op] =
-          rewriter.replaceOpWithNewOp<xilinx::AIE::ExternalBufferOp>(
-              op, op.buffer().getType(), lexical_cast<int>(address.str()));
+      rewriter.replaceOpWithNewOp<xilinx::AIE::ExternalBufferOp>(
+          op, op.buffer().getType(), lexical_cast<int>(address.str()));
 
     } else {
       auto tile = lowering->getTile(op);
-      lowering->buffers[op] =
-          rewriter.replaceOpWithNewOp<xilinx::AIE::BufferOp>(
-              op, op.buffer().getType(), tile);
+      rewriter.replaceOpWithNewOp<xilinx::AIE::BufferOp>(
+          op, op.buffer().getType(), tile);
     }
 
     return success();
