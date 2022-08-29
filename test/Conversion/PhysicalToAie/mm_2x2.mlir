@@ -1,5 +1,5 @@
 // REQUIRES: aie_found
-// RUN: phy-opt %s | FileCheck %s
+// RUN: phy-opt --inline --convert-physical-to-aie --symbol-dce %s | FileCheck %s
 
 // CHECK-LABEL: module @MM_2x2
 module @MM_2x2 {
