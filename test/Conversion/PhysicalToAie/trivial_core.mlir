@@ -1,5 +1,5 @@
 // REQUIRES: aie_found
-// RUN: phy-opt --inline --convert-physical-to-aie %s | FileCheck %s
+// RUN: phy-opt --inline --convert-physical-to-aie --symbol-dce %s | FileCheck %s
 
 // CHECK: %[[Tile:.*]] = AIE.tile(6, 3)
 
@@ -13,6 +13,13 @@
 %B  = physical.buffer() { aie.tile = "6.3" }: memref<1024xi32>
 
 func.func private @extern_kernel(%0: memref<1024xi32>, %1: memref<1024xi32>) -> ()
+
+// CHECK: %[[BufB:.*]] = AIE.core(%[[Tile]]) {
+// CHECK:   cf.br ^[[bb:.*]]
+// CHECK: ^[[bb]]:
+// CHECK:   func.call @extern_kernel
+// CHECK:   cf.br ^[[bb:.*]]
+// CHECK: }
 
 func.func private @kernel_middle(%0: memref<1024xi32>, %1: memref<1024xi32>, %2: !physical.lock) {
   func.call @kernel_internal(%0, %1, %2) : (memref<1024xi32>, memref<1024xi32>, !physical.lock) -> ()
