@@ -46,12 +46,64 @@ public:
   }
 };
 
+class LockAcquireOpToAieLowering : public OpConversionPattern<LockAcquireOp> {
+  AIELoweringPatternSets *lowering;
+  using OpAdaptor = typename LockAcquireOp::Adaptor;
+
+public:
+  LockAcquireOpToAieLowering(mlir::MLIRContext *context,
+                             AIELoweringPatternSets *lowering)
+      : OpConversionPattern<LockAcquireOp>(context), lowering(lowering) {}
+
+  mlir::LogicalResult
+  matchAndRewrite(LockAcquireOp op, OpAdaptor adaptor,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto phy_lock = dyn_cast_or_null<LockOp>(op.lock().getDefiningOp());
+    if (!phy_lock)
+      return failure();
+
+    auto tile = lowering->getTile(phy_lock);
+    auto id = lowering->getId(phy_lock);
+
+    auto lock = lowering->getLock(tile, id);
+    rewriter.replaceOpWithNewOp<xilinx::AIE::UseLockOp>(
+        op, lock, op.state(), xilinx::AIE::LockAction::Acquire);
+
+    return success();
+  }
+};
+
+class LockReleaseOpToAieLowering : public OpConversionPattern<LockReleaseOp> {
+  AIELoweringPatternSets *lowering;
+  using OpAdaptor = typename LockReleaseOp::Adaptor;
+
+public:
+  LockReleaseOpToAieLowering(mlir::MLIRContext *context,
+                             AIELoweringPatternSets *lowering)
+      : OpConversionPattern<LockReleaseOp>(context), lowering(lowering) {}
+
+  mlir::LogicalResult
+  matchAndRewrite(LockReleaseOp op, OpAdaptor adaptor,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto phy_lock = dyn_cast_or_null<LockOp>(op.lock().getDefiningOp());
+    if (!phy_lock)
+      return failure();
+
+    auto tile = lowering->getTile(phy_lock);
+    auto id = lowering->getId(phy_lock);
+
+    auto lock = lowering->getLock(tile, id);
+    rewriter.replaceOpWithNewOp<xilinx::AIE::UseLockOp>(
+        op, lock, op.state(), xilinx::AIE::LockAction::Release);
+
+    return success();
+  }
+};
+
 void LockOpLoweringPatternSet::populatePatternSet(
     mlir::RewritePatternSet &patterns) {
 
   patterns.add<LockOpToAieLowering>(patterns.getContext(), lowering);
-
-  // TODO: translate lock actions into AIE.useLock.
-  patterns.add<OpRemover<LockAcquireOp>>(patterns.getContext());
-  patterns.add<OpRemover<LockReleaseOp>>(patterns.getContext());
+  patterns.add<LockAcquireOpToAieLowering>(patterns.getContext(), lowering);
+  patterns.add<LockReleaseOpToAieLowering>(patterns.getContext(), lowering);
 }

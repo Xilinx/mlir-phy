@@ -40,7 +40,10 @@ class AIELoweringPatternSets : public LoweringPatternSets {
 
 public:
   AIELoweringPatternSets(ModuleOp &module) : module(module) {}
-  std::list<std::unique_ptr<LoweringPatternSet>> getPatternSets() override;
+
+  // Lists of lowering pattern sets
+  std::list<std::list<std::unique_ptr<LoweringPatternSet>>>
+  getPatternSets() override;
 
   // Shared resources constructors and getters.
   xilinx::AIE::MemOp getDma(std::pair<int, int> index);

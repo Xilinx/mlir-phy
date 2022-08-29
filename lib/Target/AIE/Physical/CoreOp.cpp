@@ -46,7 +46,7 @@ public:
     // failsafe: try to inline the call
     auto sym = callop.getCallableForCallee().dyn_cast<SymbolRefAttr>();
     if (!sym)
-      return failure();
+      return success();
 
     auto func = dyn_cast_or_null<func::FuncOp>(
         SymbolTable::lookupNearestSymbolFrom(callop, sym));

@@ -13,10 +13,22 @@
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/DialectImplementation.h"
+#include "mlir/Transforms/InliningUtils.h"
 #include "llvm/ADT/TypeSwitch.h"
 
 using namespace ::mlir;
 using namespace ::phy::physical;
+
+class PhysicalInlinerInterface : public DialectInlinerInterface {
+public:
+  using DialectInlinerInterface::DialectInlinerInterface;
+
+  // The physical operations are always inlinable.
+  bool isLegalToInline(Operation *, Region *, bool,
+                       BlockAndValueMapping &) const final {
+    return true;
+  }
+};
 
 //===----------------------------------------------------------------------===//
 // Dialect specification.
@@ -33,6 +45,8 @@ void PhysicalDialect::initialize() {
 #define GET_TYPEDEF_LIST
 #include "phy/Dialect/Physical/PhysicalTypes.cpp.inc"
       >();
+  // Register interfaces.
+  addInterfaces<PhysicalInlinerInterface>();
 }
 
 // Provide implementations for the enums, attributes and interfaces that we use.

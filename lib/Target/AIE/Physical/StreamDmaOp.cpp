@@ -60,13 +60,15 @@ public:
 
     auto &last_bd = dma.body().front();
     auto &aie_end = dma.body().back();
-    auto stream = dyn_cast<StreamOp>(op.endpoint().getDefiningOp());
+    auto stream = dyn_cast_or_null<StreamOp>(op.endpoint().getDefiningOp());
+    assert(stream &&
+           "stream dma must directly refer to the stream definition.");
 
     // Create DMA BD blocks
     for (auto &connect_op : *connections) {
       if (isa<EndOp>(connect_op))
         continue;
-      auto connect = dyn_cast<StreamDmaConnectOp>(connect_op);
+      auto connect = dyn_cast_or_null<StreamDmaConnectOp>(connect_op);
       assert(connect && "stream dma can only contain StreamDmaConnectOp.");
 
       auto bd_block = new mlir::Block();
@@ -103,7 +105,10 @@ public:
 
     auto builder = OpBuilder::atBlockBegin(bd_block);
 
-    auto phy_lock = dyn_cast<LockOp>(connect.lock().getDefiningOp());
+    auto phy_lock = dyn_cast_or_null<LockOp>(connect.lock().getDefiningOp());
+    assert(phy_lock &&
+           "stream dma must directly refer to the lock definition.");
+
     auto tile = lowering->getTile(phy_lock);
     auto id = lowering->getId(phy_lock);
     auto lock = lowering->getLock(tile, id);

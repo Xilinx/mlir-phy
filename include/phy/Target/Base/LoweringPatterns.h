@@ -25,8 +25,9 @@ public:
 
 class LoweringPatternSets {
 public:
-  virtual std::list<std::unique_ptr<LoweringPatternSet>> getPatternSets() {
-    return std::list<std::unique_ptr<LoweringPatternSet>>();
+  virtual std::list<std::list<std::unique_ptr<LoweringPatternSet>>>
+  getPatternSets() {
+    return std::list<std::list<std::unique_ptr<LoweringPatternSet>>>();
   }
 };
 

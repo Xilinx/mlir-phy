@@ -30,18 +30,25 @@ using namespace std;
 using namespace xilinx;
 
 //===----------------------------------------------------------------------===//
-// List lowering pattern sets.
+// Lists of lowering pattern sets.  Each list is excuted as a pattern set, and
+// all lists are executed sequentially.
 //===----------------------------------------------------------------------===//
 
-list<unique_ptr<LoweringPatternSet>> AIELoweringPatternSets::getPatternSets() {
-  list<unique_ptr<LoweringPatternSet>> patterns;
+list<list<unique_ptr<LoweringPatternSet>>>
+AIELoweringPatternSets::getPatternSets() {
+  list<list<unique_ptr<LoweringPatternSet>>> patterns;
 
-  patterns.push_back(make_unique<BufferOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<CoreOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<LockOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<StreamDmaOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<StreamHubOpLoweringPatternSet>(this));
-  patterns.push_back(make_unique<StreamOpLoweringPatternSet>(this));
+  // Convert code regions that use resources first
+  patterns.emplace_back();
+  patterns.back().push_back(make_unique<CoreOpLoweringPatternSet>(this));
+  patterns.back().push_back(make_unique<StreamDmaOpLoweringPatternSet>(this));
+  patterns.back().push_back(make_unique<StreamHubOpLoweringPatternSet>(this));
+
+  // Then convert resources
+  patterns.emplace_back();
+  patterns.back().push_back(make_unique<BufferOpLoweringPatternSet>(this));
+  patterns.back().push_back(make_unique<LockOpLoweringPatternSet>(this));
+  patterns.back().push_back(make_unique<StreamOpLoweringPatternSet>(this));
 
   return patterns;
 }

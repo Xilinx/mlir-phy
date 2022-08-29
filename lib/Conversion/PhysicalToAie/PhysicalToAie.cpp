@@ -27,20 +27,23 @@ namespace {
 struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
   void runOnOperation() override {
     mlir::ModuleOp module = getOperation();
-    mlir::ConversionTarget target(getContext());
-    target.addLegalDialect<xilinx::AIE::AIEDialect>();
-
-    mlir::RewritePatternSet patterns(&getContext());
     target::aie::AIELoweringPatternSets pattern_sets(module);
 
-    for (auto &pattern : pattern_sets.getPatternSets()) {
-      pattern->populatePatternSet(patterns);
-      pattern->populateTarget(target);
-    }
+    for (auto &pattern_set : pattern_sets.getPatternSets()) {
+      mlir::ConversionTarget target(getContext());
+      target.addLegalDialect<xilinx::AIE::AIEDialect>();
 
-    if (mlir::failed(mlir::applyPartialConversion(module, target,
-                                                  std::move(patterns)))) {
-      signalPassFailure();
+      mlir::RewritePatternSet patterns(&getContext());
+      for (auto &pattern : pattern_set) {
+        pattern->populatePatternSet(patterns);
+        pattern->populateTarget(target);
+      }
+
+      if (mlir::failed(mlir::applyPartialConversion(module, target,
+                                                    std::move(patterns)))) {
+        signalPassFailure();
+        break;
+      }
     }
   }
 };
