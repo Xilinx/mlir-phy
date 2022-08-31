@@ -17,7 +17,7 @@
 
 using namespace mlir;
 using namespace mlir::func;
-using namespace phy::target::aie;
+using namespace phy::rewrite;
 
 LogicalResult
 FunctionInliner::matchAndRewrite(CallOp op, OpAdaptor adaptor,

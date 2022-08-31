@@ -1,4 +1,4 @@
-##===- CMakeLists.txt - connectivity tests cmake  -------------*- cmake -*-===//
+##===- CMakeLists.txt - convert-layout-to-physical cmake  -----*- cmake -*-===//
 ##
 ## This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 ## See https://llvm.org/LICENSE.txt for license information.
@@ -6,14 +6,13 @@
 ##
 ##===----------------------------------------------------------------------===//
 
-add_executable(PHYConnectivityTests
-  LiteralVectorTests.cpp
-  ResourceListTests.cpp
-  ResourceTests.cpp
-)
+add_phy_conversion_library(LayoutToPhysical
+  LayoutToPhysical.cpp
 
-target_link_libraries(PHYConnectivityTests
-  PRIVATE
+  DEPENDS
+  MLIRPhyConversionPassIncGen
+
+  LINK_LIBS
+  MLIRPass
   PhyConnectivity
-  GTest::gtest_main
 )

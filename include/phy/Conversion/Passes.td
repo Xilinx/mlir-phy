@@ -36,10 +36,9 @@ def Nop : Pass<"convert-nop", "mlir::ModuleOp"> {
 #ifdef BUILD_WITH_AIE
 
 def PhysicalToAie : Pass<"convert-physical-to-aie", "mlir::ModuleOp"> {
-  let summary = "Convert Physical dialect to AIE dialect";
+  let summary = "Convert physical dialect to AIE dialect";
   let description = [{
-    This pass analyzes 'physical.device' and the nested placed and routed
-    elements, lowers the elements in the 'aie' device to the AIE dialect.
+    This pass analyzes 'physical' dialect and lower it to the AIE dialect.
   }];
   let constructor = "phy::createPhysicalToAie()";
   let dependentDialects = [
@@ -52,5 +51,30 @@ def PhysicalToAie : Pass<"convert-physical-to-aie", "mlir::ModuleOp"> {
 }
 
 #endif // BUILD_WITH_AIE
+
+//===----------------------------------------------------------------------===//
+// LayoutToPhysical
+//===----------------------------------------------------------------------===//
+
+def LayoutToPhysical : Pass<"convert-layout-to-physical",
+                            "mlir::ModuleOp"> {
+
+  let summary = "Convert spatial with physical layout to physical dialect";
+  let description = [{
+    This pass analyzes 'layout.device' and the nested placed and routed
+    elements on physical slots, lowers the elements in the specified device to
+    the physical dialect.
+  }];
+  let constructor = "phy::createLayoutToPhysical()";
+  let dependentDialects = [
+    "phy::layout::LayoutDialect",
+    "phy::physical::PhysicalDialect",
+    "phy::spatial::SpatialDialect"
+  ];
+  let options = [
+    Option<"device_option", "device", "std::string", /*default=*/"",
+           "The device to be lowered">,
+  ];
+}
 
 #endif // CIRCT_CONVERSION_PASSES_TD

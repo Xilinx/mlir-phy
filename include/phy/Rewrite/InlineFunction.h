@@ -16,8 +16,7 @@
 #define MLIR_PHY_REWRITE_INLINE_FUNCTION_H
 
 namespace phy {
-namespace target {
-namespace aie {
+namespace rewrite {
 
 class Inliner : public mlir::InlinerInterface {
 public:
@@ -36,8 +35,7 @@ public:
                   mlir::ConversionPatternRewriter &rewriter) const override;
 };
 
-} // namespace aie
-} // namespace target
+} // namespace rewrite
 } // namespace phy
 
 #endif // MLIR_PHY_REWRITE_INLINE_FUNCTION_H

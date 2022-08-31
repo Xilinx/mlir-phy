@@ -19,6 +19,7 @@
 
 using namespace mlir;
 using namespace phy::physical;
+using namespace phy::rewrite;
 using namespace phy::target::aie;
 using namespace xilinx;
 

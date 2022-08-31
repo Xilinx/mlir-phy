@@ -6,7 +6,11 @@
 ##
 ##===----------------------------------------------------------------------===//
 
+file(GLOB_RECURSE Connectivity_Src
+  "*.cpp"
+)
+
 add_phy_library(PhyConnectivity
-  Implementation.cpp
-  Resource.cpp
+  ${Connectivity_Src}
+  LINK_LIBS
 )

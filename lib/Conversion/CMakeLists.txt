@@ -1,2 +1,3 @@
+add_subdirectory(LayoutToPhysical)
 add_subdirectory(Nop)
 add_subdirectory(PhysicalToAie)

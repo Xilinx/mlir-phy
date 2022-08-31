@@ -15,8 +15,7 @@
 #define MLIR_PHY_REWRITE_REMOVE_OP_H
 
 namespace phy {
-namespace target {
-namespace aie {
+namespace rewrite {
 
 template <typename Op>
 class OpRemover : public mlir::OpConversionPattern<Op> {
@@ -33,8 +32,7 @@ public:
   }
 };
 
-} // namespace aie
-} // namespace target
+} // namespace rewrite
 } // namespace phy
 
 #endif // MLIR_PHY_REWRITE_REMOVE_OP_H
