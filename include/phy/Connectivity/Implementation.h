@@ -74,6 +74,7 @@ public:
   virtual void addSpatialFlow(mlir::Operation *src, mlir::Operation *dest) {}
   //===--------------------- Implementee Information ----------------------===//
 
+  //===--------------------------- Translation ----------------------------===//
   // The implementer, or the implementation's siblings, predecessors or
   // successors may call this function to get the implemented operation in
   // the physical dialect.  This function is 'cached', meaning, only the
@@ -82,6 +83,15 @@ public:
   // provide an automatic recursive resolving of the dependencies.  The
   // implementer is guaranteed to call each implementation once.
   mlir::Operation *getOperation();
+
+  // The implementation's predecessors or successors may call this function to
+  // translate the spatial usage operations, e.g. spatial.emplace, spatial.pop,
+  // etc, into the corresponding implementation's operation.  This method shall
+  // not erase the translated operation as each operation might require
+  // multiple implementations.  However, the result of the translated operation
+  // shall be redirected by one of the operations.
+  virtual void translateUserOperation(mlir::Value value,
+                                      mlir::Operation *user){};
 };
 
 class ImplementationContext {

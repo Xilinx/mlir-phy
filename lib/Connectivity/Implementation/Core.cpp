@@ -12,12 +12,13 @@
 #include "mlir/Support/LLVM.h"
 
 #include <set>
+#include <utility>
 
 using namespace mlir;
 using namespace phy;
 using namespace phy::connectivity;
 
-mlir::Operation *CoreImplementation::createOperation() {
+Operation *CoreImplementation::createOperation() {
   assert(node.getOperation() && "a core must be associated with a node");
 
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
@@ -26,9 +27,9 @@ mlir::Operation *CoreImplementation::createOperation() {
       translateFunction(), translateOperands());
 }
 
-llvm::SmallVector<mlir::Value>
-CoreImplementation::getOperandValues(mlir::Value operand) {
-  llvm::SmallVector<Value> values;
+llvm::SmallVector<std::pair<std::weak_ptr<Implementation>, Value>>
+CoreImplementation::getOperandImpls(Value operand) {
+  llvm::SmallVector<std::pair<std::weak_ptr<Implementation>, Value>> impls;
 
   auto queue = dyn_cast<spatial::QueueOp>(operand.getDefiningOp());
   assert(queue && "operand is a defined queue");
@@ -37,23 +38,23 @@ CoreImplementation::getOperandValues(mlir::Value operand) {
     auto impl_op = impl.lock()->getOperation();
     assert(impl_op->getNumResults() == 1 && "returns one value");
     auto value = impl_op->getResult(0);
-    values.push_back(value);
+    impls.emplace_back(impl, value);
   }
 
-  return values;
+  return impls;
 }
 
 llvm::SmallVector<Value> CoreImplementation::translateOperands() {
   llvm::SmallVector<Value> translated;
 
   for (auto operand : node.operands())
-    for (auto value : getOperandValues(operand))
-      translated.push_back(value);
+    for (auto impl : getOperandImpls(operand))
+      translated.push_back(impl.second);
 
   return translated;
 }
 
-mlir::StringRef CoreImplementation::translateFunction() {
+StringRef CoreImplementation::translateFunction() {
 
   auto original_op = SymbolTable::lookupNearestSymbolFrom<func::FuncOp>(
       node, StringAttr::get(node.getContext(), node.callee()));
@@ -76,46 +77,46 @@ mlir::StringRef CoreImplementation::translateFunction() {
   for (int i = 0; i < original_num_inputs; i++)
     translated_inputs.push_back(original_fn_type.getInput(i));
 
-  // Build new function arguments
+  // Build new function arguments and translate the usages
+  std::set<Operation *> users_to_be_erased;
   for (int i = 0; i < original_num_inputs; i++)
-    for (auto value : getOperandValues(node.getOperand(i))) {
-      translated_inputs.push_back(value.getType());
-      translated_op.getCallableRegion()->addArgument(value.getType(),
-                                                     translated_op.getLoc());
+    for (auto impl : getOperandImpls(node.getOperand(i))) {
+      translated_inputs.push_back(impl.second.getType());
+      auto arg = translated_op.getCallableRegion()->addArgument(
+          impl.second.getType(), translated_op.getLoc());
+      for (auto user : translated_op.getArgument(i).getUsers()) {
+        impl.first.lock()->translateUserOperation(arg, user);
+        users_to_be_erased.insert(user);
+      }
     }
   translated_op.setType(builder.getFunctionType(translated_inputs, {}));
 
-  // Translate the usage of function arguments
-  std::set<Operation *> users_to_be_translated;
-  for (auto arg : translated_op.getArguments())
-    for (auto user : arg.getUsers())
-      users_to_be_translated.insert(user);
-  for (auto user : users_to_be_translated) {
+  // Erase original arguments and their users
+  for (auto user : users_to_be_erased) {
+    for (auto result : user->getResults())
+      assert(result.getUsers().empty() && "all results must be replaced");
     user->erase();
   }
-
-  // Erase original arguments
-  for (int idx = original_num_inputs - 1; idx >= 0; idx--)
+  for (int idx = original_num_inputs - 1; idx >= 0; idx--) {
     translated_op.eraseArgument(idx);
+  }
 
   return tranlated_name;
 }
 
 void CoreImplementation::addPredecessor(std::weak_ptr<Implementation> pred,
-                                        mlir::Operation *src,
-                                        mlir::Operation *dest) {
+                                        Operation *src, Operation *dest) {
   if (auto queue = dyn_cast<spatial::QueueOp>(src))
     addQueueImpl(queue, pred);
 }
 
 void CoreImplementation::addSuccessor(std::weak_ptr<Implementation> succ,
-                                      mlir::Operation *src,
-                                      mlir::Operation *dest) {
+                                      Operation *src, Operation *dest) {
   if (auto queue = dyn_cast<spatial::QueueOp>(dest))
     addQueueImpl(queue, succ);
 }
 
-void CoreImplementation::addSpatialOperation(mlir::Operation *spatial) {
+void CoreImplementation::addSpatialOperation(Operation *spatial) {
   if (auto node_op = dyn_cast<spatial::NodeOp>(spatial)) {
     assert(!node.getOperation() && "a core can only hold a node");
     node = node_op;

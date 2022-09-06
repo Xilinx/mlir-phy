@@ -17,12 +17,19 @@ namespace phy {
 namespace connectivity {
 
 class BufferImplementation : public Implementation {
-  spatial::QueueOp queue;
+
+  // Overrides
+protected:
+  mlir::Operation *createOperation() override;
 
 public:
   using Implementation::Implementation;
-  mlir::Operation *createOperation() override;
   void addSpatialOperation(mlir::Operation *spatial) override;
+  void translateUserOperation(mlir::Value value,
+                              mlir::Operation *user) override;
+
+protected:
+  spatial::QueueOp queue;
 };
 
 } // namespace connectivity

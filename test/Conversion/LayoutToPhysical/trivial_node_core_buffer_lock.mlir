@@ -3,7 +3,16 @@
 func.func private @kernel(%Q: !spatial.queue<memref<1024xi32>>) {
   cf.br ^bb
 ^bb:
+
+  %c0 = arith.constant 0 : index
+
+  // CHECK: physical.lock_acquire<1> (%arg1)
   %0 = spatial.front(%Q): memref<1024xi32>
+
+  // CHECK: memref.load %arg0[%c0] : memref<1024xi32>
+  %1 = memref.load %0[%c0]: memref<1024xi32>
+
+  // CHECK: physical.lock_release<0> (%arg1)
   spatial.pop(%Q: !spatial.queue<memref<1024xi32>>)
   cf.br ^bb
 }

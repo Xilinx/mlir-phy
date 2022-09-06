@@ -21,23 +21,31 @@ namespace phy {
 namespace connectivity {
 
 class CoreImplementation : public Implementation {
-  spatial::NodeOp node;
-  std::map<spatial::QueueOp, std::list<std::weak_ptr<Implementation>>>
-      queue_impls;
 
-  void addQueueImpl(spatial::QueueOp queue, std::weak_ptr<Implementation> impl);
-  llvm::SmallVector<mlir::Value> getOperandValues(mlir::Value operand);
-  mlir::StringRef translateFunction();
-  llvm::SmallVector<mlir::Value> translateOperands();
+  // Overrides
+protected:
+  mlir::Operation *createOperation() override;
 
 public:
   using Implementation::Implementation;
-  mlir::Operation *createOperation() override;
   void addPredecessor(std::weak_ptr<Implementation> pred, mlir::Operation *src,
                       mlir::Operation *dest) override;
   void addSuccessor(std::weak_ptr<Implementation> succ, mlir::Operation *src,
                     mlir::Operation *dest) override;
   void addSpatialOperation(mlir::Operation *spatial) override;
+
+protected:
+  spatial::NodeOp node;
+  std::map<spatial::QueueOp, std::list<std::weak_ptr<Implementation>>>
+      queue_impls;
+
+  void addQueueImpl(spatial::QueueOp queue, std::weak_ptr<Implementation> impl);
+
+  llvm::SmallVector<std::pair<std::weak_ptr<Implementation>, mlir::Value>>
+  getOperandImpls(mlir::Value operand);
+
+  mlir::StringRef translateFunction();
+  llvm::SmallVector<mlir::Value> translateOperands();
 };
 
 } // namespace connectivity

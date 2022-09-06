@@ -23,6 +23,16 @@ mlir::Operation *BufferImplementation::createOperation() {
       queue.queue().getType().dyn_cast<spatial::QueueType>().getDatatype());
 }
 
+void BufferImplementation::translateUserOperation(mlir::Value value,
+                                                  mlir::Operation *user) {
+
+  if (auto emplace = dyn_cast<spatial::EmplaceOp>(user)) {
+    emplace.result().replaceAllUsesWith(value);
+  } else if (auto front = dyn_cast<spatial::FrontOp>(user)) {
+    front.result().replaceAllUsesWith(value);
+  }
+}
+
 void BufferImplementation::addSpatialOperation(mlir::Operation *spatial) {
   if (auto queue_op = dyn_cast<spatial::QueueOp>(spatial)) {
     assert(!queue.getOperation() && "a buffer can only hold a queue");

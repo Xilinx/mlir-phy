@@ -20,3 +20,26 @@ mlir::Operation *LockImplementation::createOperation() {
       builder.getUnknownLoc(), physical::LockType::get(builder.getContext()),
       builder.getI64IntegerAttr(0));
 }
+
+void LockImplementation::translateUserOperation(mlir::Value value,
+                                                mlir::Operation *user) {
+
+  OpBuilder builder(user);
+
+  if (auto emplace = dyn_cast<spatial::EmplaceOp>(user)) {
+    builder.create<physical::LockAcquireOp>(
+        builder.getUnknownLoc(), builder.getI64IntegerAttr(0), value);
+
+  } else if (auto front = dyn_cast<spatial::FrontOp>(user)) {
+    builder.create<physical::LockAcquireOp>(
+        builder.getUnknownLoc(), builder.getI64IntegerAttr(1), value);
+
+  } else if (auto push = dyn_cast<spatial::PushOp>(user)) {
+    builder.create<physical::LockReleaseOp>(
+        builder.getUnknownLoc(), builder.getI64IntegerAttr(1), value);
+
+  } else if (auto pop = dyn_cast<spatial::PopOp>(user)) {
+    builder.create<physical::LockReleaseOp>(
+        builder.getUnknownLoc(), builder.getI64IntegerAttr(0), value);
+  }
+}

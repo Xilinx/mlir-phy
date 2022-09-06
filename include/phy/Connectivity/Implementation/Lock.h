@@ -17,9 +17,15 @@ namespace phy {
 namespace connectivity {
 
 class LockImplementation : public Implementation {
+
+  // Overrides
+protected:
+  mlir::Operation *createOperation() override;
+
 public:
   using Implementation::Implementation;
-  mlir::Operation *createOperation() override;
+  void translateUserOperation(mlir::Value value,
+                              mlir::Operation *user) override;
 };
 
 } // namespace connectivity
