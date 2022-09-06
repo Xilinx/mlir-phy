@@ -11,7 +11,7 @@ func.func private @kernel() {
 layout.platform<"vck190"> {
   layout.device<"aie"> {
     
-    // CHECK: physical.core @kernel() {aie.tile = "6.3"} : () -> !physical.core
+    // CHECK: physical.core @kernel1() {aie.tile = "6.3"} : () -> !physical.core
     layout.place<"tile/6.3/core">(%node: !spatial.node)
 
   }

@@ -35,19 +35,20 @@ class Implementation {
 protected:
   PhysicalResource phy;
   ImplementationContext &context;
-  mlir::Operation *cached_op;
+  mlir::Operation *implemented_op;
 
   // This is the function to be overrided by children classes to create the
   // actual implementation operation.  The operation returned by this method
   // will automatically have the metadata in the physical resource attached.
   virtual mlir::Operation *createOperation() = 0;
 
-  // This method attach the metadata in the physical resource to the cached_op.
+  // This method attach the metadata in the physical resource to the
+  // implemented_op.
   void attachMetadata();
 
 public:
   Implementation(PhysicalResource phy, ImplementationContext &context)
-      : phy(phy), context(context), cached_op(nullptr) {}
+      : phy(phy), context(context), implemented_op(nullptr) {}
 
   //===---------------------- Neighbor Information ------------------------===//
   // The implementer will call the methods to notify the object of its
@@ -84,6 +85,8 @@ public:
 };
 
 class ImplementationContext {
+  std::map<llvm::StringRef, int> unique_suffix;
+
 public:
   std::string device;
   std::map<mlir::Operation *, std::list<std::weak_ptr<Implementation>>>
@@ -99,6 +102,8 @@ public:
              std::list<ResourceList> resources);
 
   void implementAll();
+
+  mlir::StringAttr getUniqueSymbol(llvm::StringRef base, mlir::Operation *op);
 };
 
 } // namespace connectivity

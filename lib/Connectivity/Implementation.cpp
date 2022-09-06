@@ -36,16 +36,16 @@ void Implementation::attachMetadata() {
 
   for (auto metadata : phy.metadata) {
     std::string attr_name = context.device + "." + metadata.first;
-    cached_op->setAttr(attr_name, builder.getStringAttr(metadata.second));
+    implemented_op->setAttr(attr_name, builder.getStringAttr(metadata.second));
   }
 }
 
 mlir::Operation *Implementation::getOperation() {
-  if (!cached_op) {
-    cached_op = this->createOperation();
+  if (!implemented_op) {
+    implemented_op = this->createOperation();
     attachMetadata();
   }
-  return cached_op;
+  return implemented_op;
 }
 
 void ImplementationContext::place(Operation *spatial, ResourceList resources) {
@@ -124,4 +124,17 @@ void ImplementationContext::implementAll() {
       impl.second->getOperation();
     }
   }
+}
+
+StringAttr ImplementationContext::getUniqueSymbol(llvm::StringRef base,
+                                                  Operation *op) {
+
+  StringAttr symbol;
+  do {
+    unique_suffix[base]++;
+    symbol = StringAttr::get(op->getContext(),
+                             base.str() + std::to_string(unique_suffix[base]));
+  } while (SymbolTable::lookupNearestSymbolFrom(op, symbol));
+
+  return symbol;
 }
