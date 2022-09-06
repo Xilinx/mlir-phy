@@ -41,3 +41,11 @@ void BufferImplementation::addSpatialOperation(mlir::Operation *spatial) {
     assert("a buffer can only implement a queue");
   }
 }
+
+void BufferImplementation::addSpatialFlow(mlir::Operation *src,
+                                          mlir::Operation *dest) {
+  if (auto queue_op = dyn_cast<spatial::QueueOp>(src))
+    addSpatialOperation(src);
+  if (auto queue_op = dyn_cast<spatial::QueueOp>(dest))
+    addSpatialOperation(dest);
+}
