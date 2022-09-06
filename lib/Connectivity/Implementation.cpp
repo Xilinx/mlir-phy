@@ -9,6 +9,7 @@
 #include "phy/Connectivity/Implementation.h"
 
 #include "phy/Connectivity/Implementation/Buffer.h"
+#include "phy/Connectivity/Implementation/Lock.h"
 
 #include "mlir/IR/Builders.h"
 
@@ -19,6 +20,8 @@ phy::connectivity::ImplementationFactory(PhysicalResource phy,
                                          ImplementationContext &context) {
   if (phy.key == "buffer") {
     return std::make_shared<BufferImplementation>(phy, context);
+  } else if (phy.key == "lock") {
+    return std::make_shared<LockImplementation>(phy, context);
   } else {
     return nullptr;
   }
