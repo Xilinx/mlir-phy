@@ -1,4 +1,4 @@
-//===- Buffer.h -------------------------------------------------*- C++ -*-===//
+//===- Core.h ---------------------------------------------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_BUFFER_H
-#define MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_BUFFER_H
+#ifndef MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_CORE_H
+#define MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_CORE_H
 
 #include "phy/Connectivity/Implementation.h"
 #include "phy/Dialect/Physical/PhysicalDialect.h"
@@ -16,8 +16,8 @@
 namespace phy {
 namespace connectivity {
 
-class BufferImplementation : public Implementation {
-  spatial::QueueOp queue;
+class CoreImplementation : public Implementation {
+  spatial::NodeOp node;
 
 public:
   using Implementation::Implementation;
@@ -28,4 +28,4 @@ public:
 } // namespace connectivity
 } // namespace phy
 
-#endif // MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_BUFFER_H
+#endif // MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_CORE_H
