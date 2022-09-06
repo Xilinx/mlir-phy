@@ -14,6 +14,7 @@
 
 #include "mlir/IR/Builders.h"
 
+using namespace mlir;
 using namespace phy::connectivity;
 
 std::shared_ptr<Implementation>
@@ -47,12 +48,80 @@ mlir::Operation *Implementation::getOperation() {
   return cached_op;
 }
 
-std::shared_ptr<Implementation>
-ImplementationContext::getImplementation(PhysicalResource phy) {
-  auto identifier = phy.toString();
+void ImplementationContext::place(Operation *spatial, ResourceList resources) {
+  for (auto phy : resources.phys) {
+    auto identifier = phy.toString();
+    if (!impls.count(identifier))
+      impls[identifier] = ImplementationFactory(phy, *this);
 
-  if (!impls.count(identifier)) {
-    impls[identifier] = ImplementationFactory(phy, *this);
+    if (impls[identifier]) {
+      impls[identifier]->addSpatialOperation(spatial);
+      placements[spatial].push_back(impls[identifier]);
+    } else {
+      spatial->emitWarning() << phy.key << " cannot be implemented.";
+    }
   }
-  return impls[identifier];
+}
+
+static void populateSibling(std::list<std::weak_ptr<Implementation>> &impls) {
+  for (auto impl_1 : impls) {
+    for (auto impl_2 : impls) {
+      impl_1.lock()->addSibling(impl_2);
+    }
+  }
+}
+
+static void populatePair(std::list<std::weak_ptr<Implementation>> &pred_impls,
+                         std::list<std::weak_ptr<Implementation>> &succ_impls,
+                         Operation *src, Operation *dest) {
+  for (auto pred_impl : pred_impls) {
+    for (auto succ_impl : succ_impls) {
+      succ_impl.lock()->addPredecessor(pred_impl, src, dest);
+      pred_impl.lock()->addSuccessor(succ_impl, src, dest);
+    }
+  }
+}
+
+void ImplementationContext::route(Operation *src, Operation *dest,
+                                  std::list<ResourceList> resources) {
+
+  std::list<std::list<std::weak_ptr<Implementation>>> route_impls;
+
+  // Implement the route
+  route_impls.push_back(placements[src]);
+  for (auto resource_list : resources) {
+    route_impls.emplace_back();
+
+    for (auto phy : resource_list.phys) {
+      auto identifier = phy.toString();
+      if (!impls.count(identifier))
+        impls[identifier] = ImplementationFactory(phy, *this);
+
+      if (impls[identifier]) {
+        impls[identifier]->addSpatialFlow(src, dest);
+        route_impls.back().push_back(impls[identifier]);
+      } else {
+        src->emitWarning() << phy.key << " cannot be implemented.";
+        dest->emitRemark() << phy.key << " was used to connect to here.";
+      }
+    }
+  }
+  route_impls.push_back(placements[dest]);
+
+  // Populate the neighbor information
+  for (auto curr = route_impls.begin(), prev = route_impls.end();
+       curr != route_impls.end(); prev = curr, curr++) {
+    populateSibling(*curr);
+    if (prev != route_impls.end())
+      populatePair(*prev, *curr, src, dest);
+  }
+}
+
+void ImplementationContext::implementAll() {
+  // Making sure each is implemented as an operations
+  for (auto impl : impls) {
+    if (impl.second) {
+      impl.second->getOperation();
+    }
+  }
 }

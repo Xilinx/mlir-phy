@@ -10,6 +10,8 @@
 #define MLIR_PHY_CONNECTIVITY_IMPLEMENTATION_H
 
 #include "phy/Connectivity/Resource.h"
+
+#include "phy/Connectivity/ResourceList.h"
 #include "phy/Dialect/Physical/PhysicalDialect.h"
 
 #include <map>
@@ -47,21 +49,29 @@ public:
   Implementation(PhysicalResource phy, ImplementationContext &context)
       : phy(phy), context(context), cached_op(nullptr) {}
 
+  //===---------------------- Neighbor Information ------------------------===//
   // The implementer will call the methods to notify the object of its
   // siblings, predecessors, and successors.  For example, on a route of
-  // place<"buffer,lock">, route<"dma", "stream">, the predecessors of "dma"
-  // are "buffer" and "lock", the sibling of "lock" is "buffer", the successor
-  // of "lock" is "dma", etc.  An implementation shall override those methods
+  // place<"buffer,lock">, route<["dma", "stream"]>, the predecessors of "dma"
+  // are "buffer" and "lock", the sibling of "lock" is "buffer" and itself, the
+  // successor of "lock" is "dma", etc.  Another example: for a null route of
+  // place<"buffer,lock">, route<>, place<"node">, the predecessors of "node"
+  // are "buffer" and "lock". An implementation shall override those methods
   // if the information is relevant.
   virtual void addSibling(std::weak_ptr<Implementation> sib){};
-  virtual void addPredecessor(std::weak_ptr<Implementation> pred){};
-  virtual void addSuccessor(std::weak_ptr<Implementation> succ){};
+  virtual void addPredecessor(std::weak_ptr<Implementation> pred,
+                              mlir::Operation *src, mlir::Operation *dest){};
+  virtual void addSuccessor(std::weak_ptr<Implementation> succ,
+                            mlir::Operation *src, mlir::Operation *dest){};
+  //===---------------------- Neighbor Information ------------------------===//
 
+  //===--------------------- Implementee Information ----------------------===//
   // The implementer will call the methods to notify the object of what spatial
   // operation or flow is to be implemented.  An implementation shall override
   // those methods if the information is relevant.
   virtual void addSpatialOperation(mlir::Operation *spatial) {}
   virtual void addSpatialFlow(mlir::Operation *src, mlir::Operation *dest) {}
+  //===--------------------- Implementee Information ----------------------===//
 
   // The implementer, or the implementation's siblings, predecessors or
   // successors may call this function to get the implemented operation in
@@ -76,12 +86,19 @@ public:
 class ImplementationContext {
 public:
   std::string device;
+  std::map<mlir::Operation *, std::list<std::weak_ptr<Implementation>>>
+      placements;
   std::map<std::string, std::shared_ptr<Implementation>> impls;
   mlir::ModuleOp module;
 
   ImplementationContext(mlir::ModuleOp module, std::string device)
       : device(device), module(module) {}
-  std::shared_ptr<Implementation> getImplementation(PhysicalResource phy);
+
+  void place(mlir::Operation *spatial, ResourceList resources);
+  void route(mlir::Operation *src, mlir::Operation *dest,
+             std::list<ResourceList> resources);
+
+  void implementAll();
 };
 
 } // namespace connectivity

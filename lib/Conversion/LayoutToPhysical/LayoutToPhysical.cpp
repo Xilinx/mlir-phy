@@ -36,8 +36,8 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
   void runOnOperation() override {
     ImplementationContext context(getOperation(), device_option);
     collectImplementations(context);
-    populateNeighborInfo(context);
-    getOperationForImplementations(context);
+    context.implementAll();
+
     cleanupSpatialLayoutOperations(context);
   }
 
@@ -54,32 +54,22 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
       if (device.device().str() != device_option)
         return;
 
-      // TODO: support route
       for (auto place : device.getOps<layout::PlaceOp>()) {
+        auto spatial = place.vertex().getDefiningOp();
         ResourceList resources(place.slot().str());
-        auto spatial_op = place.vertex().getDefiningOp();
+        context.place(spatial, resources);
+      }
 
-        for (auto phy : resources.phys) {
-          auto impl = context.getImplementation(phy);
-          if (impl) {
-            impl->addSpatialOperation(spatial_op);
-          } else {
-            place->emitWarning() << phy.key << " cannot be implemented.";
-          }
+      for (auto route : device.getOps<layout::RouteOp>()) {
+        auto src = route.src().getDefiningOp();
+        auto dest = route.dest().getDefiningOp();
+        std::list<ResourceList> resources;
+        for (auto wire : route.wires()) {
+          resources.emplace_back(wire.dyn_cast<StringAttr>().str());
         }
+        context.route(src, dest, resources);
       }
     });
-  }
-
-  void populateNeighborInfo(ImplementationContext &context) {}
-
-  void getOperationForImplementations(ImplementationContext &context) {
-    // Making sure each is implemented as an operations
-    for (auto impl : context.impls) {
-      if (impl.second) {
-        impl.second->getOperation();
-      }
-    }
   }
 
   void cleanupSpatialLayoutOperations(ImplementationContext &context) {
@@ -88,6 +78,14 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
     target.addIllegalDialect<layout::LayoutDialect>();
     target.addIllegalDialect<spatial::SpatialDialect>();
 
+    // Remove all functions with spatial arguments
+    target.addDynamicallyLegalOp<func::FuncOp>([](func::FuncOp op) {
+      for (auto type : op.getFunctionType().getInputs())
+        if (type.isa<spatial::QueueType>())
+          return false;
+      return true;
+    });
+
     mlir::RewritePatternSet patterns(&getContext());
     patterns.add<OpRemover<layout::PlatformOp>>(&getContext());
     patterns.add<OpRemover<layout::DeviceOp>>(&getContext());
@@ -95,6 +93,7 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
     patterns.add<OpRemover<layout::RouteOp>>(&getContext());
     patterns.add<OpRemover<spatial::QueueOp>>(&getContext());
     patterns.add<OpRemover<spatial::NodeOp>>(&getContext());
+    patterns.add<OpRemover<func::FuncOp>>(&getContext());
 
     if (mlir::failed(mlir::applyPartialConversion(context.module, target,
                                                   std::move(patterns)))) {
