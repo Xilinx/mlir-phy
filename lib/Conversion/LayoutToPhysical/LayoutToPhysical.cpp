@@ -61,8 +61,11 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
 
         for (auto phy : resources.phys) {
           auto impl = context.getImplementation(phy);
-          if (impl)
+          if (impl) {
             impl->addSpatialOperation(spatial_op);
+          } else {
+            place->emitWarning() << phy.key << " cannot be implemented.";
+          }
         }
       }
     });
