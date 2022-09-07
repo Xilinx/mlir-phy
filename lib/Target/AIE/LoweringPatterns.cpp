@@ -167,6 +167,8 @@ std::string AIELoweringPatternSets::getImpl(mlir::OpState &op) {
 }
 
 pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {
+  assert(op.getOperation()->getAttrOfType<StringAttr>("aie.tile") &&
+         "tile index must be specified");
   auto tile = LiteralVector<int>(
       op.getOperation()->getAttrOfType<StringAttr>("aie.tile").str());
   return make_pair(tile.vec()[0], tile.vec()[1]);
