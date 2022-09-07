@@ -11,6 +11,7 @@
 #include "phy/Connectivity/Implementation/Buffer.h"
 #include "phy/Connectivity/Implementation/Core.h"
 #include "phy/Connectivity/Implementation/Lock.h"
+#include "phy/Connectivity/Implementation/Stream.h"
 
 #include "mlir/IR/Builders.h"
 
@@ -26,6 +27,8 @@ phy::connectivity::ImplementationFactory(PhysicalResource phy,
     return std::make_shared<CoreImplementation>(phy, context);
   } else if (phy.key == "lock") {
     return std::make_shared<LockImplementation>(phy, context);
+  } else if (phy.key == "stream") {
+    return std::make_shared<StreamImplementation>(phy, context);
   } else {
     return nullptr;
   }
@@ -126,6 +129,15 @@ void ImplementationContext::implementAll() {
   }
 }
 
+long ImplementationContext::getStreamTag(
+    std::pair<mlir::Operation *, mlir::Operation *> flow) {
+  if (!flow_tags.count(flow)) {
+    // allocate a new id
+    flow_tags[flow] = getUniqueTag();
+  }
+  return flow_tags[flow];
+}
+
 StringAttr ImplementationContext::getUniqueSymbol(llvm::StringRef base,
                                                   Operation *op) {
 
@@ -138,3 +150,5 @@ StringAttr ImplementationContext::getUniqueSymbol(llvm::StringRef base,
 
   return symbol;
 }
+
+long ImplementationContext::getUniqueTag() { return next_tag++; }

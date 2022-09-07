@@ -33,7 +33,6 @@ ImplementationFactory(PhysicalResource phy, ImplementationContext &context);
  */
 class Implementation {
 protected:
-  PhysicalResource phy;
   ImplementationContext &context;
   mlir::Operation *implemented_op;
 
@@ -47,8 +46,10 @@ protected:
   void attachMetadata();
 
 public:
+  PhysicalResource phy;
+
   Implementation(PhysicalResource phy, ImplementationContext &context)
-      : phy(phy), context(context), implemented_op(nullptr) {}
+      : context(context), implemented_op(nullptr), phy(phy) {}
 
   //===---------------------- Neighbor Information ------------------------===//
   // The implementer will call the methods to notify the object of its
@@ -99,13 +100,19 @@ class ImplementationContext {
 
 public:
   std::string device;
+  mlir::ModuleOp module;
+
   std::map<mlir::Operation *, std::list<std::weak_ptr<Implementation>>>
       placements;
   std::map<std::string, std::shared_ptr<Implementation>> impls;
-  mlir::ModuleOp module;
+
+  // next tag for a flow to be assigned
+  int next_tag;
+  // each flow may be associated with a tag and this map keep tracks of it
+  std::map<std::pair<mlir::Operation *, mlir::Operation *>, int> flow_tags;
 
   ImplementationContext(mlir::ModuleOp module, std::string device)
-      : device(device), module(module) {}
+      : device(device), module(module), next_tag(0) {}
 
   void place(mlir::Operation *spatial, ResourceList resources);
   void route(mlir::Operation *src, mlir::Operation *dest,
@@ -113,7 +120,9 @@ public:
 
   void implementAll();
 
+  long getStreamTag(std::pair<mlir::Operation *, mlir::Operation *> flow);
   mlir::StringAttr getUniqueSymbol(llvm::StringRef base, mlir::Operation *op);
+  long getUniqueTag();
 };
 
 } // namespace connectivity
