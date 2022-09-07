@@ -12,6 +12,7 @@
 #include "phy/Connectivity/Implementation/Core.h"
 #include "phy/Connectivity/Implementation/Lock.h"
 #include "phy/Connectivity/Implementation/Stream.h"
+#include "phy/Connectivity/Implementation/StreamHub.h"
 
 #include "mlir/IR/Builders.h"
 
@@ -29,6 +30,8 @@ phy::connectivity::ImplementationFactory(PhysicalResource phy,
     return std::make_shared<LockImplementation>(phy, context);
   } else if (phy.key == "stream") {
     return std::make_shared<StreamImplementation>(phy, context);
+  } else if (phy.key == "stream_hub") {
+    return std::make_shared<StreamHubImplementation>(phy, context);
   } else {
     return nullptr;
   }

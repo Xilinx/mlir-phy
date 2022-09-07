@@ -83,6 +83,8 @@ public:
   // invocations must return the same pointer as the first fall.  This is to
   // provide an automatic recursive resolving of the dependencies.  The
   // implementer is guaranteed to call each implementation once.
+  // Note: This function shall not be called in Neighbor Information functions.
+  // It can be called in createOperation().
   mlir::Operation *getOperation();
 
   // The implementation's predecessors or successors may call this function to
@@ -93,6 +95,7 @@ public:
   // shall be redirected by one of the operations.
   virtual void translateUserOperation(mlir::Value value,
                                       mlir::Operation *user){};
+  //===--------------------------- Translation ----------------------------===//
 };
 
 class ImplementationContext {
