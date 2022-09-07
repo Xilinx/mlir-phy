@@ -91,13 +91,19 @@ StringRef CoreImplementation::translateFunction() {
     }
   translated_op.setType(builder.getFunctionType(translated_inputs, {}));
 
-  // Erase original arguments and their users
+  // Erase original arguments' users
   for (auto user : users_to_be_erased) {
     for (auto result : user->getResults())
       assert(result.getUsers().empty() && "all results must be replaced");
     user->erase();
   }
+
+  // Erase original arguments
   for (int idx = original_num_inputs - 1; idx >= 0; idx--) {
+    if (!translated_op.getArgument(idx).use_empty()) {
+      node->emitError() << " argument #" << idx << " is not translated";
+      continue;
+    }
     translated_op.eraseArgument(idx);
   }
 
