@@ -15,6 +15,8 @@
 #include "phy/Connectivity/Implementation/StreamDma.h"
 #include "phy/Connectivity/Implementation/StreamHub.h"
 
+#include "phy/Dialect/Spatial/SpatialDialect.h"
+
 #include "mlir/IR/Builders.h"
 
 using namespace mlir;
@@ -135,10 +137,33 @@ void ImplementationContext::implementAll() {
   }
 }
 
+std::pair<mlir::Operation *, mlir::Operation *>
+ImplementationContext::getFlowSignature(
+    std::pair<mlir::Operation *, mlir::Operation *> flow) {
+
+  // Return if the flow is already signature
+  if (!flow.first)
+    return flow;
+  if (!flow.second)
+    return flow;
+
+  // Broadcast detection
+  if (llvm::isa<spatial::QueueOp>(flow.first) &&
+      llvm::isa<spatial::NodeOp>(flow.second)) {
+    // Flows to different nodes from the same queue is the same flow.
+    flow.second = nullptr;
+  }
+
+  return flow;
+}
+
 long ImplementationContext::getFlowTag(
     std::pair<mlir::Operation *, mlir::Operation *> flow) {
+
+  flow = getFlowSignature(flow);
+
   if (!flow_tags.count(flow)) {
-    // allocate a new id
+    // Allocate a new tag if not available yet.
     flow_tags[flow] = getUniqueTag();
   }
   return flow_tags[flow];

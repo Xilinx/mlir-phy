@@ -106,10 +106,10 @@ void StreamDmaImplementation::addSuccessor(std::weak_ptr<Implementation> succ,
 void StreamDmaImplementation::addStorage(std::weak_ptr<Implementation> storage,
                                          Operation *src, Operation *dest) {
   if (storage.lock()->phy.key == "buffer") {
-    buffers[std::make_pair(src, dest)] = storage;
+    buffers[context.getFlowSignature(std::make_pair(src, dest))] = storage;
 
   } else if (storage.lock()->phy.key == "lock") {
-    locks[std::make_pair(src, dest)] = storage;
+    locks[context.getFlowSignature(std::make_pair(src, dest))] = storage;
 
   } else {
     assert(false && "a stream dma can only connect to buffers or locks");

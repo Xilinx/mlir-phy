@@ -105,27 +105,43 @@ public:
   std::string device;
   mlir::ModuleOp module;
 
+  ImplementationContext(mlir::ModuleOp module, std::string device)
+      : device(device), module(module), next_tag(0) {}
+
+  //===------------------------- Implementation ---------------------------===//
   std::map<mlir::Operation *, std::list<std::weak_ptr<Implementation>>>
       placements;
   std::map<std::string, std::shared_ptr<Implementation>> impls;
 
+  void place(mlir::Operation *spatial, ResourceList resources);
+  void route(mlir::Operation *src, mlir::Operation *dest,
+             std::list<ResourceList> resources);
+  void implementAll();
+  //===------------------------- Implementation ---------------------------===//
+
+  //===----------------------------- Tagging ------------------------------===//
+protected:
   // next tag for a flow to be assigned
   int next_tag;
   // each flow may be associated with a tag and this map keep tracks of it
   std::map<std::pair<mlir::Operation *, mlir::Operation *>, int> flow_tags;
 
-  ImplementationContext(mlir::ModuleOp module, std::string device)
-      : device(device), module(module), next_tag(0) {}
-
-  void place(mlir::Operation *spatial, ResourceList resources);
-  void route(mlir::Operation *src, mlir::Operation *dest,
-             std::list<ResourceList> resources);
-
-  void implementAll();
-
+public:
+  // For each {src, dest} flow pair, it may be assigned a tag to reuse streams.
+  // In this case, per "flow signature" has one unique tag assigned.   When two
+  // flows has the same signature, the data in the flows is exactly the same,
+  // therefore, only one tag is needed.  An example of flows with the same
+  // signature is the broadcast from one single queue.
+  std::pair<mlir::Operation *, mlir::Operation *>
+  getFlowSignature(std::pair<mlir::Operation *, mlir::Operation *> flow);
   long getFlowTag(std::pair<mlir::Operation *, mlir::Operation *> flow);
-  mlir::StringAttr getUniqueSymbol(llvm::StringRef base, mlir::Operation *op);
   long getUniqueTag();
+  //===----------------------------- Tagging ------------------------------===//
+
+  //===----------------------------- Symbols ------------------------------===//
+public:
+  mlir::StringAttr getUniqueSymbol(llvm::StringRef base, mlir::Operation *op);
+  //===----------------------------- Symbols ------------------------------===//
 };
 
 } // namespace connectivity
