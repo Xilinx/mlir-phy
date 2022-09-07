@@ -19,7 +19,7 @@ using namespace phy;
 using namespace phy::connectivity;
 
 Operation *CoreImplementation::createOperation() {
-  assert(node.getOperation() && "a core must be associated with a node");
+  assert(node && "a core must be associated with a node");
 
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
   return builder.create<physical::CoreOp>(
@@ -118,7 +118,7 @@ void CoreImplementation::addSuccessor(std::weak_ptr<Implementation> succ,
 
 void CoreImplementation::addSpatialOperation(Operation *spatial) {
   if (auto node_op = dyn_cast<spatial::NodeOp>(spatial)) {
-    assert(!node.getOperation() && "a core can only hold a node");
+    assert(!node && "a core can only hold a node");
     node = node_op;
   } else {
     assert("a core can only implement a node");

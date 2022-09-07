@@ -123,7 +123,7 @@ public:
 
   void implementAll();
 
-  long getStreamTag(std::pair<mlir::Operation *, mlir::Operation *> flow);
+  long getFlowTag(std::pair<mlir::Operation *, mlir::Operation *> flow);
   mlir::StringAttr getUniqueSymbol(llvm::StringRef base, mlir::Operation *op);
   long getUniqueTag();
 };

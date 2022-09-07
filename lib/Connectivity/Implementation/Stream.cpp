@@ -13,23 +13,28 @@
 using namespace mlir;
 using namespace phy;
 using namespace phy::connectivity;
+using namespace phy::physical;
 
 Operation *StreamImplementation::createOperation() {
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
   auto mlir_context = builder.getContext();
 
   auto i32_type = builder.getI32Type();
-  auto o_stream_type = physical::OStreamType::get(mlir_context, i32_type);
-  auto i_stream_type = physical::IStreamType::get(mlir_context, i32_type);
+  auto o_stream_type = OStreamType::get(mlir_context, i32_type);
+  auto i_stream_type = IStreamType::get(mlir_context, i32_type);
 
-  llvm::SetVector<long> tags;
-  if (streamHasTags())
+  auto tags_attr = ArrayAttr();
+
+  if (streamHasTags()) {
+    llvm::SetVector<long> tags;
     for (auto flow : flows)
-      tags.insert(context.getStreamTag(flow));
+      tags.insert(context.getFlowTag(flow));
 
-  return builder.create<physical::StreamOp>(
-      builder.getUnknownLoc(), o_stream_type, i_stream_type,
-      builder.getI64ArrayAttr(tags.getArrayRef()));
+    tags_attr = builder.getI64ArrayAttr(tags.getArrayRef());
+  }
+
+  return builder.create<StreamOp>(builder.getUnknownLoc(), o_stream_type,
+                                  i_stream_type, tags_attr);
 }
 
 bool StreamImplementation::streamHasTags() {

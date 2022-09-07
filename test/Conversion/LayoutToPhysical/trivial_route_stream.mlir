@@ -12,7 +12,7 @@ func.func private @kernel(%Q: !spatial.queue<memref<1024xi32>>) {
 layout.platform<"vck190"> {
   layout.device<"aie"> {
  
-    // CHECK: physical.stream<[]> () {aie.id = "0", aie.port = "DMA.O", aie.tile = "6.2"} : (!physical.ostream<i32>, !physical.istream<i32>
+    // CHECK: physical.stream () {aie.id = "0", aie.port = "DMA.O", aie.tile = "6.2"} : (!physical.ostream<i32>, !physical.istream<i32>
 
     layout.route<["tile/6.2/port/DMA.O/id/0/stream"]>
                   (%Q: !spatial.queue<memref<1024xi32>> -> %node: !spatial.node)

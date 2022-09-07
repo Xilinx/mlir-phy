@@ -12,6 +12,7 @@
 #include "phy/Connectivity/Implementation/Core.h"
 #include "phy/Connectivity/Implementation/Lock.h"
 #include "phy/Connectivity/Implementation/Stream.h"
+#include "phy/Connectivity/Implementation/StreamDma.h"
 #include "phy/Connectivity/Implementation/StreamHub.h"
 
 #include "mlir/IR/Builders.h"
@@ -30,6 +31,8 @@ phy::connectivity::ImplementationFactory(PhysicalResource phy,
     return std::make_shared<LockImplementation>(phy, context);
   } else if (phy.key == "stream") {
     return std::make_shared<StreamImplementation>(phy, context);
+  } else if (phy.key == "stream_dma") {
+    return std::make_shared<StreamDmaImplementation>(phy, context);
   } else if (phy.key == "stream_hub") {
     return std::make_shared<StreamHubImplementation>(phy, context);
   } else {
@@ -132,7 +135,7 @@ void ImplementationContext::implementAll() {
   }
 }
 
-long ImplementationContext::getStreamTag(
+long ImplementationContext::getFlowTag(
     std::pair<mlir::Operation *, mlir::Operation *> flow) {
   if (!flow_tags.count(flow)) {
     // allocate a new id

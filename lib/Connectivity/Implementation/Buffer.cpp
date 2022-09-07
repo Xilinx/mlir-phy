@@ -15,7 +15,7 @@ using namespace phy;
 using namespace phy::connectivity;
 
 mlir::Operation *BufferImplementation::createOperation() {
-  assert(queue.getOperation() && "a buffer must be associated with a queue");
+  assert(queue && "a buffer must be associated with a queue");
 
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
   return builder.create<physical::BufferOp>(
@@ -35,7 +35,7 @@ void BufferImplementation::translateUserOperation(mlir::Value value,
 
 void BufferImplementation::addSpatialOperation(mlir::Operation *spatial) {
   if (auto queue_op = dyn_cast<spatial::QueueOp>(spatial)) {
-    assert(!queue.getOperation() && "a buffer can only hold a queue");
+    assert(!queue && "a buffer can only hold a queue");
     queue = queue_op;
   } else {
     assert("a buffer can only implement a queue");
