@@ -25,16 +25,19 @@ Operation *StreamDmaImplementation::createOperation() {
   // Identify if it is an iutput stream dma or an output dma
   Operation *stream_op;
   int acquire, release, result_index;
+  bool tagged = false;
+
   if (!ostream.expired()) {
     stream_op = ostream.lock()->getOperation();
     acquire = 1, release = 0, result_index = 0 /* ostream */;
+    // ostream may be tagged
+    tagged = dyn_cast<StreamOp>(stream_op).tags().hasValue();
 
   } else {
     stream_op = istream.lock()->getOperation();
     acquire = 0, release = 1, result_index = 1 /* istream */;
   }
   Value endpoint = stream_op->getResult(result_index);
-  bool tagged = dyn_cast<StreamOp>(stream_op).tags().hasValue();
 
   // physical.stream_dma(endpoint) {
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());

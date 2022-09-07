@@ -22,8 +22,8 @@ layout.platform<"vck190"> {
     // CHECK-DAG: %[[LOCK_2:.*]] = physical.lock<0> () {aie.id = "2", aie.tile = "6.3"}
 
     // CHECK-DAG: physical.stream_dma(%[[ISTREAM]] : !physical.istream<i32>) {
-    // CHECK-DAG:   %[[CONNECT1:.*]] = physical.stream_dma_connect<0> (%[[LOCK_1]][0 -> 1], %[[BUFFER_1]][0 : 1024] : memref<1024xi32>, %[[CONNECT2:.*]]) 
-    // CHECK-DAG:   %[[CONNECT2]] = physical.stream_dma_connect<1> (%[[LOCK_2]][0 -> 1], %[[BUFFER_2]][0 : 1024] : memref<1024xi32>, %[[CONNECT1]]) 
+    // CHECK-DAG:   %[[CONNECT1:.*]] = physical.stream_dma_connect (%[[LOCK_1]][0 -> 1], %[[BUFFER_1]][0 : 1024] : memref<1024xi32>, %[[CONNECT2:.*]]) 
+    // CHECK-DAG:   %[[CONNECT2]] = physical.stream_dma_connect (%[[LOCK_2]][0 -> 1], %[[BUFFER_2]][0 : 1024] : memref<1024xi32>, %[[CONNECT1]]) 
     // CHECK-DAG: } {aie.engine = "S2MM", aie.id = "0", aie.tile = "6.3"}
 
     layout.route<["tile/6.3/port/DMA.I/id/0/stream",
