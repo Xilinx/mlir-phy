@@ -11,17 +11,6 @@ This repository contains an [MLIR-based](https://mlir.llvm.org/) toolchain that 
 - `layout`: a target-dependent mapping of `spatial` onto the devices and platforms.
 - `physical`: a unified abstract layer over the target-dependent dialects that provides direct access to low-level features.
 
-Please see our detailed design at [Design Principle and Examples](https://tinyurl.com/heterosys-mlir-phy).
-
-## Documentations
-
-|            | Dialect References | Passes References |
-| ---------- | ------------------ | ----------------- |
-| `spatial`  | [Dialect](https://heterosys.github.io/mlir-phy/SpatialDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/SpatialPasses.html) |
-| `layout`   | [Dialect](https://heterosys.github.io/mlir-phy/LayoutDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/LayoutPasses.html) |
-| `physical` | [Dialect](https://heterosys.github.io/mlir-phy/PhysicalDialect.html) | [Passes](https://heterosys.github.io/mlir-phy/PhysicalPasses.html) |
-| Conversion | N/A | [Passes](https://heterosys.github.io/mlir-phy/PhyConversionPass.html) |
-
 ## How to Build
 
 ### 0. Clone MLIR-PHY and install prerequisites
