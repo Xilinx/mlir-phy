@@ -46,11 +46,12 @@ int main(int argc, char **argv) {
   phy::registerConversionPasses();
 
   // Register the standard passes we want.
+  mlir::registerCanonicalizerPass();
   mlir::registerCSEPass();
+  mlir::registerInlinerPass();
+  mlir::registerLoopInvariantCodeMotionPass();
   mlir::registerSCCPPass();
   mlir::registerSymbolDCEPass();
-  mlir::registerInlinerPass();
-  mlir::registerCanonicalizerPass();
 
   return mlir::failed(
       mlir::MlirOptMain(argc, argv, "MLIR-PHY optimizer driver", registry));

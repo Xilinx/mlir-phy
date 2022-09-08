@@ -1,2 +1,0 @@
-#!/usr/bin/bash -
-phy-opt --inline --convert-physical-to-aie --symbol-dce "$@"

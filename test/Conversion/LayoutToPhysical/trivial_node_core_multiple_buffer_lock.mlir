@@ -5,16 +5,17 @@ func.func private @kernel(%Q1: !spatial.queue<memref<1024xi32>>, %Q2: !spatial.q
 ^bb:
 
   %c0 = arith.constant 0 : index
+  %l0 = llvm.mlir.constant(0 : i32) : i32
 
   // CHECK: physical.lock_acquire<1> (%arg1)
   %0 = spatial.front(%Q1): memref<1024xi32>
   // CHECK: physical.lock_acquire<0> (%arg3)
   %1 = spatial.emplace(%Q2): memref<1024xi32>
 
-  // CHECK: memref.load %arg0[%c0] : memref<1024xi32>
-  %2 = memref.load %0[%c0]: memref<1024xi32>
-  // CHECK: memref.load %arg2[%c0] : memref<1024xi32>
-  %3 = memref.load %1[%c0]: memref<1024xi32>
+  // CHECK: %arg0[%c0] : memref<1024xi32>
+  memref.store %l0, %0[%c0]: memref<1024xi32>
+  // CHECK: %arg2[%c0] : memref<1024xi32>
+  memref.store %l0, %1[%c0]: memref<1024xi32>
 
   // CHECK: physical.lock_release<0> (%arg1)
   spatial.pop(%Q1: !spatial.queue<memref<1024xi32>>)

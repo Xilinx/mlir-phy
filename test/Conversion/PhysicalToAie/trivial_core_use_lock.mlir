@@ -1,5 +1,5 @@
 // REQUIRES: aie_found
-// RUN: phy-opt --inline --convert-physical-to-aie --symbol-dce %s | FileCheck %s
+// RUN: phy-opt --convert-physical-to-aie %s | FileCheck %s
 
 // CHECK: %[[Tile:.*]] = AIE.tile(6, 3)
 

@@ -8,8 +8,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-// phy-opt --convert-layout-to-physical="device=aie" --inline \
-//    --convert-physical-to-aie --symbol-dce > mm_2x2-aie.mlir
+// phy-opt --convert-layout-to-physical="device=aie" \
+//    --convert-physical-to-aie > mm_2x2-aie.mlir
 // FIXME: Manually add { link_with="kernel.o" }, which should ba part of
 // aiecc.py aiecc.py --sysroot=.. -v mm_2x2-aie.mlir \
 //    mlir-aie/runtime_lib/test_library.cpp mm_2x2_driver.cpp \

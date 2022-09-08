@@ -19,7 +19,9 @@
 #include <memory>
 #include <set>
 
+#include "mlir/Pass/PassManager.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "mlir/Transforms/Passes.h"
 #include "llvm/Support/Debug.h"
 
 #define DEBUG_TYPE "convert-layout-to-physical"
@@ -31,14 +33,33 @@ using namespace phy::connectivity;
 
 namespace {
 
+// Run a pre pipeline of cleanup passes.
+static void preCanonicalizeIR(ModuleOp module) {
+  PassManager pm(module.getContext());
+  pm.addPass(createInlinerPass());
+  assert(!failed(pm.run(module)));
+}
+
+// Run a post pipeline of cleanup and optimization passes.
+static void postCanonicalizeIR(ModuleOp module) {
+  PassManager pm(module.getContext());
+  pm.addPass(createSymbolDCEPass());
+  assert(!failed(pm.run(module)));
+}
+
 struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
 
   void runOnOperation() override {
-    ImplementationContext context(getOperation(), device_option);
+    auto module = getOperation();
+    preCanonicalizeIR(module);
+
+    ImplementationContext context(module, device_option);
     collectImplementations(context);
     context.implementAll();
 
     cleanupSpatialLayoutOperations(context);
+
+    postCanonicalizeIR(module);
   }
 
   void collectImplementations(ImplementationContext &context) {

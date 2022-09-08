@@ -14,7 +14,9 @@
 #include "aie/AIEDialect.h"
 #include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
+#include "mlir/Pass/PassManager.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "mlir/Transforms/Passes.h"
 #include "llvm/Support/Debug.h"
 
 #define DEBUG_TYPE "convert-physical-to-aie"
@@ -24,9 +26,25 @@ using namespace phy;
 
 namespace {
 
+// Run a pre pipeline of cleanup passes.
+static void preCanonicalizeIR(ModuleOp module) {
+  PassManager pm(module.getContext());
+  pm.addPass(createInlinerPass());
+  assert(!failed(pm.run(module)));
+}
+
+// Run a post pipeline of cleanup and optimization passes.
+static void postCanonicalizeIR(ModuleOp module) {
+  PassManager pm(module.getContext());
+  pm.addPass(createSymbolDCEPass());
+  assert(!failed(pm.run(module)));
+}
+
 struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
   void runOnOperation() override {
     mlir::ModuleOp module = getOperation();
+    preCanonicalizeIR(module);
+
     target::aie::AIELoweringPatternSets pattern_sets(module);
 
     for (auto &pattern_set : pattern_sets.getPatternSets()) {
@@ -45,6 +63,8 @@ struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
         break;
       }
     }
+
+    postCanonicalizeIR(module);
   }
 };
 
