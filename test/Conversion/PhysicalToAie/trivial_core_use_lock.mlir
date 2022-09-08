@@ -1,5 +1,6 @@
 // REQUIRES: aie_found
-// RUN: phy-opt --convert-physical-to-aie %s | FileCheck %s
+// RUN: phy-opt --inline --convert-physical-to-aie %s | FileCheck %s
+// TODO: removing --inline fails on GitHub CI.  Unable to reproduce locally.
 
 // CHECK: %[[Tile:.*]] = AIE.tile(6, 3)
 

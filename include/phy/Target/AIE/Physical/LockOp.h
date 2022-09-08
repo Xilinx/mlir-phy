@@ -24,6 +24,8 @@ class LockOpLoweringPatternSet : public LoweringPatternSet {
 public:
   LockOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
+  ~LockOpLoweringPatternSet() override {}
+
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
 };
 

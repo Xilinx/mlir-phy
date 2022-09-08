@@ -21,6 +21,8 @@ class LoweringPatternSet {
 public:
   virtual void populatePatternSet(mlir::RewritePatternSet &patterns) {}
   virtual void populateTarget(mlir::ConversionTarget &target) {}
+
+  virtual ~LoweringPatternSet() {}
 };
 
 class LoweringPatternSets {
@@ -29,6 +31,8 @@ public:
   getPatternSets() {
     return std::list<std::list<std::unique_ptr<LoweringPatternSet>>>();
   }
+
+  virtual ~LoweringPatternSets() {}
 };
 
 } // namespace target

@@ -30,6 +30,8 @@ protected:
 public:
   StreamImplementation(PhysicalResource phy, ImplementationContext &context)
       : Implementation(phy, context), has_broadcast_neighbor(false) {}
+  ~StreamImplementation() override {}
+
   void addSpatialFlow(mlir::Operation *src, mlir::Operation *dest) override;
   void addPredecessor(std::weak_ptr<Implementation> pred, mlir::Operation *src,
                       mlir::Operation *dest) override;

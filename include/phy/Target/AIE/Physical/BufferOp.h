@@ -24,6 +24,8 @@ class BufferOpLoweringPatternSet : public LoweringPatternSet {
 public:
   BufferOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
+  ~BufferOpLoweringPatternSet() override {}
+
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
 };
 

@@ -93,8 +93,10 @@ StringRef CoreImplementation::translateFunction() {
 
   // Erase original arguments' users
   for (auto user : users_to_be_erased) {
+#ifndef NDEBUG
     for (auto result : user->getResults())
       assert(result.getUsers().empty() && "all results must be replaced");
+#endif
     user->erase();
   }
 

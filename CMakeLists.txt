@@ -55,7 +55,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   endif()
 
   # Enable address sanitizer in debug mode
-  if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-fsanitize=address)
     add_link_options(-fsanitize=address)
   endif()

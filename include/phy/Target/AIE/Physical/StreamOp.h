@@ -25,6 +25,8 @@ class StreamOpLoweringPatternSet : public LoweringPatternSet {
 public:
   StreamOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
+  ~StreamOpLoweringPatternSet() override {}
+
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
 };
 

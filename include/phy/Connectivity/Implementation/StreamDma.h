@@ -28,6 +28,8 @@ protected:
 
 public:
   using Implementation::Implementation;
+  ~StreamDmaImplementation() override {}
+
   void addPredecessor(std::weak_ptr<Implementation> pred, mlir::Operation *src,
                       mlir::Operation *dest) override;
   void addSuccessor(std::weak_ptr<Implementation> succ, mlir::Operation *src,

@@ -24,6 +24,8 @@ class StreamDmaOpLoweringPatternSet : public LoweringPatternSet {
 public:
   StreamDmaOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
+  ~StreamDmaOpLoweringPatternSet() override {}
+
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
   void populateTarget(mlir::ConversionTarget &target) override;
 };

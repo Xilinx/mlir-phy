@@ -24,6 +24,8 @@ protected:
 
 public:
   using Implementation::Implementation;
+  ~LockImplementation() override {}
+
   void translateUserOperation(mlir::Value value,
                               mlir::Operation *user) override;
 };

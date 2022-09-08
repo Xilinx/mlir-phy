@@ -40,6 +40,7 @@ class AIELoweringPatternSets : public LoweringPatternSets {
 
 public:
   AIELoweringPatternSets(ModuleOp &module) : module(module) {}
+  ~AIELoweringPatternSets() override {}
 
   // Lists of lowering pattern sets
   std::list<std::list<std::unique_ptr<LoweringPatternSet>>>

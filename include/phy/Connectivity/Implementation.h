@@ -50,6 +50,7 @@ public:
 
   Implementation(PhysicalResource phy, ImplementationContext &context)
       : context(context), implemented_op(nullptr), phy(phy) {}
+  virtual ~Implementation() {}
 
   //===---------------------- Neighbor Information ------------------------===//
   // The implementer will call the methods to notify the object of its

@@ -46,8 +46,9 @@ struct PhysicalToAie : public PhysicalToAieBase<PhysicalToAie> {
     preCanonicalizeIR(module);
 
     target::aie::AIELoweringPatternSets pattern_sets(module);
+    auto pattern_set_list = pattern_sets.getPatternSets();
 
-    for (auto &pattern_set : pattern_sets.getPatternSets()) {
+    for (auto &pattern_set : pattern_set_list) {
       mlir::ConversionTarget target(getContext());
       target.addLegalDialect<xilinx::AIE::AIEDialect>();
 

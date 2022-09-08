@@ -24,6 +24,8 @@ class CoreOpLoweringPatternSet : public LoweringPatternSet {
 public:
   CoreOpLoweringPatternSet(AIELoweringPatternSets *lowering)
       : lowering(lowering){};
+  ~CoreOpLoweringPatternSet() override {}
+
   void populatePatternSet(mlir::RewritePatternSet &patterns) override;
   void populateTarget(mlir::ConversionTarget &target) override;
 };

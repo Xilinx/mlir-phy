@@ -24,6 +24,8 @@ protected:
 
 public:
   using Implementation::Implementation;
+  ~BufferImplementation() override {}
+
   void addSpatialOperation(mlir::Operation *spatial) override;
   void addSpatialFlow(mlir::Operation *src, mlir::Operation *dest) override;
   void translateUserOperation(mlir::Value value,
