@@ -8,6 +8,8 @@
 ## See https://llvm.org/LICENSE.txt for license information.
 ## SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ##
+## Copyright (C) 2022, Advanced Micro Devices, Inc.
+##
 ##===----------------------------------------------------------------------===//
 
 set(PHY_INSTALL_PACKAGE_DIR lib${LLVM_LIBDIR_SUFFIX}/cmake/phy)

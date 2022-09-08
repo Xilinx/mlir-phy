@@ -63,3 +63,7 @@ cmake --build build --target check-phy
 ```
 
 Cheers! 🍺
+
+---
+
+Copyright (c) 2022 Advanced Micro Devices, Inc

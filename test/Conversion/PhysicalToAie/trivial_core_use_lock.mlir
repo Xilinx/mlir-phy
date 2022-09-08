@@ -1,6 +1,14 @@
 // REQUIRES: aie_found
 // RUN: phy-opt --inline --convert-physical-to-aie %s | FileCheck %s
 // TODO: removing --inline fails on GitHub CI.  Unable to reproduce locally.
+//
+// This file is licensed under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Copyright (C) 2022, Advanced Micro Devices, Inc.
+//
+//===----------------------------------------------------------------------===//
 
 // CHECK: %[[Tile:.*]] = AIE.tile(6, 3)
 
