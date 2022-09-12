@@ -16,7 +16,7 @@ This repository contains an [MLIR-based](https://mlir.llvm.org/) toolchain that 
 ### 0. Clone MLIR-PHY and install prerequisites
 
 ```
-git clone https://github.com/heterosys/mlir-phy.git
+git clone https://github.com/Xilinx/mlir-phy.git
 cd mlir-phy
 
 sudo apt-get install -y build-essential python3-pip
