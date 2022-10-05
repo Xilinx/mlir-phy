@@ -17,7 +17,7 @@ using namespace phy::connectivity;
 
 Operation *StreamHubImplementation::createOperation() {
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
-  auto mlir_context = builder.getContext();
+  auto *mlir_context = builder.getContext();
 
   auto i32_type = builder.getI32Type();
   auto stream_hub_type = physical::StreamHubType::get(mlir_context, i32_type);

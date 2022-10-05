@@ -25,8 +25,6 @@
 #include "mlir/IR/Types.h"
 #include "mlir/Interfaces/CallInterfaces.h"
 
-#include "phy/Dialect/Spatial/SpatialDialect.h"
-
 #include "phy/Dialect/Spatial/SpatialDialect.h.inc"
 #include "phy/Dialect/Spatial/SpatialEnums.h.inc"
 #include "phy/Dialect/Spatial/SpatialPasses.h.inc"

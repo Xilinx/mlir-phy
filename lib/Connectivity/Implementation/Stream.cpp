@@ -18,7 +18,7 @@ using namespace phy::physical;
 
 Operation *StreamImplementation::createOperation() {
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
-  auto mlir_context = builder.getContext();
+  auto *mlir_context = builder.getContext();
 
   auto i32_type = builder.getI32Type();
   auto o_stream_type = OStreamType::get(mlir_context, i32_type);

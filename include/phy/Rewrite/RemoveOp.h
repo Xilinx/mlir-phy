@@ -23,13 +23,14 @@ class OpRemover : public mlir::OpConversionPattern<Op> {
   using OpAdaptor = typename Op::Adaptor;
 
 public:
-  OpRemover(mlir::MLIRContext *context) : OpConversionPattern<Op>(context) {}
+  OpRemover(mlir::MLIRContext *context)
+      : mlir::OpConversionPattern<Op>(context) {}
 
   mlir::LogicalResult
   matchAndRewrite(Op op, OpAdaptor adaptor,
                   mlir::ConversionPatternRewriter &rewriter) const override {
     rewriter.eraseOp(op);
-    return success();
+    return mlir::success();
   }
 };
 

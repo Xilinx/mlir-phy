@@ -30,9 +30,9 @@ public:
     while ((pos = serialized.find(delim)) != std::string::npos) {
       token = serialized.substr(0, pos);
       serialized.erase(0, pos + 1);
-      data.push_back(lexical_cast<T>(token));
+      data.push_back(lexicalCast<T>(token));
     }
-    data.push_back(lexical_cast<T>(serialized));
+    data.push_back(lexicalCast<T>(serialized));
   }
 
   inline std::vector<T> vec() { return data; }

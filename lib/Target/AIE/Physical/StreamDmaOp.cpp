@@ -72,7 +72,7 @@ public:
       auto connect = dyn_cast_or_null<StreamDmaConnectOp>(connect_op);
       assert(connect && "stream dma can only contain StreamDmaConnectOp.");
 
-      auto bd_block = new mlir::Block();
+      auto *bd_block = new mlir::Block();
       bd_blocks.push_back(bd_block);
       connect_bd_blocks[connect] = bd_block;
     }
@@ -90,7 +90,7 @@ public:
 
     // Prepend and chain BDs
     // AIE.dmaStart("${engine/port}${id}", ^first_block, ^last_bd)
-    auto chain_block = new mlir::Block();
+    auto *chain_block = new mlir::Block();
     dma.getBody().push_front(chain_block);
     auto builder = OpBuilder::atBlockBegin(chain_block);
     builder.create<AIE::DMAStartOp>(builder.getUnknownLoc(),
@@ -140,9 +140,9 @@ public:
                                    AIE::LockAction::Release);
 
     // cf.br ^next
-    auto next_bd_block = aie_end;
+    auto *next_bd_block = aie_end;
     if (connect.getNext()) {
-      auto next_op = connect.getNext().getDefiningOp();
+      auto *next_op = connect.getNext().getDefiningOp();
       auto next_connect = dyn_cast<StreamDmaConnectOp>(next_op);
       next_bd_block = connect_bd_blocks[next_connect];
     }

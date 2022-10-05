@@ -27,7 +27,7 @@ class ImplementationContext;
 
 // The factory takes a physical resource and returns an implementation object.
 std::shared_ptr<Implementation>
-ImplementationFactory(PhysicalResource phy, ImplementationContext &context);
+implementationFactory(PhysicalResource phy, ImplementationContext &context);
 
 /**
  * Implementation of a physical dialect operation for a physical resource.

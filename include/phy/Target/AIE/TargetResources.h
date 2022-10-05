@@ -54,20 +54,20 @@ class TargetResources : phy::target::TargetResourcesBase {
 
 public:
   bool isShimTile(int col, int row);
-  bool isLegalAffinity(int coreCol, int coreRow, int bufCol, int bufRow);
+  bool isLegalAffinity(int core_col, int core_row, int buf_col, int buf_row);
   std::set<std::pair<int, int>> getAffinity(int col, int row,
                                             std::string neigh_type);
 
   std::list<VirtualResource>
-  VirtualResourceVertices(std::string virt_key) override;
+  getVirtualResourceVertices(std::string virt_key) override;
   std::list<VirtualResource>
-  VirtualResourceNeighbors(VirtualResource &slot) override;
-  Capacity VirtualResourceCapacity(VirtualResource &virt) override;
+  getVirtualResourceNeighbors(VirtualResource &slot) override;
+  Capacity getVirtualResourceCapacity(VirtualResource &virt) override;
 
-  TargetSupport PhysicalResourceSupport(PhysicalResource &phy) override;
-  Capacity PhysicalResourceCapacity(PhysicalResource &phy) override;
-  Utilization PhysicalResourceUtilization(PhysicalResource &phy,
-                                          mlir::Operation *vertex) override;
+  TargetSupport getPhysicalResourceSupport(PhysicalResource &phy) override;
+  Capacity getPhysicalResourceCapacity(PhysicalResource &phy) override;
+  Utilization getPhysicalResourceUtilization(PhysicalResource &phy,
+                                             mlir::Operation *vertex) override;
 };
 
 } // namespace aie

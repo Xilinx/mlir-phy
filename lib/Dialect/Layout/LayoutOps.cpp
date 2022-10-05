@@ -20,20 +20,20 @@ using namespace ::phy::layout;
 using namespace ::phy::spatial;
 
 LogicalResult RouteOp::verify() {
-  Type srcType = getSrc().getType();
-  Type destType = getDest().getType();
+  Type src_type = getSrc().getType();
+  Type dest_type = getDest().getType();
 
-  if (srcType.isa<NodeType>() && destType.isa<NodeType>())
+  if (src_type.isa<NodeType>() && dest_type.isa<NodeType>())
     return emitOpError("a node cannot be connected to a node using a flow");
 
-  if (srcType.isa<QueueType>() && destType.isa<QueueType>())
+  if (src_type.isa<QueueType>() && dest_type.isa<QueueType>())
     return emitOpError("a queue cannot be connected to a queue using a flow");
 
   Type datatype;
-  if (auto srcQueue = srcType.dyn_cast<QueueType>())
-    datatype = srcQueue.getDatatype();
-  else if (auto destQueue = destType.dyn_cast<QueueType>())
-    datatype = destQueue.getDatatype();
+  if (auto src_queue = src_type.dyn_cast<QueueType>())
+    datatype = src_queue.getDatatype();
+  else if (auto dest_queue = dest_type.dyn_cast<QueueType>())
+    datatype = dest_queue.getDatatype();
   else
     return emitOpError("one endpoint of the flow must be a queue");
 

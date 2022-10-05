@@ -16,7 +16,7 @@
 #define MLIR_PHY_SUPPORT_LEXICAL_CAST_H
 
 template <typename T2, typename T1>
-inline T2 lexical_cast(const T1 &in) {
+inline T2 lexicalCast(const T1 &in) {
   T2 out;
   std::stringstream ss;
   ss << in;

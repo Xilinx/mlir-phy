@@ -62,7 +62,7 @@ public:
       callop.erase();
 
       // if the endop block is not reachable, erase it as well
-      auto endblock = endop.getOperation()->getBlock();
+      auto *endblock = endop.getOperation()->getBlock();
       if (!endblock->isEntryBlock() && endblock->hasNoPredecessors()) {
         rewriter.eraseBlock(endblock);
       }

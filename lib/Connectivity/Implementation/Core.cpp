@@ -36,7 +36,7 @@ CoreImplementation::getOperandImpls(Value operand) {
   assert(queue && "operand is a defined queue");
 
   for (auto impl : queue_impls[queue]) {
-    auto impl_op = impl.lock()->getOperation();
+    auto *impl_op = impl.lock()->getOperation();
     assert(impl_op->getNumResults() == 1 && "returns one value");
     auto value = impl_op->getResult(0);
     impls.emplace_back(impl, value);
@@ -85,7 +85,7 @@ StringRef CoreImplementation::translateFunction() {
       translated_inputs.push_back(impl.second.getType());
       auto arg = translated_op.getCallableRegion()->addArgument(
           impl.second.getType(), translated_op.getLoc());
-      for (auto user : translated_op.getArgument(i).getUsers()) {
+      for (auto *user : translated_op.getArgument(i).getUsers()) {
         impl.first.lock()->translateUserOperation(arg, user);
         users_to_be_erased.insert(user);
       }
@@ -93,7 +93,7 @@ StringRef CoreImplementation::translateFunction() {
   translated_op.setType(builder.getFunctionType(translated_inputs, {}));
 
   // Erase original arguments' users
-  for (auto user : users_to_be_erased) {
+  for (auto *user : users_to_be_erased) {
 #ifndef NDEBUG
     for (auto result : user->getResults())
       assert(result.getUsers().empty() && "all results must be replaced");

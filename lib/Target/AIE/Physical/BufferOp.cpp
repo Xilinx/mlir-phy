@@ -35,7 +35,7 @@ public:
     if (auto address = op.getOperation()->getAttrOfType<StringAttr>(
             "aie.external_address")) {
       rewriter.replaceOpWithNewOp<xilinx::AIE::ExternalBufferOp>(
-          op, op.getBuffer().getType(), lexical_cast<long long>(address.str()));
+          op, op.getBuffer().getType(), lexicalCast<long long>(address.str()));
 
     } else {
       auto tile = lowering->getTile(op);

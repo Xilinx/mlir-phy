@@ -31,23 +31,23 @@ public:
    */
 
   virtual std::list<VirtualResource>
-  VirtualResourceVertices(std::string virt_key) {
+  getVirtualResourceVertices(std::string virt_key) {
     return std::list<VirtualResource>();
   }
 
   virtual std::list<VirtualResource>
-  VirtualResourceNeighbors(VirtualResource &slot) {
+  getVirtualResourceNeighbors(VirtualResource &slot) {
     return std::list<VirtualResource>();
   }
 
-  virtual Capacity VirtualResourceCapacity(VirtualResource &virt) {
+  virtual Capacity getVirtualResourceCapacity(VirtualResource &virt) {
     return Capacity({
         {"count", 1},
     });
   }
 
-  virtual Utilization VirtualResourceUtilization(VirtualResource &virt,
-                                                 mlir::Operation *vertex) {
+  virtual Utilization getVirtualResourceUtilization(VirtualResource &virt,
+                                                    mlir::Operation *vertex) {
     return Utilization({
         {"count", 1},
     });
@@ -57,18 +57,18 @@ public:
    * Target support of physical resources.
    */
 
-  virtual TargetSupport PhysicalResourceSupport(PhysicalResource &phy) {
+  virtual TargetSupport getPhysicalResourceSupport(PhysicalResource &phy) {
     return TargetSupport({});
   }
 
-  virtual Capacity PhysicalResourceCapacity(PhysicalResource &phy) {
+  virtual Capacity getPhysicalResourceCapacity(PhysicalResource &phy) {
     return Capacity({
         {"count", 1},
     });
   }
 
-  virtual Utilization PhysicalResourceUtilization(PhysicalResource &phy,
-                                                  mlir::Operation *vertex) {
+  virtual Utilization getPhysicalResourceUtilization(PhysicalResource &phy,
+                                                     mlir::Operation *vertex) {
     return Utilization({
         {"count", 1},
     });

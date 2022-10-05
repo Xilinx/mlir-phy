@@ -154,17 +154,15 @@ int AIELoweringPatternSets::getId(mlir::OpState &op) {
   if (!op.getOperation()->getAttrOfType<StringAttr>("aie.id")) {
     assert(!op.getOperation()->hasAttr("aie.id") && "aie.id must be a string");
     return 0;
-  } else {
-    return lexical_cast<int>(
-        op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
   }
+  return lexicalCast<int>(
+      op.getOperation()->getAttrOfType<StringAttr>("aie.id").str());
 }
 
 std::string AIELoweringPatternSets::getImpl(mlir::OpState &op) {
   if (!op.getOperation()->getAttrOfType<StringAttr>("aie.impl"))
     return "";
-  else
-    return op.getOperation()->getAttrOfType<StringAttr>("aie.impl").str();
+  return op.getOperation()->getAttrOfType<StringAttr>("aie.impl").str();
 }
 
 pair<int, int> AIELoweringPatternSets::getTileIndex(mlir::OpState &op) {

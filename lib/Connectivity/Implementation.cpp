@@ -24,23 +24,27 @@ using namespace mlir;
 using namespace phy::connectivity;
 
 std::shared_ptr<Implementation>
-phy::connectivity::ImplementationFactory(PhysicalResource phy,
+phy::connectivity::implementationFactory(PhysicalResource phy,
                                          ImplementationContext &context) {
   if (phy.key == "buffer") {
     return std::make_shared<BufferImplementation>(phy, context);
-  } else if (phy.key == "core") {
-    return std::make_shared<CoreImplementation>(phy, context);
-  } else if (phy.key == "lock") {
-    return std::make_shared<LockImplementation>(phy, context);
-  } else if (phy.key == "stream") {
-    return std::make_shared<StreamImplementation>(phy, context);
-  } else if (phy.key == "stream_dma") {
-    return std::make_shared<StreamDmaImplementation>(phy, context);
-  } else if (phy.key == "stream_hub") {
-    return std::make_shared<StreamHubImplementation>(phy, context);
-  } else {
-    return nullptr;
   }
+  if (phy.key == "core") {
+    return std::make_shared<CoreImplementation>(phy, context);
+  }
+  if (phy.key == "lock") {
+    return std::make_shared<LockImplementation>(phy, context);
+  }
+  if (phy.key == "stream") {
+    return std::make_shared<StreamImplementation>(phy, context);
+  }
+  if (phy.key == "stream_dma") {
+    return std::make_shared<StreamDmaImplementation>(phy, context);
+  }
+  if (phy.key == "stream_hub") {
+    return std::make_shared<StreamHubImplementation>(phy, context);
+  }
+  return nullptr;
 }
 
 void Implementation::attachMetadata() {
@@ -64,7 +68,7 @@ void ImplementationContext::place(Operation *spatial, ResourceList resources) {
   for (auto phy : resources.phys) {
     auto identifier = phy.toString();
     if (!impls.count(identifier))
-      impls[identifier] = ImplementationFactory(phy, *this);
+      impls[identifier] = implementationFactory(phy, *this);
 
     if (impls[identifier]) {
       impls[identifier]->addSpatialOperation(spatial);
@@ -107,7 +111,7 @@ void ImplementationContext::route(Operation *src, Operation *dest,
     for (auto phy : resource_list.phys) {
       auto identifier = phy.toString();
       if (!impls.count(identifier))
-        impls[identifier] = ImplementationFactory(phy, *this);
+        impls[identifier] = implementationFactory(phy, *this);
 
       if (impls[identifier]) {
         impls[identifier]->addSpatialFlow(src, dest);

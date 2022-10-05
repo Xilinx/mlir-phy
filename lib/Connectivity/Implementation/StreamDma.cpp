@@ -45,7 +45,7 @@ Operation *StreamDmaImplementation::createOperation() {
   auto stream_dma =
       builder.create<StreamDmaOp>(builder.getUnknownLoc(), endpoint);
 
-  auto connection_block = &stream_dma.getConnections().emplaceBlock();
+  auto *connection_block = &stream_dma.getConnections().emplaceBlock();
   auto dma_builder = OpBuilder::atBlockEnd(connection_block);
   StreamDmaConnectOp first_connect, previous_connect;
 

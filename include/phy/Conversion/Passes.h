@@ -29,12 +29,12 @@
 #include <string>
 
 namespace phy {
-    
+
 // Generate the classes which represent the passes
 #define GEN_PASS_CLASSES
 #define GEN_PASS_REGISTRATION
 #include "phy/Conversion/Passes.h.inc"
 
-}
+} // namespace phy
 
 #endif // CONVERSION_PASSDETAIL_H

@@ -17,30 +17,30 @@
 using namespace ::mlir;
 using namespace ::phy::spatial;
 
-LogicalResult NodeOp::verifySymbolUses(SymbolTableCollection &symbolTable) {
-  auto fnAttr = (*this)->getAttrOfType<FlatSymbolRefAttr>("callee");
-  if (!fnAttr)
+LogicalResult NodeOp::verifySymbolUses(SymbolTableCollection &symbol_table) {
+  auto fn_attr = (*this)->getAttrOfType<FlatSymbolRefAttr>("callee");
+  if (!fn_attr)
     return emitOpError("requires a 'callee' symbol reference attribute");
 
   func::FuncOp fn =
-      symbolTable.lookupNearestSymbolFrom<func::FuncOp>(*this, fnAttr);
+      symbol_table.lookupNearestSymbolFrom<func::FuncOp>(*this, fn_attr);
   if (!fn) {
     return emitOpError() << "expected symbol reference " << getCallee()
                          << " to point to a function";
   }
 
   // Verify that the operand and result types match the callee.
-  auto fnType = fn.getFunctionType();
-  if (fnType.getNumInputs() != getNumOperands())
+  auto fn_type = fn.getFunctionType();
+  if (fn_type.getNumInputs() != getNumOperands())
     return emitOpError("incorrect number of operands for callee");
 
-  for (unsigned i = 0, e = fnType.getNumInputs(); i != e; ++i)
-    if (getOperand(i).getType() != fnType.getInput(i))
+  for (unsigned i = 0, e = fn_type.getNumInputs(); i != e; ++i)
+    if (getOperand(i).getType() != fn_type.getInput(i))
       return emitOpError("operand type mismatch: expected operand type ")
-             << fnType.getInput(i) << ", but provided "
+             << fn_type.getInput(i) << ", but provided "
              << getOperand(i).getType() << " for operand number " << i;
 
-  if (fnType.getNumResults() != 0)
+  if (fn_type.getNumResults() != 0)
     return emitOpError("callee cannot have a return value");
 
   return success();

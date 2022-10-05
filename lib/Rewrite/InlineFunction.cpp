@@ -40,7 +40,7 @@ FunctionInliner::matchAndRewrite(CallOp op, OpAdaptor adaptor,
   auto result = inlineCall(inliner, op, func, func.getCallableRegion());
 
   if (result.succeeded()) {
-    auto parent_region = op.getOperation()->getParentRegion();
+    auto *parent_region = op.getOperation()->getParentRegion();
 
     // Erase the function calling operation
     rewriter.eraseOp(op);
@@ -53,7 +53,7 @@ FunctionInliner::matchAndRewrite(CallOp op, OpAdaptor adaptor,
       if (!block.isEntryBlock() && block.hasNoPredecessors())
         dead_blocks.push_back(&block);
 
-    for (auto block : dead_blocks)
+    for (auto *block : dead_blocks)
       rewriter.eraseBlock(block);
   }
 

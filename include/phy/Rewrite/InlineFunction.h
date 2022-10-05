@@ -29,7 +29,7 @@ class FunctionInliner : public mlir::OpConversionPattern<mlir::func::CallOp> {
 
 public:
   FunctionInliner(mlir::MLIRContext *context)
-      : OpConversionPattern<mlir::func::CallOp>(context) {}
+      : mlir::OpConversionPattern<mlir::func::CallOp>(context) {}
 
   mlir::LogicalResult
   matchAndRewrite(mlir::func::CallOp op, OpAdaptor adaptor,

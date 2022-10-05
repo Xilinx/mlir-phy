@@ -22,7 +22,7 @@ static std::string tileString(int col, int row) {
 }
 
 std::list<VirtualResource>
-TargetResources::VirtualResourceVertices(std::string virt_key) {
+TargetResources::getVirtualResourceVertices(std::string virt_key) {
   std::list<VirtualResource> results;
 
   if (virt_key == "core" || virt_key == "locked_buffer") {
@@ -39,36 +39,36 @@ TargetResources::VirtualResourceVertices(std::string virt_key) {
 }
 
 std::list<VirtualResource>
-TargetResources::VirtualResourceNeighbors(VirtualResource &slot) {
+TargetResources::getVirtualResourceNeighbors(VirtualResource &slot) {
   return std::list<VirtualResource>({});
 };
 
-Capacity TargetResources::VirtualResourceCapacity(VirtualResource &virt) {
-  return TargetResourcesBase::VirtualResourceCapacity(virt);
+Capacity TargetResources::getVirtualResourceCapacity(VirtualResource &virt) {
+  return TargetResourcesBase::getVirtualResourceCapacity(virt);
 };
 
-TargetSupport TargetResources::PhysicalResourceSupport(PhysicalResource &phy) {
+TargetSupport
+TargetResources::getPhysicalResourceSupport(PhysicalResource &phy) {
   if (physical_support.count(phy.key)) {
     return physical_support[phy.key];
-  } else {
-    return TargetResourcesBase::PhysicalResourceSupport(phy);
   }
+  return TargetResourcesBase::getPhysicalResourceSupport(phy);
 };
 
-Capacity TargetResources::PhysicalResourceCapacity(PhysicalResource &phy) {
+Capacity TargetResources::getPhysicalResourceCapacity(PhysicalResource &phy) {
   if (phy.key == "stream") {
     return stream_port_capacity[phy.metadata["port"]];
   }
 
   if (physical_capacity.count(phy.key)) {
     return physical_capacity[phy.key];
-  } else {
-    return TargetResourcesBase::PhysicalResourceCapacity(phy);
   }
+
+  return TargetResourcesBase::getPhysicalResourceCapacity(phy);
 };
 
 Utilization
-TargetResources::PhysicalResourceUtilization(PhysicalResource &phy,
-                                             mlir::Operation *vertex) {
-  return TargetResourcesBase::PhysicalResourceUtilization(phy, vertex);
+TargetResources::getPhysicalResourceUtilization(PhysicalResource &phy,
+                                                mlir::Operation *vertex) {
+  return TargetResourcesBase::getPhysicalResourceUtilization(phy, vertex);
 };

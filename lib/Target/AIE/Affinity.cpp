@@ -33,24 +33,24 @@ static bool isNorth(int src_col, int src_row, int dst_col, int dst_row) {
 
 bool TargetResources::isLegalAffinity(int core_col, int core_row, int buf_col,
                                       int buf_row) {
-  bool isLegalCore = (core_col > 0 && core_col <= array_width) &&
-                     (core_row > 0 && core_row <= array_height);
-  bool isLegalBuf = (buf_col > 0 && buf_col <= array_width) &&
-                    (buf_row > 0 && buf_row <= array_height);
+  bool is_legal_core = (core_col > 0 && core_col <= array_width) &&
+                       (core_row > 0 && core_row <= array_height);
+  bool is_legal_buf = (buf_col > 0 && buf_col <= array_width) &&
+                      (buf_row > 0 && buf_row <= array_height);
 
-  bool IsEven_row = ((core_row % 2) == 0);
+  bool is_even_row = ((core_row % 2) == 0);
 
-  bool IsMemWest =
-      (isWest(core_col, core_row, buf_col, buf_row) && !IsEven_row) ||
-      (isInternal(core_col, core_row, buf_col, buf_row) && IsEven_row);
-  bool IsMemEast =
-      (isWest(buf_col, buf_row, core_col, core_row) && IsEven_row) ||
-      (isInternal(core_col, core_row, buf_col, buf_row) && !IsEven_row);
-  bool IsMemNorth = isNorth(core_col, core_row, buf_col, buf_row);
-  bool IsMemSouth = isNorth(buf_col, buf_row, core_col, core_row);
+  bool is_mem_west =
+      (isWest(core_col, core_row, buf_col, buf_row) && !is_even_row) ||
+      (isInternal(core_col, core_row, buf_col, buf_row) && is_even_row);
+  bool is_mem_east =
+      (isWest(buf_col, buf_row, core_col, core_row) && is_even_row) ||
+      (isInternal(core_col, core_row, buf_col, buf_row) && !is_even_row);
+  bool is_mem_north = isNorth(core_col, core_row, buf_col, buf_row);
+  bool is_mem_south = isNorth(buf_col, buf_row, core_col, core_row);
 
-  return isLegalCore && isLegalBuf &&
-         (IsMemSouth || IsMemNorth || IsMemWest || IsMemEast);
+  return is_legal_core && is_legal_buf &&
+         (is_mem_south || is_mem_north || is_mem_west || is_mem_east);
 }
 
 // End Xilinx code.

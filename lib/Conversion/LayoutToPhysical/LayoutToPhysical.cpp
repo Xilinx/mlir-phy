@@ -64,8 +64,8 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
   }
 
   void collectImplementations(ImplementationContext &context) {
-    context.module.walk([&](Operation *Op) {
-      auto device = dyn_cast<layout::DeviceOp>(Op);
+    context.module.walk([&](Operation *op) {
+      auto device = dyn_cast<layout::DeviceOp>(op);
 
       // skipping non device operations
       // TODO: support platforms
@@ -77,14 +77,14 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
         return;
 
       for (auto place : device.getOps<layout::PlaceOp>()) {
-        auto spatial = place.getVertex().getDefiningOp();
+        auto *spatial = place.getVertex().getDefiningOp();
         ResourceList resources(place.getSlot().str());
         context.place(spatial, resources);
       }
 
       for (auto route : device.getOps<layout::RouteOp>()) {
-        auto src = route.getSrc().getDefiningOp();
-        auto dest = route.getDest().getDefiningOp();
+        auto *src = route.getSrc().getDefiningOp();
+        auto *dest = route.getDest().getDefiningOp();
         std::list<ResourceList> resources;
         for (auto wire : route.getWires()) {
           resources.emplace_back(wire.dyn_cast<StringAttr>().str());
