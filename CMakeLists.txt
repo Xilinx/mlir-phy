@@ -42,6 +42,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 # Project setup and globals
 #-------------------------------------------------------------------------------
   project(PHY LANGUAGES CXX C)
+  list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
 #-------------------------------------------------------------------------------
 # Options and settings
