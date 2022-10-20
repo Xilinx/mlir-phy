@@ -3,9 +3,8 @@
 // This file implements the 'phy-opt' tool, which is the phy analog of
 // mlir-opt, used to drive compiler passes.
 //
-// This file is licensed under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// This file is licensed under the MIT License.
+// SPDX-License-Identifier: MIT
 //
 // Copyright (C) 2022, Advanced Micro Devices, Inc.
 //

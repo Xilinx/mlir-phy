@@ -3,9 +3,8 @@
 ## Adapted from llvm/circt/cmake/modules/CIRCTConfig.cmake.in
 ## This file allows users to call find_package(Phy) and pick up our targets.
 ##
-## This file is licensed under the Apache License v2.0 with LLVM Exceptions.
-## See https://llvm.org/LICENSE.txt for license information.
-## SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+## This file is licensed under the MIT License.
+## SPDX-License-Identifier: MIT
 ##
 ## Copyright (C) 2022, Advanced Micro Devices, Inc.
 ##
