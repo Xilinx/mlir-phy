@@ -73,20 +73,20 @@ struct LayoutToPhysical : public LayoutToPhysicalBase<LayoutToPhysical> {
         return;
 
       // skipping devices that are not selected.
-      if (device.device().str() != device_option)
+      if (device.getDevice().str() != device_option)
         return;
 
       for (auto place : device.getOps<layout::PlaceOp>()) {
-        auto spatial = place.vertex().getDefiningOp();
-        ResourceList resources(place.slot().str());
+        auto spatial = place.getVertex().getDefiningOp();
+        ResourceList resources(place.getSlot().str());
         context.place(spatial, resources);
       }
 
       for (auto route : device.getOps<layout::RouteOp>()) {
-        auto src = route.src().getDefiningOp();
-        auto dest = route.dest().getDefiningOp();
+        auto src = route.getSrc().getDefiningOp();
+        auto dest = route.getDest().getDefiningOp();
         std::list<ResourceList> resources;
-        for (auto wire : route.wires()) {
+        for (auto wire : route.getWires()) {
           resources.emplace_back(wire.dyn_cast<StringAttr>().str());
         }
         context.route(src, dest, resources);

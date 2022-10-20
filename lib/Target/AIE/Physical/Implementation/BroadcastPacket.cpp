@@ -32,7 +32,7 @@ LogicalResult BroadcastPacketLowering::matchAndRewrite(
   rewriter.setInsertionPointAfter(op);
 
   // For each broadcast source
-  for (auto src_value : op.endpoints()) {
+  for (auto src_value : op.getEndpoints()) {
 
     // skip output streams
     if (!src_value.getType().isa<IStreamType>())
@@ -49,7 +49,7 @@ LogicalResult BroadcastPacketLowering::matchAndRewrite(
     auto broadcast = rewriter.create<AIE::BroadcastPacketOp>(
         rewriter.getUnknownLoc(), tile, bundle_attr, id_attr);
     auto broadcast_builder =
-        OpBuilder::atBlockEnd(&broadcast.ports().emplaceBlock());
+        OpBuilder::atBlockEnd(&broadcast.getPorts().emplaceBlock());
     buildBroadcastPacket(broadcast_builder, op, src);
     // }
   }
@@ -62,7 +62,7 @@ void BroadcastPacketLowering::buildBroadcastPacket(OpBuilder &builder,
                                                    StreamHubOp op,
                                                    StreamOp &src) const {
 
-  assert(src.tags().hasValue() && "broadcast packet requires tags");
+  assert(src.getTags().has_value() && "broadcast packet requires tags");
 
   // For each tag
   for (auto src_tag : getTags(src)) {
@@ -71,7 +71,8 @@ void BroadcastPacketLowering::buildBroadcastPacket(OpBuilder &builder,
     // AIE.bp_id(src_tag) {
     auto bp_id =
         builder.create<AIE::BPIDOp>(builder.getUnknownLoc(), bp_id_attr);
-    auto bp_id_builder = OpBuilder::atBlockEnd(&bp_id.ports().emplaceBlock());
+    auto bp_id_builder =
+        OpBuilder::atBlockEnd(&bp_id.getPorts().emplaceBlock());
     buildBpId(bp_id_builder, op, src, src_tag);
     // }
   }
@@ -84,7 +85,7 @@ void BroadcastPacketLowering::buildBpId(OpBuilder &builder, StreamHubOp op,
                                         StreamOp &src, int tag) const {
 
   // For each broadcast destination
-  for (auto dest_value : op.endpoints()) {
+  for (auto dest_value : op.getEndpoints()) {
 
     // skip input streams
     if (!dest_value.getType().isa<OStreamType>())
@@ -97,7 +98,7 @@ void BroadcastPacketLowering::buildBpId(OpBuilder &builder, StreamHubOp op,
     auto id = lowering->getId(dest);
     auto id_attr = builder.getI32IntegerAttr(id);
 
-    assert(dest.tags().hasValue() && "broadcast packet requires tags");
+    assert(dest.getTags().has_value() && "broadcast packet requires tags");
 
     // skip destinations that do not accept the tag
     if (!getTags(dest).count(tag))
@@ -115,7 +116,7 @@ void BroadcastPacketLowering::buildBpId(OpBuilder &builder, StreamHubOp op,
 static std::set<int> getTags(StreamOp &stream) {
   std::set<int> result;
 
-  for (auto tag_attr : stream.tags().getValue()) {
+  for (auto tag_attr : stream.getTags().value()) {
     result.insert(tag_attr.dyn_cast<IntegerAttr>().getValue().getSExtValue());
   }
 

@@ -73,6 +73,8 @@ public:
         {"count", 1},
     });
   }
+
+  virtual ~TargetResourcesBase() {}
 };
 
 } // namespace target

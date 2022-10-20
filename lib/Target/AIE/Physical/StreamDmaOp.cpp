@@ -39,7 +39,7 @@ public:
     mlir::LogicalResult result = success();
 
     auto tile = lowering->getTileIndex(op);
-    auto &connections = op.connections().front();
+    auto &connections = op.getConnections().front();
 
     if (TargetResources().isShimTile(tile.first, tile.second)) {
       result = rewriteBlock(op, &connections, lowering->getShimDma(tile));
@@ -59,9 +59,9 @@ public:
     std::map<StreamDmaConnectOp, mlir::Block *> connect_bd_blocks;
     std::list<mlir::Block *> bd_blocks;
 
-    auto &last_bd = dma.body().front();
-    auto &aie_end = dma.body().back();
-    auto stream = dyn_cast_or_null<StreamOp>(op.endpoint().getDefiningOp());
+    auto &last_bd = dma.getBody().front();
+    auto &aie_end = dma.getBody().back();
+    auto stream = dyn_cast_or_null<StreamOp>(op.getEndpoint().getDefiningOp());
     assert(stream &&
            "stream dma must directly refer to the stream definition.");
 
@@ -79,7 +79,7 @@ public:
 
     // Push DMA BD blocks to the front in the order
     for (auto it = bd_blocks.rbegin(); it != bd_blocks.rend(); it++) {
-      dma.body().push_front(*it);
+      dma.getBody().push_front(*it);
     }
 
     // Construct the DMA BD block
@@ -91,7 +91,7 @@ public:
     // Prepend and chain BDs
     // AIE.dmaStart("${engine/port}${id}", ^first_block, ^last_bd)
     auto chain_block = new mlir::Block();
-    dma.body().push_front(chain_block);
+    dma.getBody().push_front(chain_block);
     auto builder = OpBuilder::atBlockBegin(chain_block);
     builder.create<AIE::DMAStartOp>(builder.getUnknownLoc(),
                                     lowering->getChannel(op, stream),
@@ -106,7 +106,7 @@ public:
 
     auto builder = OpBuilder::atBlockBegin(bd_block);
 
-    auto phy_lock = dyn_cast_or_null<LockOp>(connect.lock().getDefiningOp());
+    auto phy_lock = dyn_cast_or_null<LockOp>(connect.getLock().getDefiningOp());
     assert(phy_lock &&
            "stream dma must directly refer to the lock definition.");
 
@@ -116,31 +116,33 @@ public:
 
     // AIE.useLock(%lock, Acquire, acquire())
     builder.create<AIE::UseLockOp>(builder.getUnknownLoc(), lock,
-                                   connect.acquire(), AIE::LockAction::Acquire);
+                                   connect.getAcquire(),
+                                   AIE::LockAction::Acquire);
 
     // AIE.dmaBdPacket(tag(), tag())
-    if (connect.tag().hasValue()) {
+    if (connect.getTag().has_value()) {
       builder.create<AIE::DMABDPACKETOp>(
           builder.getUnknownLoc(),
-          builder.getI32IntegerAttr(connect.tag().getValue()),
-          builder.getI32IntegerAttr(connect.tag().getValue()));
+          builder.getI32IntegerAttr(connect.getTag().value()),
+          builder.getI32IntegerAttr(connect.getTag().value()));
     }
 
     // AIE.dmaBd(<%buffer, start(), end() - start()>, 0)
     builder.create<AIE::DMABDOp>(
-        builder.getUnknownLoc(), connect.buffer(),
-        builder.getI32IntegerAttr(connect.start()),
-        builder.getI32IntegerAttr(connect.end() - connect.start()),
+        builder.getUnknownLoc(), connect.getBuffer(),
+        builder.getI32IntegerAttr(connect.getStart()),
+        builder.getI32IntegerAttr(connect.getEnd() - connect.getStart()),
         builder.getI32IntegerAttr(0));
 
     // AIE.useLock(%lock, Release, release())
     builder.create<AIE::UseLockOp>(builder.getUnknownLoc(), lock,
-                                   connect.release(), AIE::LockAction::Release);
+                                   connect.getRelease(),
+                                   AIE::LockAction::Release);
 
     // cf.br ^next
     auto next_bd_block = aie_end;
-    if (connect.next()) {
-      auto next_op = connect.next().getDefiningOp();
+    if (connect.getNext()) {
+      auto next_op = connect.getNext().getDefiningOp();
       auto next_connect = dyn_cast<StreamDmaConnectOp>(next_op);
       next_bd_block = connect_bd_blocks[next_connect];
     }

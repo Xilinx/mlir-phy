@@ -31,7 +31,7 @@ if(POLICY CMP0116)
   cmake_policy(SET CMP0116 OLD)
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 # If we are not building as a part of LLVM, build PHY as an
@@ -55,8 +55,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -fno-rtti")
   endif()
 
-  # Enable address sanitizer in debug mode
-  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  # Enable address sanitizer in santize mode
+  if (CMAKE_BUILD_TYPE STREQUAL "Sanitize")
     add_compile_options(-fsanitize=address)
     add_link_options(-fsanitize=address)
   endif()

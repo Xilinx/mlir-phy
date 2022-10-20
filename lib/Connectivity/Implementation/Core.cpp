@@ -58,7 +58,7 @@ llvm::SmallVector<Value> CoreImplementation::translateOperands() {
 StringRef CoreImplementation::translateFunction() {
 
   auto original_op = SymbolTable::lookupNearestSymbolFrom<func::FuncOp>(
-      node, StringAttr::get(node.getContext(), node.callee()));
+      node, StringAttr::get(node.getContext(), node.getCallee()));
   assert(original_op && "function must be defined");
   auto original_fn_type = original_op.getFunctionType();
   int original_num_inputs = original_fn_type.getNumInputs();
@@ -70,7 +70,7 @@ StringRef CoreImplementation::translateFunction() {
   assert(translated_op && "function cloned");
 
   // Set name to translated name
-  auto tranlated_name = context.getUniqueSymbol(node.callee(), node);
+  auto tranlated_name = context.getUniqueSymbol(node.getCallee(), node);
   translated_op.setName(tranlated_name);
 
   // Clone function type
@@ -130,7 +130,7 @@ void CoreImplementation::addSpatialOperation(Operation *spatial) {
     assert(!node && "a core can only hold a node");
     node = node_op;
   } else {
-    assert("a core can only implement a node");
+    assert(false && "a core can only implement a node");
   }
 }
 

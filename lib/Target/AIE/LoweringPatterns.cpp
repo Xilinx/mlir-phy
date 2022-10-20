@@ -67,7 +67,7 @@ static DMAOp getDmaGeneric(pair<int, int> index, mlir::ModuleOp module,
     auto dma = dmas[index] = builder.create<DMAOp>(
         builder.getUnknownLoc(), builder.getIndexType(), tile);
 
-    builder = OpBuilder::atBlockEnd(&dma.body().emplaceBlock());
+    builder = OpBuilder::atBlockEnd(&dma.getBody().emplaceBlock());
     builder.create<AIE::EndOp>(builder.getUnknownLoc());
   }
 

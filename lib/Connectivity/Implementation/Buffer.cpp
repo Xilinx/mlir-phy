@@ -21,16 +21,16 @@ mlir::Operation *BufferImplementation::createOperation() {
   auto builder = OpBuilder::atBlockEnd(context.module.getBody());
   return builder.create<physical::BufferOp>(
       builder.getUnknownLoc(),
-      queue.queue().getType().dyn_cast<spatial::QueueType>().getDatatype());
+      queue.getQueue().getType().dyn_cast<spatial::QueueType>().getDatatype());
 }
 
 void BufferImplementation::translateUserOperation(mlir::Value value,
                                                   mlir::Operation *user) {
 
   if (auto emplace = dyn_cast<spatial::EmplaceOp>(user)) {
-    emplace.result().replaceAllUsesWith(value);
+    emplace.getResult().replaceAllUsesWith(value);
   } else if (auto front = dyn_cast<spatial::FrontOp>(user)) {
-    front.result().replaceAllUsesWith(value);
+    front.getResult().replaceAllUsesWith(value);
   }
 }
 
@@ -39,7 +39,7 @@ void BufferImplementation::addSpatialOperation(mlir::Operation *spatial) {
     assert(!queue && "a buffer can only hold a queue");
     queue = queue_op;
   } else {
-    assert("a buffer can only implement a queue");
+    assert(false && "a buffer can only implement a queue");
   }
 }
 

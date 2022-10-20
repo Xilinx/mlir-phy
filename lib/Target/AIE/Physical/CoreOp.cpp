@@ -39,9 +39,9 @@ public:
     auto tile = lowering->getTile(op);
     auto core = rewriter.replaceOpWithNewOp<xilinx::AIE::CoreOp>(op, tile);
 
-    auto builder = OpBuilder::atBlockEnd(&core.body().emplaceBlock());
+    auto builder = OpBuilder::atBlockEnd(&core.getBody().emplaceBlock());
     auto callop = builder.create<func::CallOp>(
-        builder.getUnknownLoc(), op.callee(), TypeRange(), op.operands());
+        builder.getUnknownLoc(), op.getCallee(), TypeRange(), op.operands());
 
     auto endop = builder.create<AIE::EndOp>(builder.getUnknownLoc());
 

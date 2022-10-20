@@ -19,13 +19,12 @@ using namespace phy::target::aie;
 using namespace xilinx;
 
 class StreamOpToAieLowering : public OpConversionPattern<StreamOp> {
-  AIELoweringPatternSets *lowering;
   using OpAdaptor = typename StreamOp::Adaptor;
 
 public:
   StreamOpToAieLowering(mlir::MLIRContext *context,
                         AIELoweringPatternSets *lowering)
-      : OpConversionPattern<StreamOp>(context), lowering(lowering) {}
+      : OpConversionPattern<StreamOp>(context) {}
 
   mlir::LogicalResult
   matchAndRewrite(StreamOp op, OpAdaptor adaptor,

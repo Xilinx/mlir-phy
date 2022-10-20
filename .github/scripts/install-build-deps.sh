@@ -23,7 +23,7 @@ sudo -H python3 -m pip install psutil
 # install the selected llvm-clang-mlir-dev snapshot
 OS_DISTRIBUTER=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
 OS_RELEASE=$(lsb_release -rs)
-LLVM_VERSION="snapshot-20220706"
+LLVM_VERSION="snapshot-20220926"
 LLVM_URL="https://github.com/heterosys/llvm-nightly/releases/download/${LLVM_VERSION}/llvm-clang-mlir-dev-15.${OS_DISTRIBUTER}-${OS_RELEASE}.deb"
 TEMP_DEB="$(mktemp)" && wget -O "${TEMP_DEB}" ${LLVM_URL} && (sudo dpkg -i "${TEMP_DEB}" || sudo apt-get -yf install)
 rm -f "${TEMP_DEB}"

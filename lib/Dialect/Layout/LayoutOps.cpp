@@ -20,8 +20,8 @@ using namespace ::phy::layout;
 using namespace ::phy::spatial;
 
 LogicalResult RouteOp::verify() {
-  Type srcType = src().getType();
-  Type destType = dest().getType();
+  Type srcType = getSrc().getType();
+  Type destType = getDest().getType();
 
   if (srcType.isa<NodeType>() && destType.isa<NodeType>())
     return emitOpError("a node cannot be connected to a node using a flow");

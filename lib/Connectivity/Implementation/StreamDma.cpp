@@ -32,7 +32,7 @@ Operation *StreamDmaImplementation::createOperation() {
     stream_op = ostream.lock()->getOperation();
     acquire = 1, release = 0, result_index = 0 /* ostream */;
     // ostream may be tagged
-    tagged = dyn_cast<StreamOp>(stream_op).tags().hasValue();
+    tagged = dyn_cast<StreamOp>(stream_op).getTags().has_value();
 
   } else {
     stream_op = istream.lock()->getOperation();
@@ -45,7 +45,7 @@ Operation *StreamDmaImplementation::createOperation() {
   auto stream_dma =
       builder.create<StreamDmaOp>(builder.getUnknownLoc(), endpoint);
 
-  auto connection_block = &stream_dma.connections().emplaceBlock();
+  auto connection_block = &stream_dma.getConnections().emplaceBlock();
   auto dma_builder = OpBuilder::atBlockEnd(connection_block);
   StreamDmaConnectOp first_connect, previous_connect;
 
@@ -66,7 +66,7 @@ Operation *StreamDmaImplementation::createOperation() {
 
     // previous_connect = ..., connection)
     if (previous_connect)
-      previous_connect.nextMutable().assign(connection);
+      previous_connect.getNextMutable().assign(connection);
 
     if (!first_connect)
       first_connect = connection;
@@ -74,7 +74,7 @@ Operation *StreamDmaImplementation::createOperation() {
   }
 
   // last_connect = ..., first_connect)
-  previous_connect.nextMutable().assign(first_connect);
+  previous_connect.getNextMutable().assign(first_connect);
 
   // }
   dma_builder.create<EndOp>(builder.getUnknownLoc());

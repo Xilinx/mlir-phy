@@ -40,7 +40,7 @@ public:
     // AIE.useLock(%0, state, Release)
     rewriter.setInsertionPointAfter(lock);
     rewriter.create<xilinx::AIE::UseLockOp>(rewriter.getUnknownLoc(), lock,
-                                            op.state(),
+                                            op.getState(),
                                             xilinx::AIE::LockAction::Release);
 
     return success();
@@ -59,7 +59,7 @@ public:
   mlir::LogicalResult
   matchAndRewrite(LockAcquireOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
-    auto phy_lock = dyn_cast_or_null<LockOp>(op.lock().getDefiningOp());
+    auto phy_lock = dyn_cast_or_null<LockOp>(op.getLock().getDefiningOp());
     if (!phy_lock)
       return failure();
 
@@ -68,7 +68,7 @@ public:
 
     auto lock = lowering->getLock(tile, id);
     rewriter.replaceOpWithNewOp<xilinx::AIE::UseLockOp>(
-        op, lock, op.state(), xilinx::AIE::LockAction::Acquire);
+        op, lock, op.getState(), xilinx::AIE::LockAction::Acquire);
 
     return success();
   }
@@ -86,7 +86,7 @@ public:
   mlir::LogicalResult
   matchAndRewrite(LockReleaseOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
-    auto phy_lock = dyn_cast_or_null<LockOp>(op.lock().getDefiningOp());
+    auto phy_lock = dyn_cast_or_null<LockOp>(op.getLock().getDefiningOp());
     if (!phy_lock)
       return failure();
 
@@ -95,7 +95,7 @@ public:
 
     auto lock = lowering->getLock(tile, id);
     rewriter.replaceOpWithNewOp<xilinx::AIE::UseLockOp>(
-        op, lock, op.state(), xilinx::AIE::LockAction::Release);
+        op, lock, op.getState(), xilinx::AIE::LockAction::Release);
 
     return success();
   }

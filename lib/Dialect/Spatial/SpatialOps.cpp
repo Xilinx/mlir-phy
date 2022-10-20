@@ -25,7 +25,7 @@ LogicalResult NodeOp::verifySymbolUses(SymbolTableCollection &symbolTable) {
   func::FuncOp fn =
       symbolTable.lookupNearestSymbolFrom<func::FuncOp>(*this, fnAttr);
   if (!fn) {
-    return emitOpError() << "expected symbol reference " << callee()
+    return emitOpError() << "expected symbol reference " << getCallee()
                          << " to point to a function";
   }
 

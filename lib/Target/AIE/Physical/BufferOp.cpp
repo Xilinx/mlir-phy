@@ -35,12 +35,12 @@ public:
     if (auto address = op.getOperation()->getAttrOfType<StringAttr>(
             "aie.external_address")) {
       rewriter.replaceOpWithNewOp<xilinx::AIE::ExternalBufferOp>(
-          op, op.buffer().getType(), lexical_cast<long long>(address.str()));
+          op, op.getBuffer().getType(), lexical_cast<long long>(address.str()));
 
     } else {
       auto tile = lowering->getTile(op);
       rewriter.replaceOpWithNewOp<xilinx::AIE::BufferOp>(
-          op, op.buffer().getType(), tile);
+          op, op.getBuffer().getType(), tile);
     }
 
     return success();

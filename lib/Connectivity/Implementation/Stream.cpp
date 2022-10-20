@@ -27,7 +27,7 @@ Operation *StreamImplementation::createOperation() {
   auto tags_attr = ArrayAttr();
 
   if (streamHasTags()) {
-    llvm::SetVector<long> tags;
+    llvm::SetVector<int64_t> tags;
     for (auto flow : flows)
       tags.insert(context.getFlowTag(flow));
 
