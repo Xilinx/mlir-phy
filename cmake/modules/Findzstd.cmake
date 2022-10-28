@@ -1,9 +1,18 @@
-# - Find zstd
-# Find the zstd compression library and includes
-#
-# zstd_INCLUDE_DIRS - where to find zstd.h, etc.
-# zstd_LIBRARIES - List of libraries when using zstd.
-# zstd_FOUND - True if zstd found.
+##===- Findzstd.cmake - CFind zstd ----------------------------*- cmake -*-===//
+##
+## Find the zstd compression library and includes
+##
+## zstd_INCLUDE_DIRS - where to find zstd.h, etc.
+## zstd_LIBRARIES - List of libraries when using zstd.
+## zstd_FOUND - True if zstd found
+##
+## This file is licensed under the MIT License.
+## See https://llvm.org/LICENSE.txt for license information.
+## SPDX-License-Identifier: MIT
+##
+## Copyright (C) 2022, Advanced Micro Devices, Inc.
+##
+##===----------------------------------------------------------------------===//
 
 find_path(zstd_INCLUDE_DIRS
   NAMES zstd.h
